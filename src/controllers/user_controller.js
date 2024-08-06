@@ -156,6 +156,10 @@ const logoutUser = asyncHandler(async(req, res) => {
 
 })
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> a87de7d81b2d21db7bcf99460a4c3fe6d0968a99
 const refreshAccessToken = asyncHandler(async(req, res) => {
     try {
         const incomingRefreshToken = req.cookies.refreshToken || 
@@ -200,6 +204,7 @@ const refreshAccessToken = asyncHandler(async(req, res) => {
 
 })
 
+<<<<<<< HEAD
 const changeCurrentPassword = asyncHandler(async(req, res) => {
     const {oldPassword, newPassword} = req.body
 
@@ -304,14 +309,19 @@ const updateUserCoverImage = asyncHandler(async(req, res) => {
 
 })
 
+=======
+>>>>>>> a87de7d81b2d21db7bcf99460a4c3fe6d0968a99
 export {
     registerUser,
     loginUser,
     logoutUser,
     refreshAccessToken,
+<<<<<<< HEAD
     changeCurrentPassword,
     getCurrentUser,
     updateAccountDetails,
     updateUserAvatar,
     updateUserCoverImage,
+=======
+>>>>>>> a87de7d81b2d21db7bcf99460a4c3fe6d0968a99
 }
