@@ -5,13 +5,19 @@ import { useSelector } from 'react-redux';
 import ReactPlayer from 'react-player/lazy'
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
+import '../App.css';
 
 const VideoPlay = (props) => {
   const Minimize = useSelector((state) => state.MinimizeState);
+  const [isLoading, setIsLoading] = useState(true);
   const { VideoId } = useParams();
   const [VideoDetail, setVideoDetail] = useState([]);
   const [ShowDescription, setShowDescription] = useState(false);
   const [AllVideos, setAllVideos] = useState([]);
+  const [channelImageUrl, setChannelImageUrl] = useState('');
+  const [commentInput, setCommentInput] = useState('');
+  const [comments, setComments] = useState([]);
+
 
   const User = JSON.parse(localStorage.getItem('USER'));
 
@@ -24,21 +30,7 @@ const VideoPlay = (props) => {
       'Authorization': AccessToken,
       'Accept': 'application/json'
     };
-    axios.get(`http://localhost:8000/api/v1/videos/${VideoId}`, { headers })
-      .then((Data) => {
-        console.log(Data);
-        setVideoDetail(Data.data.data)
-      })
-  }, [VideoId])
 
-
-  useEffect(() => {
-    const AccessToken = (JSON.parse(localStorage.getItem('USER')))?.accessToken;
-    console.log(AccessToken);
-    const headers = {
-      'Authorization': AccessToken,
-      'Accept': 'application/json'
-    };
     axios.get("http://localhost:8000/api/v1/videos/", { headers })
       .then((videodata) => {
         const data = videodata?.data?.data.filter((video) => {
@@ -51,7 +43,119 @@ const VideoPlay = (props) => {
       .catch((err) => {
         console.log(err);
       })
+
+    axios.get(`http://localhost:8000/api/v1/videos/${VideoId}`, { headers })
+      .then((Data) => {
+        try {
+          if (Data?.data?.data?._id === VideoId) {
+            setVideoDetail(Data.data.data);
+            setIsLoading(false);
+            console.log(VideoDetail);
+          }
+          else {
+            setVideoDetail(Data?.data?.data?.items[0]);
+            setIsLoading(false);
+            console.log(VideoDetail);
+          }
+        } catch (error) {
+          console.log("Error", error);
+
+        }
+      })
+
+
+    axios.get(`http://localhost:8000/api/v1/comments/${VideoId}`, { headers })
+      .then((response) => {
+        if (response.data.success) {
+          setComments(response.data.data);
+        } else {
+          console.error('Error: Response data indicates failure', response.data);
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching comments:', error);
+      });
+
   }, [VideoId])
+
+  useEffect(() => {
+    const fetchChannelImage = async () => {
+      if (VideoDetail?.id) {
+        try {
+          const url = await getYTchannelInfo(VideoDetail.snippet.channelId);
+          setChannelImageUrl(url);
+        } catch (error) {
+          console.error('Error fetching channel image:', error);
+        }
+      }
+    };
+
+    fetchChannelImage();
+  }, [VideoDetail]);
+
+
+  const getYTchannelInfo = async (channelId) => {
+    try {
+      const response = await axios.get(`https://youtube.googleapis.com/youtube/v3/channels?part=snippet%2CcontentDetails%2Cstatistics&id=UCkS7Vxu4PjM99w0Is6idjcg&key=AIzaSyDpicnbroQi7p8Sp0zbeQv91n-elyXVeD8`);
+      const url = response?.data?.items[0]?.snippet?.thumbnails?.high?.url;
+      console.log(url);
+      return url;
+    } catch (error) {
+      console.error('Error fetching channel info:', error);
+      return null;
+    }
+  };
+
+  const formatCount = (count) => {
+    if (count < 1000) return count;
+    if (count <= 1000000) return (count / 1000).toFixed(1) + ' K';
+    if (count <= 1000000000) return (count / 1000000).toFixed(1) + ' M';
+    return (count / 1000000000).toFixed(1) + ' B';
+  };
+
+  const handleLike = async () => {
+    try {
+      const AccessToken = (JSON.parse(localStorage.getItem('USER'))).accessToken;
+      const headers = {
+        'Authorization': AccessToken,
+        'Accept': 'application/json'
+      };
+      const response = await axios.patch(`http://localhost:8000/api/v1/likes/toggle/v/${VideoId}`, {}, { headers });
+      if (response.data.success) {
+        setVideoDetail((prevDetail) => ({
+          ...prevDetail,
+          isLiked: !prevDetail.isLiked,
+          totalLikes: prevDetail.isLiked ? prevDetail.totalLikes - 1 : prevDetail.totalLikes + 1,
+        }));
+      }
+    } catch (error) {
+      console.error('Error toggling like:', error);
+    }
+  };
+
+  const handleComment = async (commentText) => {
+    try {
+      const AccessToken = (JSON.parse(localStorage.getItem('USER'))).accessToken;
+      const headers = {
+        'Authorization': AccessToken,
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      };
+      const response = await axios.post(
+        `http://localhost:8000/api/v1/comments/${VideoDetail?._id}`,
+        { "content": commentText },
+        { headers }
+      );
+      if (response.data.success) {
+        setComments((prevComments) => [response.data.data, ...prevComments]);
+        setCommentInput('');
+      } else {
+        console.error('Error: Response data indicates failure', response.data);
+      }
+    } catch (error) {
+      console.error('Error posting comment:', error);
+    }
+  };
 
 
   return (
@@ -66,20 +170,58 @@ const VideoPlay = (props) => {
             controls>
             <source src={`${VideoDetail?.videoFile}`} type="video/mp4" />
             </video> */}
-
-          <ReactPlayer className="max-h-[480px] min-h-[365px]" style={{ backgroundColor: "black", borderRadius: "8px" }} loop={true} width="853px"
-            height="100%" controls={true}
-            light={<img style={{ borderRadius: "8px" }} width="853px" height="480px"
-              src={`${VideoDetail?.thumbnail}`} alt='thumnail' />}
-            playing={true}
-            playbackRate={1} pip={true} stopOnUnmount={true}
-            url={`${VideoDetail?.videoFile}`}
-          />
+          {VideoDetail?.id ?
+            <div className="relative w-[853px] max-h-[480px] min-h-[365px] h-full">
+              {isLoading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                  <div className="loader"></div>
+                </div>
+              )}
+              <ReactPlayer
+                className="max-h-[480px] min-h-[365px]"
+                style={{ backgroundColor: "black", borderRadius: "8px" }}
+                loop={true}
+                width="853px"
+                height="100%"
+                controls={true}
+                light={<img className='max-h-[480px] min-h-[365px]  h-full' style={{ borderRadius: "8px" }} width="853px" src={`${VideoDetail?.snippet?.thumbnails?.maxres?.url || VideoDetail?.snippet?.thumbnails?.standard?.url}`} alt='thumbnail' />}
+                playing={true}
+                playbackRate={1}
+                pip={true}
+                stopOnUnmount={true}
+                url={`https://www.youtube.com/embed/${VideoDetail?.id}?autoplay=0&mute=0&showinfo=0`}
+                onReady={() => setIsLoading(false)}
+              />
+            </div>
+            :
+            <div className="relative w-[853px] max-h-[480px] min-h-[365px] h-full">
+              {isLoading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                  <div className="loader"></div>
+                </div>
+              )}
+              <ReactPlayer
+                className="max-h-[480px] min-h-[365px]"
+                style={{ backgroundColor: "black", borderRadius: "8px" }}
+                loop={true}
+                width="853px"
+                height="100%"
+                controls={true}
+                light={<img style={{ borderRadius: "8px" }} width="853px" height="480px" src={`${VideoDetail?.thumbnail}`} alt='thumbnail' />}
+                playing={true}
+                playbackRate={1}
+                pip={true}
+                stopOnUnmount={true}
+                url={`${VideoDetail?.videoFile}`}
+                onReady={() => setIsLoading(false)}
+              />
+            </div>
+          }
 
           <div className="VideoInfo">
             <div className="videotitle">
               <h1>{
-                VideoDetail?.title
+                VideoDetail?.snippet ? VideoDetail?.snippet?.title : VideoDetail?.title
                 // VideoDetail?.title.length > 74 ? VideoDetail?.title.slice(0, 72) + "..." : VideoDetail?.title
               }</h1>
             </div>
@@ -87,12 +229,15 @@ const VideoPlay = (props) => {
             <div className="videoCredentials">
               <div className="channel_info">
                 <a>
-                  <img src={VideoDetail?.owner?.avatar} alt="" />
+                  <img
+                    src={VideoDetail?.id ? channelImageUrl : VideoDetail?.owner?.avatar}
+                    alt=""
+                  />
                 </a>
                 <a>
                   <div className="channel_name_and_subscribers">
                     <span>
-                      {VideoDetail?.owner?.username}
+                      {VideoDetail?.owner?.username ? VideoDetail?.owner?.username : VideoDetail?.snippet?.channelTitle}
                       <img src="/images/tick.svg" alt="" />
                     </span>
                     <span>
@@ -108,14 +253,20 @@ const VideoPlay = (props) => {
               </div>
               <div className="funtionbuttons">
                 <div className="likeanddislike">
-                  <button className="likebutton pr-2">
-                    <img src="/images/Liked.svg" alt="" />
+                  <button className="likebutton pr-2 flex flex-grow"
+                    onClick={handleLike}>
+
+                    {VideoDetail?.isLiked ?
+                      <img src="/images/Liked.svg" alt="" />
+                      :
+                      <img src="/images/unlike.svg" alt="" />
+                    }
                     <span>
-                      3.9M
+                      {(VideoDetail?.totalLikes && formatCount(VideoDetail?.totalLikes)) || 0}
                     </span>
                   </button>
                   <div className="h-5 bg-white w-[1px]"></div>
-                  <div className="dislikebutton">
+                  <div className="dislikebutton flex flex-grow">
                     <img className='invert ' src="/images/DisLike.svg" alt="" />
                   </div>
                 </div>
@@ -137,7 +288,7 @@ const VideoPlay = (props) => {
             </div>
 
             <div className="DescriptionBox">
-              <div className="px-[16px] pt-[16px] flex info">
+              <div className="px-[16px] py-[16px] flex info">
                 <span className=" leading-[20px] font-bold text-[14px] text-[#f1f1f1] views">
                   116,567,794 views
                 </span>
@@ -147,11 +298,14 @@ const VideoPlay = (props) => {
               </div>
               {ShowDescription ?
                 <>
-                  <pre>{VideoDetail?.description}</pre>
-                  <span onClick={() => ShowDescription === true ? setShowDescription(false) : null} className="px-[16px] pb-[12px] cursor-pointer leading-[20px] text-[14px] font-bold ">Show less</span>
+                  <pre>{VideoDetail?.description ? VideoDetail?.description : VideoDetail?.snippet?.description}</pre>
+                  <span onClick={() => ShowDescription === true ? setShowDescription(false) : null} className="px-[16px] pt-[12px] cursor-pointer leading-[20px] text-[14px] font-bold ">Show less
+                    <br />
+                    <br />
+                  </span>
                 </>
                 :
-                <pre>{(VideoDetail?.description)?.slice(0, 92)}
+                <pre>{(VideoDetail?.description ? VideoDetail?.description : VideoDetail?.snippet?.description)?.slice(0, 92)}
                   <span onClick={() => ShowDescription === false ? setShowDescription(true) : null} className="span cursor-pointer leading-[20px] text-[14px] font-bold ">   ...more</span>
                 </pre>
               }
@@ -160,7 +314,7 @@ const VideoPlay = (props) => {
             <div className="CommentSection">
               <div className="commentheader flex items-center py-4">
                 <h3 className='leading-[28px] font-bold text-[20px] text-[#f1f1f1]'>
-                  262 Comments
+                  {comments.length} Comments
                 </h3>
                 <div className="sortby cursor-pointer ml-6 flex items-center font-[500] text-[14px] leading-[22px] text-[#f1f1f1]">
                   <img className='invert mr-2' src="/images/Sortby.svg" alt="" />
@@ -172,16 +326,19 @@ const VideoPlay = (props) => {
                 <img className='rounded-full absolute top-1 w-[40px] h-[40px] mr-4' src={User?.user?.avatar} alt="" />
                 {/* </div> */}
                 <div className="textarea ml-[50px] w-full mb-4">
-                  <textarea className='w-[99%] bg-transparent outline-none ' placeholder="Add a comment..." />
+                  <textarea onChange={(e) => {
+                    setCommentInput(e.target.value)
+                    console.log(e.target.value);
+                  }} value={commentInput} className='w-[99%] bg-transparent outline-none ' placeholder="Add a comment..." />
                   <div className="commentfuntionbuttons flex items-center justify-between">
                     <button className="emoji">
                       <img className='invert' src="/images/Emoji.svg" alt="" />
                     </button>
                     <div className="">
-                      <button className="cancle hover:bg-[#282828] px-[10px] rounded-[18px] mr-6 leading-[36px] font-[600] text-[14px] text-[#f1f1f1]">
+                      <button onClick={() => { setCommentInput("") }} className="cancle hover:bg-[#282828] px-[10px] rounded-[18px] mr-6 leading-[36px] font-[600] text-[14px] text-[#f1f1f1]">
                         Cancle
                       </button>
-                      <button className="commentpost mr-[10px] leading-[36px] text-[14px] font-[600] text-[#0f0f0f] 
+                      <button onClick={() => { handleComment(commentInput) }} className="commentpost mr-[10px] leading-[36px] text-[14px] font-[600] text-[#0f0f0f] 
                             hover:bg-[#65B8FF] bg-[#3ea6ff]  w-[93px] h-[36px] rounded-[18px]">
                         Comment
                       </button>
@@ -190,19 +347,21 @@ const VideoPlay = (props) => {
                 </div>
               </div>
               <ul className="comments">
-                <li className='comment'>
-                  <div className="profileimg">
-                    <img src="" alt="" />
-                  </div>
-                  <div className="commentdata">
-                    <pre>
+                {comments.map((comment) => (
+                  <li className='comment flex mt-4'>
+                    <div className="profileimg ">
+                      <img className='rounded-full top-1 w-[40px] h-[40px] mr-4' src={comment?.owner?.avatar} alt="" />
+                    </div>
+                    <div className="commentdata">
+                      <pre>
+                        {comment?.content}
+                      </pre>
+                    </div>
+                    <div className="reportoption">
 
-                    </pre>
-                  </div>
-                  <div className="reportoption">
-
-                  </div>
-                </li>
+                    </div>
+                  </li>
+                ))}
               </ul>
             </div>
 

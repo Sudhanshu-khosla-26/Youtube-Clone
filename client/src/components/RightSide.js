@@ -1,12 +1,15 @@
 import styled from 'styled-components';
-import React, { useEffect }  from 'react'
+import React, { useEffect } from 'react'
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import { useState } from 'react';
+import moment from 'moment';
 
 const RightSide = (props) => {
   const [AllVideos, setAllVideos] = useState([]);
+  const [YTAPIVIDEOS, setYTAPIVIDEOS] = useState([]);
   const Minimize = useSelector((state) => state.MinimizeState);
+  const [channelImages, setChannelImages] = useState({});
 
   const User = JSON.parse(localStorage.getItem('USER'));
 
@@ -15,149 +18,252 @@ const RightSide = (props) => {
     const AccessToken = (JSON.parse(localStorage.getItem('USER')))?.accessToken;
     console.log(AccessToken);
     const headers = {
-      'Authorization':AccessToken,
+      'Authorization': AccessToken,
       'Accept': 'application/json'
     };
-    axios.get("http://localhost:8000/api/v1/videos/", {headers})
-    .then((videodata)=>{
-      setAllVideos(videodata.data.data)
-      console.log(videodata);
-    })
-    .catch((err)=>{
-      console.log(err);
-    })
+    axios.get("http://localhost:8000/api/v1/videos/", { headers })
+      .then((videodata) => {
+        setAllVideos(videodata.data.data)
+        // console.log(videodata);
+      })
+      .catch((err) => {
+        // console.log(err);
+      })
+
+    axios.get("https://youtube.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&chart=mostPopular&maxResults=300&regionCode=IN&key=AIzaSyDpicnbroQi7p8Sp0zbeQv91n-elyXVeD8")
+      .then((videos) => {
+        setYTAPIVIDEOS(videos.data.items)
+        // console.log(videos.data.items);
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+
   }, [])
-  
 
-    // useEffect(() => {
-  //   const AccessToken = (JSON.parse(localStorage.getItem('USER')))?.accessToken;
-  //   console.log(AccessToken);
-  //   const headers = {
-  //     'Authorization':AccessToken,
-  //     'Accept': 'application/json'
-  //   };
-  //   axios.get("http://localhost:8000/api/v1/dashboard/videos", {headers})
-  //   .then((videodata)=>{
-  //     setAllVideos(videodata.data.data)
-  //     // console.log(videodata);
-  //   })
-  //   .catch((err)=>{
-  //     console.log(err);
-  //   })
-  // }, [])
-  
-  
+
+  const getYTchannelInfo = async (channelId) => {
+    try {
+      const response = await axios.get(`https://youtube.googleapis.com/youtube/v3/channels?part=snippet%2CcontentDetails%2Cstatistics&id=${channelId}&key=AIzaSyDpicnbroQi7p8Sp0zbeQv91n-elyXVeD8`);
+      const url = response?.data?.items[0]?.snippet?.thumbnails?.high?.url;
+      console.log(url);
+      return url;
+    } catch (error) {
+      console.error('Error fetching channel info:', error);
+      return null;
+    }
+  };
+
+  useEffect(() => {
+    const fetchChannelImages = async () => {
+      const images = {};
+      for (const data of YTAPIVIDEOS) {
+        if (data?.snippet?.channelId) {
+          try {
+            const url = await getYTchannelInfo(data.snippet.channelId);
+            images[data.snippet.channelId] = url;
+          } catch (error) {
+            console.error('Error fetching channel image:', error);
+          }
+        }
+      }
+      setChannelImages(images);
+      // console.log(channelImages);
+    };
+
+    if (YTAPIVIDEOS.length > 0) {
+      fetchChannelImages();
+    }
+
+  }, [YTAPIVIDEOS]);
+
+  const formatViewCount = (count) => {
+    if (count < 1000) return count;
+    if (count <= 1000000) return (count / 1000).toFixed(1) + ' K';
+    if (count <= 1000000000) return (count / 1000000).toFixed(1) + ' M';
+    return (count / 1000000000).toFixed(1) + ' B';
+  };
+
+  const timeAgo = (date) => {
+    const now = moment();
+    const inputDate = moment(date);
+    const diffInSeconds = now.diff(inputDate, 'seconds');
+
+    if (diffInSeconds < 60) {
+      return 'now';
+    } else if (diffInSeconds < 3600) {
+      const minutes = Math.floor(diffInSeconds / 60);
+      return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+    } else if (diffInSeconds < 86400) {
+      const hours = Math.floor(diffInSeconds / 3600);
+      return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+    } else if (diffInSeconds < 2592000) {
+      const days = Math.floor(diffInSeconds / 86400);
+      return `${days} day${days > 1 ? 's' : ''} ago`;
+    } else if (diffInSeconds < 31536000) {
+      const months = Math.floor(diffInSeconds / 2592000);
+      return `${months} month${months > 1 ? 's' : ''} ago`;
+    } else {
+      const years = Math.floor(diffInSeconds / 31536000);
+      return `${years} year${years > 1 ? 's' : ''} ago`;
+    }
+  };
+
+  const videoViewUpdate = (VideoId) => {
+    const AccessToken = (JSON.parse(localStorage.getItem('USER'))).accessToken;
+    const headers = {
+      'Authorization': AccessToken,
+      'Accept': 'application/json'
+    };
+    console.log(VideoId);
+    axios.patch(`http://localhost:8000/api/v1/videos/view/${VideoId}`, {}, { headers })
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+
   return (
-      <Container Minimize={Minimize}>
-      {User ? 
-      <>
-      <div className="tags">
-        <button className='active'>
-          All
-        </button>
-        <button>
-          Music
-        </button>
-        <button>
-          Disha Vakani
-        </button>
-        <button>
-          Mixes
-        </button>
-        <button>
-          Indian pop music
-        </button>
-        <button>
-        Sketch comedy 
-        </button>
-        <button>
-         Roasts
-        </button>
-        <button>
-          Gaming
-        </button>
-        <button>
-         Podcasts
-        </button>
-        <button>
-         T-Series
-        </button>
-        <button>
-          Live
-        </button>
-        <button>
-          Movie musicals
-        </button>
-        <button>
-          Telenovelas
-        </button>
-        <button>
-          Thrillers
-        </button>
-        <button>
-          Cars
-        </button>
-        <button>
-          Presentations
-        </button>
-        <button>
-          Motorcycles
-        </button>
-        <button>
-          Action-adventure games
-          </button>
-            <button>
-            Recently uploaded
+    <Container Minimize={Minimize}>
+      {User ?
+        <>
+          <div className="tags">
+            <button className='active'>
+              All
             </button>
-              <button>
-                Watched
-              </button>
-              <button>
-                New to you
-              </button>
-      </div>
-      
-      <ul>
-        {AllVideos.length > 0 && AllVideos.map((Data) => (
-        <a href={`/watch/${Data._id}`}>
-        <li>
-          <img src={Data.thumbnail} alt="" />
-          <div className="videoInfo">
-            <img src={Data.details.avatar} alt="" />
-            <div className="Info">
-            <div className="title">
-              <span>{Data.title.length > 74 ? Data.title.slice(0, 72) + "..." : Data.title}</span>
-              <img src="/images/tripledot.svg" alt="" />
-            </div>
-            <div className="channelname">
-              <span>
-                {Data.details.username}
-                <img src="/images/tick.svg" alt="" />
-              </span>
-            </div>
-            <span className='viewAndTime'> 
-              7.5M views • 22 hours ago  
-            </span>
+            <button>
+              Music
+            </button>
+            <button>
+              Disha Vakani
+            </button>
+            <button>
+              Mixes
+            </button>
+            <button>
+              Indian pop music
+            </button>
+            <button>
+              Sketch comedy
+            </button>
+            <button>
+              Roasts
+            </button>
+            <button>
+              Gaming
+            </button>
+            <button>
+              Podcasts
+            </button>
+            <button>
+              T-Series
+            </button>
+            <button>
+              Live
+            </button>
+            <button>
+              Movie musicals
+            </button>
+            <button>
+              Telenovelas
+            </button>
+            <button>
+              Thrillers
+            </button>
+            <button>
+              Cars
+            </button>
+            <button>
+              Presentations
+            </button>
+            <button>
+              Motorcycles
+            </button>
+            <button>
+              Action-adventure games
+            </button>
+            <button>
+              Recently uploaded
+            </button>
+            <button>
+              Watched
+            </button>
+            <button>
+              New to you
+            </button>
           </div>
-            </div>
-        </li>
-        </a>
-        ))}
 
-      </ul>
-      </>
+          <ul>
+            {AllVideos.length > 0 && AllVideos.map((Data) => (
+              <a href={`/watch/${Data._id}`} key={Data._id}
+                onClick={() => { videoViewUpdate(Data._id) }}
+              >
+                <li>
+                  <img src={Data.thumbnail} alt="" />
+                  <div className="videoInfo">
+                    <img src={Data.details.avatar} alt="" />
+                    <div className="Info">
+                      <div className="title">
+                        <span>{Data.title.length > 74 ? Data.title.slice(0, 72) + "..." : Data.title}</span>
+                        <img src="/images/tripledot.svg" alt="" />
+                      </div>
+                      <div className="channelname">
+                        <span>
+                          {Data.details.username}
+                          <img src="/images/tick.svg" alt="" />
+                        </span>
+                      </div>
+                      <span className='viewAndTime'>
+                        {formatViewCount(Data.views)} views • {timeAgo(Data.createdAt)}
+                      </span>
+                    </div>
+                  </div>
+                </li>
+              </a>
+            ))}
 
-: 
 
-    <>
-        <div className="MessageBox">
+            {YTAPIVIDEOS.length > 0 && YTAPIVIDEOS.map((Data, index) => (
+              <a href={`/watch/${Data.id}`} key={index}>
+                <li className=' '>
+                  <img src={Data?.snippet?.thumbnails?.maxres?.url || Data?.snippet?.thumbnails?.standard?.url} alt="" />
+                  <div className="videoInfo">
+                    <img src={channelImages[Data.snippet.channelId]} alt="Channel" />
+                    <div className="Info">
+                      <div className="title">
+                        <span>{Data.snippet.title.length > 74 ? Data.snippet.title.slice(0, 72) + "..." : Data.snippet.title}</span>
+                        <img src="/images/tripledot.svg" alt="" />
+                      </div>
+                      <div className="channelname">
+                        <span>
+                          {Data?.snippet?.channelTitle}
+                          <img src="/images/tick.svg" alt="" />
+                        </span>
+                      </div>
+                      <span className='viewAndTime'>
+                        {formatViewCount(Data?.statistics?.viewCount)} views • {timeAgo(Data?.snippet?.publishedAt)}                      </span>
+                    </div>
+                  </div>
+                </li>
+              </a>
+            ))}
+
+          </ul>
+        </>
+
+        :
+
+        <>
+          <div className="MessageBox">
             <h2>Try searching to get started</h2>
             <h4>Start watching videos to help us build a feed of videos you'll love.</h4>
-        </div>    
-    </>
+          </div>
+        </>
 
-}
-</Container>
+      }
+    </Container >
   )
 }
 
@@ -294,9 +400,9 @@ const Container = styled.div`
             }
 
             .viewAndTime{
-                color: #949494;
-                cursor: pointer;
+                color: #949494;           
                 font-weight: 400;
+                cursor: pointer;
                 font-size: 14px;
                 line-height: 20px;
             }
@@ -342,7 +448,7 @@ const Container = styled.div`
 }
 
 
-  ${props => props.Minimize===false && `
+  ${props => props.Minimize === false && `
       left: 72px !important;
       width: 92vw !important;
       ul > a{

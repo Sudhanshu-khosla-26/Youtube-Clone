@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { useDispatch } from 'react-redux';
 import { toggleBoolean } from '../features/Sidebar';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import PostModal from './PostModal';
 
 const Navbar = (props) => {
@@ -19,9 +19,9 @@ const Navbar = (props) => {
     dispatch(toggleBoolean());
   };
 
-  const LogOut = async() => {
-    
-    
+  const LogOut = async () => {
+
+
     try {
       const response = await axios.post('http://localhost:8000/api/v1/users/logout', {}, {
         headers: {
@@ -38,17 +38,17 @@ const Navbar = (props) => {
       console.error('Error logging out:', error.response ? error.response.data : error.message);
     }
 
-// try {
-//       axios.post("http://localhost:8000/api/v1/users/logout", User).then((response) => {
-//         console.log(response);
-//         localStorage.removeItem('USER');
-//         navigate("/v3/Signin")
-//       }).catch((err)=>{
-//         console.log(err.message);
-//       })
-// } catch (error) {
-//   console.log(error);
-// }
+    // try {
+    //       axios.post("http://localhost:8000/api/v1/users/logout", User).then((response) => {
+    //         console.log(response);
+    //         localStorage.removeItem('USER');
+    //         navigate("/v3/Signin")
+    //       }).catch((err)=>{
+    //         console.log(err.message);
+    //       })
+    // } catch (error) {
+    //   console.log(error);
+    // }
   }
 
   const handleClick = (e) => {
@@ -72,299 +72,302 @@ const Navbar = (props) => {
   };
 
   return (
-    
+
     <>
-    <Container>
-      <div className="LeftSideSections">
-      <div className="menubutton" onClick={()=> {
-        handleToggle()
-        // Minimize === true? setMinimize(false) : setMinimize(true);  
-      }}>
-        <img src="/images/hamburger-menu.svg" alt="" />
-      </div>
-      <div className="yotubelogo">
-      <img src="/images/youtube.svg" alt="" />
-        {/* <img src="/images/logo4.0.png" alt="" /> */}
-        <span>
-          IN
-        </span>
-      </div>
-      </div>
+      <Container>
+        <div className="LeftSideSections">
+          <div className="menubutton" onClick={() => {
+            handleToggle()
+            // Minimize === true? setMinimize(false) : setMinimize(true);  
+          }}>
+            <img src="/images/hamburger-menu.svg" alt="" />
+          </div>
+          <div className="yotubelogo">
+            <Link to='/'>
 
-      <div className="MiddleSections">
-        <div className="searchbox">
-        <form>
-          <div className='Yt-icon'>
-              <img src="" alt="" />
+              <img src="/images/youtube.svg" alt="" />
+              {/* <img src="/images/logo4.0.png" alt="" /> */}
+              <span>
+                IN
+              </span>
+            </Link>
           </div>
-          <div className="search-input">
-            <input placeholder='Search' type="text" />
-          </div>
-          <button className="search">
-            <img src="/images/search.svg" alt="" />
-          </button>
-        </form>
         </div>
 
-        <button className="voiceicon">
-          <img src="/images/voice-search-icon.svg" alt="" />
-        </button>
-
-      </div>
-      {User ?
-      <div className="LastSections">
-        <div className="upload">
-        <button  onClick={()=> showUplaodbox? setshowUplaodbox(false) : setshowUplaodbox(true)}>
-          <img src="/images/upload.svg" alt="" />
-        </button>
-            {showUplaodbox && <div className="createbox">
-              <ul>
-                <li onClick={handleClick}>
-                  <img src="/images/yourvideos.svg" alt="" />
-                  Upload video
-                </li>
-                <li>
-                  <img src="/images/Live.svg" alt="" />
-                  Go live
-                </li>
-                <li>
-                  <img src="/images/createpost.svg" alt="" />
-                  Create post
-                </li>
-              </ul>
-            </div>}
-        </div>
-        <button className="notifications">
-          <img src="/images/notifications.svg" alt="" />
-        </button>
-        <div className="relative userbox">
-          <img  onClick={()=> {ShowSeetingsBox ? setShowSeetingsBox(false) : setShowSeetingsBox(true)}} src="/images/my photo.jpg" alt="" />
-          {ShowSeetingsBox && <div className="functionbox">
-          <ul>
-
-            <li style={{padding: "8px 16px 16px 16px", gap: '20px', marginTop: "0", backgroundColor: "transparent"}} >
-              <img style={{filter: "invert(0) ",width: "40px", height: "40px", marginBottom: "30px"}} className='rounded-full' src={User?.user?.avatar} alt="" />
-              <div className="flex flex-1 flex-col items-start">
-                <span className='cursor-default leading-[22px] text-[16px] font-[400]'>
-                  {User?.user?.fullName}
-                </span>
-                <span className="cursor-default leading-[22px] text-[16px] font-[400]">
-                  @{User?.user?.username}
-                </span>
-                <a href="#" style={{color: "rgb(62, 166, 255)", margin: "8px 0 0 0 "}} className=' leading-[20px] text-[14px] font-[400]'>
-                  View your channel
-                </a>
+        <div className="MiddleSections">
+          <div className="searchbox">
+            <form>
+              <div className='Yt-icon'>
+                <img src="" alt="" />
               </div>
-            </li>
+              <div className="search-input">
+                <input placeholder='Search' type="text" />
+              </div>
+              <button className="search">
+                <img src="/images/search.svg" alt="" />
+              </button>
+            </form>
+          </div>
 
-          <hr style={{
-            height: "0.6px",
-            width: "-webkit-fill-available",
-            backgroundColor: "#3d3d3d",
-            opacity: "0.18",
-            margin: "6px 0 6px 0"
-    }}></hr>
-
-            <li>
-              <img src="/images/Google-account.svg" alt="" />
-              <span>Google Account</span>
-            </li>
-
-            <li>
-              <img src="/images/Switch-account.svg" alt="" />
-              <span>Switch account</span>
-              <img src="/images/arrow-right.svg" alt="" />
-            </li>
-
-            <li onClick={LogOut} >
-              <img src="/images/Sign-out.svg" alt="" />
-              <span>Sign out</span>
-            </li>
-
-          <hr style={{
-            height: "0.6px",
-            width: "-webkit-fill-available",
-            backgroundColor: "#3d3d3d",
-            opacity: "0.18",
-            margin: "6px 0 6px 0"
-    }}></hr>
-
-          <li>
-              <img src="/images/Youtube-premeim.-setting.svg" alt="" />
-              <span>YouTube Studio</span>
-            </li>
-            <li>
-              <img src="/images/YourData.svg" alt="" />
-              <span>Purchases and memberships</span>
-            </li>
-
-          <hr style={{
-            height: "0.6px",
-            width: "-webkit-fill-available",
-            backgroundColor: "#3d3d3d",
-            opacity: "0.18",
-            margin: "6px 0 6px 0"
-    }}></hr>
-
-            <li>
-              <img src="/images/YourData.svg" alt="" />
-              <span>Your data in YouTube</span>
-            </li>
-            <li>
-              <img src="/images/theme.svg" alt="" />
-              <span>Appearance: Device theme</span>
-              <img src="/images/arrow-right.svg" alt="" />
-            </li>
-            <li>
-              <img src="/images/Language.svg" alt="" />
-              <span>Language: English</span>
-              <img src="/images/arrow-right.svg" alt="" />
-            </li>
-            <li>
-              <img src="/images/Restriction.svg" alt="" />
-              <span>Restricted Mode: Off</span>
-              <img src="/images/arrow-right.svg" alt="" />
-            </li>
-            <li>
-              <img src="/images/Location.svg" alt="" />
-              <span>Location: India</span>
-              <img src="/images/arrow-right.svg" alt="" />
-              </li>
-            <li>
-              <img src="/images/Keyboard-shortcuts.svg" alt="" />
-              <span>Keyboard shortcuts</span>
-            </li>
-          </ul>
-
-          <hr style={{
-            height: "0.6px",
-            width: "-webkit-fill-available",
-            backgroundColor: "#3d3d3d",
-            opacity: "0.18",
-            margin: "0px 0 0px 0"
-    }}></hr>
-
-    <ul style={{margin: "6px 0"}}>
-      <li>
-        <img src="/images/Setting.svg" alt="" />
-        Settings
-      </li>
-    </ul>
-
-    
-    <hr style={{
-            height: "0.6px",
-            width: "-webkit-fill-available",
-            backgroundColor: "#3d3d3d",
-            opacity: "0.18",
-            margin: "0px 0 6px 0"
-    }}></hr>
-
-    <ul>
-      <li>
-        <img src="/images/Help.svg" alt="" />
-        Help
-        </li>
-      <li>
-        <img src="/images/Send-feedback.svg" alt="" />
-        Send feedback
-        </li>
-    </ul>
+          <button className="voiceicon">
+            <img src="/images/voice-search-icon.svg" alt="" />
+          </button>
 
         </div>
-}
-          {/* <div className="absolute bg-gray-600 w-24 h-8">
+        {User ?
+          <div className="LastSections">
+            <div className="upload">
+              <button onClick={() => showUplaodbox ? setshowUplaodbox(false) : setshowUplaodbox(true)}>
+                <img src="/images/upload.svg" alt="" />
+              </button>
+              {showUplaodbox && <div className="createbox">
+                <ul>
+                  <li onClick={handleClick}>
+                    <img src="/images/yourvideos.svg" alt="" />
+                    Upload video
+                  </li>
+                  <li>
+                    <img src="/images/Live.svg" alt="" />
+                    Go live
+                  </li>
+                  <li>
+                    <img src="/images/createpost.svg" alt="" />
+                    Create post
+                  </li>
+                </ul>
+              </div>}
+            </div>
+            <button className="notifications">
+              <img src="/images/notifications.svg" alt="" />
+            </button>
+            <div className="relative userbox">
+              <img onClick={() => { ShowSeetingsBox ? setShowSeetingsBox(false) : setShowSeetingsBox(true) }} src="/images/my photo.jpg" alt="" />
+              {ShowSeetingsBox && <div className="functionbox">
+                <ul>
+
+                  <li style={{ padding: "8px 16px 16px 16px", gap: '20px', marginTop: "0", backgroundColor: "transparent" }} >
+                    <img style={{ filter: "invert(0) ", width: "40px", height: "40px", marginBottom: "30px" }} className='rounded-full' src={User?.user?.avatar} alt="" />
+                    <div className="flex flex-1 flex-col items-start">
+                      <span className='cursor-default leading-[22px] text-[16px] font-[400]'>
+                        {User?.user?.fullName}
+                      </span>
+                      <span className="cursor-default leading-[22px] text-[16px] font-[400]">
+                        @{User?.user?.username}
+                      </span>
+                      <a href="#" style={{ color: "rgb(62, 166, 255)", margin: "8px 0 0 0 " }} className=' leading-[20px] text-[14px] font-[400]'>
+                        View your channel
+                      </a>
+                    </div>
+                  </li>
+
+                  <hr style={{
+                    height: "0.6px",
+                    width: "-webkit-fill-available",
+                    backgroundColor: "#3d3d3d",
+                    opacity: "0.18",
+                    margin: "6px 0 6px 0"
+                  }}></hr>
+
+                  <li>
+                    <img src="/images/Google-account.svg" alt="" />
+                    <span>Google Account</span>
+                  </li>
+
+                  <li>
+                    <img src="/images/Switch-account.svg" alt="" />
+                    <span>Switch account</span>
+                    <img src="/images/arrow-right.svg" alt="" />
+                  </li>
+
+                  <li onClick={LogOut} >
+                    <img src="/images/Sign-out.svg" alt="" />
+                    <span>Sign out</span>
+                  </li>
+
+                  <hr style={{
+                    height: "0.6px",
+                    width: "-webkit-fill-available",
+                    backgroundColor: "#3d3d3d",
+                    opacity: "0.18",
+                    margin: "6px 0 6px 0"
+                  }}></hr>
+
+                  <li>
+                    <img src="/images/Youtube-premeim.-setting.svg" alt="" />
+                    <span>YouTube Studio</span>
+                  </li>
+                  <li>
+                    <img src="/images/YourData.svg" alt="" />
+                    <span>Purchases and memberships</span>
+                  </li>
+
+                  <hr style={{
+                    height: "0.6px",
+                    width: "-webkit-fill-available",
+                    backgroundColor: "#3d3d3d",
+                    opacity: "0.18",
+                    margin: "6px 0 6px 0"
+                  }}></hr>
+
+                  <li>
+                    <img src="/images/YourData.svg" alt="" />
+                    <span>Your data in YouTube</span>
+                  </li>
+                  <li>
+                    <img src="/images/theme.svg" alt="" />
+                    <span>Appearance: Device theme</span>
+                    <img src="/images/arrow-right.svg" alt="" />
+                  </li>
+                  <li>
+                    <img src="/images/Language.svg" alt="" />
+                    <span>Language: English</span>
+                    <img src="/images/arrow-right.svg" alt="" />
+                  </li>
+                  <li>
+                    <img src="/images/Restriction.svg" alt="" />
+                    <span>Restricted Mode: Off</span>
+                    <img src="/images/arrow-right.svg" alt="" />
+                  </li>
+                  <li>
+                    <img src="/images/Location.svg" alt="" />
+                    <span>Location: India</span>
+                    <img src="/images/arrow-right.svg" alt="" />
+                  </li>
+                  <li>
+                    <img src="/images/Keyboard-shortcuts.svg" alt="" />
+                    <span>Keyboard shortcuts</span>
+                  </li>
+                </ul>
+
+                <hr style={{
+                  height: "0.6px",
+                  width: "-webkit-fill-available",
+                  backgroundColor: "#3d3d3d",
+                  opacity: "0.18",
+                  margin: "0px 0 0px 0"
+                }}></hr>
+
+                <ul style={{ margin: "6px 0" }}>
+                  <li>
+                    <img src="/images/Setting.svg" alt="" />
+                    Settings
+                  </li>
+                </ul>
+
+
+                <hr style={{
+                  height: "0.6px",
+                  width: "-webkit-fill-available",
+                  backgroundColor: "#3d3d3d",
+                  opacity: "0.18",
+                  margin: "0px 0 6px 0"
+                }}></hr>
+
+                <ul>
+                  <li>
+                    <img src="/images/Help.svg" alt="" />
+                    Help
+                  </li>
+                  <li>
+                    <img src="/images/Send-feedback.svg" alt="" />
+                    Send feedback
+                  </li>
+                </ul>
+
+              </div>
+              }
+              {/* <div className="absolute bg-gray-600 w-24 h-8">
             Sign Out
           </div> */}
-        </div>
-      </div>
-  :
-  <>
-  <div className="sign_box">
+            </div>
+          </div>
+          :
+          <>
+            <div className="sign_box">
 
-  <div className="settingicon">
-        <img onClick={()=> {ShowSeetingsBox ? setShowSeetingsBox(false) : setShowSeetingsBox(true)}} src="/images/tripledot.svg" alt="" />
-        {ShowSeetingsBox && <div className="functionbox">
-          <ul>
-            <li>
-              <img src="/images/YourData.svg" alt="" />
-              <span>Your data in YouTube</span>
-            </li>
-            <li>
-              <img src="/images/theme.svg" alt="" />
-              <span>Appearance: Device theme</span>
-              <img src="/images/arrow-right.svg" alt="" />
-            </li>
-            <li>
-              <img src="/images/Language.svg" alt="" />
-              <span>Language: English</span>
-              <img src="/images/arrow-right.svg" alt="" />
-            </li>
-            <li>
-              <img src="/images/Restriction.svg" alt="" />
-              <span>Restricted Mode: Off</span>
-              <img src="/images/arrow-right.svg" alt="" />
-            </li>
-            <li>
-              <img src="/images/Location.svg" alt="" />
-              <span>Location: India</span>
-              <img src="/images/arrow-right.svg" alt="" />
-              </li>
-            <li>
-              <img src="/images/Keyboard-shortcuts.svg" alt="" />
-              <span>Keyboard shortcuts</span>
-            </li>
-          </ul>
+              <div className="settingicon">
+                <img onClick={() => { ShowSeetingsBox ? setShowSeetingsBox(false) : setShowSeetingsBox(true) }} src="/images/tripledot.svg" alt="" />
+                {ShowSeetingsBox && <div className="functionbox">
+                  <ul>
+                    <li>
+                      <img src="/images/YourData.svg" alt="" />
+                      <span>Your data in YouTube</span>
+                    </li>
+                    <li>
+                      <img src="/images/theme.svg" alt="" />
+                      <span>Appearance: Device theme</span>
+                      <img src="/images/arrow-right.svg" alt="" />
+                    </li>
+                    <li>
+                      <img src="/images/Language.svg" alt="" />
+                      <span>Language: English</span>
+                      <img src="/images/arrow-right.svg" alt="" />
+                    </li>
+                    <li>
+                      <img src="/images/Restriction.svg" alt="" />
+                      <span>Restricted Mode: Off</span>
+                      <img src="/images/arrow-right.svg" alt="" />
+                    </li>
+                    <li>
+                      <img src="/images/Location.svg" alt="" />
+                      <span>Location: India</span>
+                      <img src="/images/arrow-right.svg" alt="" />
+                    </li>
+                    <li>
+                      <img src="/images/Keyboard-shortcuts.svg" alt="" />
+                      <span>Keyboard shortcuts</span>
+                    </li>
+                  </ul>
 
-          <hr style={{
-            height: "0.6px",
-            backgroundColor: "#3d3d3d",
-            opacity: "0.18",
-            margin: "0px 0 0px 0"
-    }}></hr>
+                  <hr style={{
+                    height: "0.6px",
+                    backgroundColor: "#3d3d3d",
+                    opacity: "0.18",
+                    margin: "0px 0 0px 0"
+                  }}></hr>
 
-    <ul style={{margin: "6px 0"}}>
-      <li>
-        <img src="/images/Setting.svg" alt="" />
-        Settings
-      </li>
-    </ul>
+                  <ul style={{ margin: "6px 0" }}>
+                    <li>
+                      <img src="/images/Setting.svg" alt="" />
+                      Settings
+                    </li>
+                  </ul>
 
-    
-    <hr style={{
-            height: "0.6px",
-            backgroundColor: "#3d3d3d",
-            opacity: "0.18",
-            margin: "0px 0 6px 0"
-    }}></hr>
 
-    <ul>
-      <li>
-        <img src="/images/Help.svg" alt="" />
-        Help
-        </li>
-      <li>
-        <img src="/images/Send-feedback.svg" alt="" />
-        Send feedback
-        </li>
-    </ul>
+                  <hr style={{
+                    height: "0.6px",
+                    backgroundColor: "#3d3d3d",
+                    opacity: "0.18",
+                    margin: "0px 0 6px 0"
+                  }}></hr>
 
-        </div>
-}
-  </div>
-  <a href='/v3/Signin'>
-  <button className="signin">
-    <img src="/images/signin.svg" alt="" />
-    Sign in
-  </button>  
-  </a>
-  </div>
-  </>
-}
+                  <ul>
+                    <li>
+                      <img src="/images/Help.svg" alt="" />
+                      Help
+                    </li>
+                    <li>
+                      <img src="/images/Send-feedback.svg" alt="" />
+                      Send feedback
+                    </li>
+                  </ul>
 
-    <PostModal showModal={showModal} handleClick={handleClick}  />
-    </Container>
-  </>
+                </div>
+                }
+              </div>
+              <a href='/v3/Signin'>
+                <button className="signin">
+                  <img src="/images/signin.svg" alt="" />
+                  Sign in
+                </button>
+              </a>
+            </div>
+          </>
+        }
+
+        <PostModal showModal={showModal} handleClick={handleClick} />
+      </Container>
+    </>
 
   )
 }
@@ -452,10 +455,12 @@ const Container = styled.div`
         margin-left: 32px;
         border: 1px solid #3D3D3D;
         display: flex;
-        width: 568px;
+        width: 533px;
         border-radius:18px ;
         height: 40px;
         align-items: center;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
 
         .search-input{
           width: 515px;
@@ -475,7 +480,7 @@ const Container = styled.div`
         }
 
         .search{
-          width: 64px;
+          min-width: 64px;
           padding: 1px 20px;
           height: 40px;
           border: 1px solid #3D3D3D;
@@ -483,6 +488,7 @@ const Container = styled.div`
           justify-content: center;
           align-items: center;
           outline: none;
+          z-index: 50;
           border-top-right-radius: 18px;
           border-bottom-right-radius: 18px;
           background-color: #222222;
