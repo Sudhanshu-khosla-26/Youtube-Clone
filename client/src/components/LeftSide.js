@@ -1,4 +1,4 @@
-import styled , {createGlobalStyle} from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 import React from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -11,358 +11,358 @@ const LeftSide = (props) => {
 
   return (
     <>
-    <GlobalStyle />
-    <Container Minimize={Minimize}>
-      <ul>
-        <a href="/" >
-        <li className="active">
-          <img src="/images/home.svg" alt="" />
-          Home
-        </li>
-        </a>
-        <a href="#">
-        <li>
-          <img src="/images/shorts.svg" alt="" />
-          Shorts
-        </li>
-        </a>
-        <a href="#">
-        <li className="subscription">
-          <img src="/images/subscriptions.svg" alt="" />
-          Subscriptions
-        </li>
-        </a>
+      <GlobalStyle />
+      <Container Minimize={Minimize}>
+        <ul>
+          <a href="/" >
+            <li className="active">
+              <img src="/images/home.svg" alt="" />
+              Home
+            </li>
+          </a>
+          <a href="#">
+            <li>
+              <img src="/images/shorts.svg" alt="" />
+              Shorts
+            </li>
+          </a>
+          <a href="#">
+            <li className="subscription">
+              <img src="/images/subscriptions.svg" alt="" />
+              Subscriptions
+            </li>
+          </a>
 
-        {!Minimize &&
-        
-        <a href="#">
-          <li>  
-            <img src="/images/You.svg" alt="" />
-            You
-          </li>
-        </a>
+          {!Minimize &&
+
+            <a href="#">
+              <li>
+                <img src="/images/You.svg" alt="" />
+                You
+              </li>
+            </a>
+          }
+
+          {Minimize &&
+            <hr style={{
+              width: "224px",
+              height: "0.6px",
+              backgroundColor: "#3d3d3d",
+              opacity: "0.18",
+              margin: "9px 0"
+            }}></hr>
+          }
+
+          {Minimize &&
+            <>
+              {User ?
+                <>
+                  <a href="#">
+                    <li className="Youbox">
+                      You
+                      <img src="/images/arrow-right.svg" alt="" />
+                    </li>
+                  </a>
+                  <a href="#">
+                    <li>
+                      <img src="/images/yourchannel.svg" alt="" />
+                      Your channel
+                    </li>
+                  </a>
+                  <a href="feed/history">
+                    <li>
+                      <img src="/images/history.svg" alt="" />
+                      History
+                    </li>
+                  </a>
+                  <a href="#">
+                    <li>
+                      <img src="/images/playlists.svg" alt="" />
+                      Playlists
+                    </li>
+                  </a>
+                  <a href="#">
+                    <li>
+                      <img src="/images/yourvideos.svg" alt="" />
+                      Your videos
+                    </li>
+                  </a>
+                  <a href="#">
+                    <li>
+                      <img src="/images/watchlater.svg" alt="" />
+                      Watch Later
+                    </li>
+                  </a>
+                  <a href="/playlist/list/LL">
+                    <li>
+                      <img src="/images/likedvideos.svg" alt="" />
+                      Liked videos
+                    </li>
+                  </a>
+                </>
+                :
+                <>
+                  <a href="#">
+                    <li>
+                      <img src="/images/history.svg" alt="" />
+                      You
+                    </li>
+                  </a>
+                  <a href="#">
+                    <li>
+                      <img src="/images/history.svg" alt="" />
+                      History
+                    </li>
+                  </a>
+                </>
+              }
+            </>
+          }
+        </ul>
+
+        {Minimize &&
+          <>
+            {User ?
+              <hr style={{
+                height: "0.6px",
+                maxWidth: "236px",
+                backgroundColor: "#3d3d3d",
+                opacity: "0.18",
+                margin: "34px 0 18px 0"
+              }}></hr>
+              :
+              <hr style={{
+                height: "0.6px",
+                maxWidth: "236px",
+                backgroundColor: "#3d3d3d",
+                opacity: "0.18",
+                margin: "0px 0 18px 0"
+              }}></hr>
+            }
+
+
+            {User ?
+              <div className="subscriptionsbox">
+                <span>Subscriptions</span>
+                <ul>
+                  <li>
+                    <img src="https://yt3.ggpht.com/SieSOlanXFaZVE-5vJlrY9qq-zdGyWXrWCtF5JbjidPZvM2b_6ddCshm5i5n-yGSNHE2f2XASQ=s88-c-k-c0x00ffffff-no-rj" alt="" />
+                    <span>
+                      BeastBoyShub
+                      <img src="/images/livestream.svg" alt="" />
+                    </span>
+                  </li>
+                  <li>
+                    <img src="https://yt3.ggpht.com/SieSOlanXFaZVE-5vJlrY9qq-zdGyWXrWCtF5JbjidPZvM2b_6ddCshm5i5n-yGSNHE2f2XASQ=s88-c-k-c0x00ffffff-no-rj" alt="" />
+                    <span>
+                      BeastBoyShub
+                      <img src="/images/livestream.svg" alt="" />
+                    </span>
+                  </li>
+                  <li>
+                    <img src="https://yt3.ggpht.com/SieSOlanXFaZVE-5vJlrY9qq-zdGyWXrWCtF5JbjidPZvM2b_6ddCshm5i5n-yGSNHE2f2XASQ=s88-c-k-c0x00ffffff-no-rj" alt="" />
+                    <span>
+                      BeastBoyShub
+                      <img src="/images/livestream.svg" alt="" />
+                    </span>
+                  </li>
+                  <li>
+                    <img src="https://yt3.ggpht.com/SieSOlanXFaZVE-5vJlrY9qq-zdGyWXrWCtF5JbjidPZvM2b_6ddCshm5i5n-yGSNHE2f2XASQ=s88-c-k-c0x00ffffff-no-rj" alt="" />
+                    <span>
+                      BeastBoyShub
+                      <img src="/images/livestream.svg" alt="" />
+                    </span>
+                  </li>
+                  <li>
+                    <img src="https://yt3.ggpht.com/SieSOlanXFaZVE-5vJlrY9qq-zdGyWXrWCtF5JbjidPZvM2b_6ddCshm5i5n-yGSNHE2f2XASQ=s88-c-k-c0x00ffffff-no-rj" alt="" />
+                    <span>
+                      BeastBoyShub
+                      <img src="/images/livestream.svg" alt="" />
+                    </span>
+                  </li>
+                  <li>
+                    <img src="https://yt3.ggpht.com/SieSOlanXFaZVE-5vJlrY9qq-zdGyWXrWCtF5JbjidPZvM2b_6ddCshm5i5n-yGSNHE2f2XASQ=s88-c-k-c0x00ffffff-no-rj" alt="" />
+                    <span>
+                      BeastBoyShub
+                      <img src="/images/livestream.svg" alt="" />
+                    </span>
+                  </li>
+                  <li className="showmore">
+                    <img src="/images/arrow-down.svg" alt="" />
+                    Show more
+                  </li>
+                </ul>
+              </div>
+              :
+              <div className="signIn">
+                <span>
+                  Sign in to like videos, comment, and subscribe.
+                </span>
+                <a href='/v3/Signin'>
+                  <button className="signin">
+                    <img src="/images/signin.svg" alt="" />
+                    Sign in
+                  </button>
+                </a>
+              </div>
+            }
+
+            <hr style={{
+              maxWidth: "236px",
+              height: "0.6px",
+              backgroundColor: "#3d3d3d",
+              opacity: "0.18",
+              margin: "0 0 18px 0"
+            }}></hr>
+
+            <div className="ExploreBox">
+              <span>Explore</span>
+              <ul>
+                <li>
+                  <img src="/images/trending.svg" alt="" />
+                  <span>Trending</span>
+                </li>
+                <li>
+                  <img src="/images/shopping.svg" alt="" />
+                  <span>Shopping</span>
+                </li>
+                <li>
+                  <img src="/images/Music.svg" alt="" />
+                  <span>Music</span>
+                </li>
+                <li>
+                  <img src="/images/Films.svg" alt="" />
+                  <span>Films</span>
+                </li>
+                <li>
+                  <img src="/images/Live.svg" alt="" />
+                  <span>Live</span>
+                </li>
+                <li>
+                  <img src="/images/Gaming.svg" alt="" />
+                  <span>Gaming</span>
+                </li>
+                <li>
+                  <img src="/images/News.svg" alt="" />
+                  <span>News</span>
+                </li>
+                <li>
+                  <img src="/images/Sports.svg" alt="" />
+                  <span>Sport</span>
+                </li>
+                <li>
+                  <img src="/images/Courses.svg" alt="" />
+                  <span>Courses</span>
+                </li>
+                <li>
+                  <img src="/images/Fashion.svg" alt="" />
+                  <span>Fashion & beauty</span>
+                </li>
+                <li>
+                  <img src="/images/Podcasts.svg" alt="" />
+                  <span>Podcasts</span>
+                </li>
+              </ul>
+            </div>
+
+            <hr style={{
+              maxWidth: "236px",
+              height: "0.6px",
+              backgroundColor: "#3d3d3d",
+              opacity: "0.18",
+              margin: "38px 0 18px 0"
+            }}></hr>
+
+            <div className="madefromYoutube">
+              <span>
+                More from Youtube
+              </span>
+
+              <ul>
+                <li>
+                  <img src="/images/Youtube-premium.svg" alt="" />
+                  <span>Youtube Premuim</span>
+                </li>
+                <li>
+                  <img src="/images/Youtube-studio.svg" alt="" />
+                  <span>Youtube Studio</span>
+                </li>
+                <li>
+                  <img src="/images/Youtube-music.svg" alt="" />
+                  <span>Youtube Music</span>
+                </li>
+                <li>
+                  <img src="/images/Youtube-kids.svg" alt="" />
+                  <span>Youtube Kids</span>
+                </li>
+              </ul>
+            </div>
+
+
+            <hr style={{
+              height: "0.6px",
+              maxWidth: "236px",
+              backgroundColor: "#3d3d3d",
+              opacity: "0.18",
+              margin: "0px 0 0px 0"
+            }}></hr>
+
+            <div className="settingAndFeedback">
+              <ul>
+                <li>
+                  <img src="/images/Setting.svg" alt="" />
+                  <span>Settings</span>
+                </li>
+                <li>
+                  <img src="/images/Report-history.svg" alt="" />
+                  <span>Report history</span>
+                </li>
+                <li>
+                  <img src="/images/Help.svg" alt="" />
+                  <span>Help</span>
+                </li>
+                <li>
+                  <img src="/images/Send-feedback.svg" alt="" />
+                  <span>Send feedback</span>
+                </li>
+              </ul>
+            </div>
+
+            <hr style={{
+              height: "0.6px",
+              maxWidth: "236px",
+              backgroundColor: "#3d3d3d",
+              opacity: "0.18",
+              margin: "0px 0 0px 0"
+            }}></hr>
+
+            <div className="footer">
+              <div className="tags1">
+                <a href="">About</a>
+                <a href="">Press</a>
+                <a href="">Copyright</a>
+                <a href="">Contact us</a>
+                <a href="">Creator</a>
+                <a href="">Advertise</a>
+                <a href="">Developers</a>
+              </div>
+              <div className="tags2">
+                <a href="">Terms</a>
+                <a href="">Privacy</a>
+                <a href="">Policy & Safety</a>
+                <a href="">How Youtube works</a>
+                <a href="">Test new features</a>
+              </div>
+
+              <div className="copyright">
+                © 2024 Google LLC
+              </div>
+            </div>
+          </>
         }
-
-        {Minimize && 
-        <hr style={{
-            width: "224px",
-            height: "0.6px",
-            backgroundColor: "#3d3d3d",
-            opacity: "0.18",
-            margin: "9px 0"
-    }}></hr>
-  }
-        
-        {Minimize && 
-      <>  
-    {User ? 
-  <>
-    <a href="#">
-        <li className="Youbox">
-          You
-          <img src="/images/arrow-right.svg" alt="" />
-        </li>
-    </a>
-    <a href="#">
-        <li>
-          <img src="/images/yourchannel.svg" alt="" />
-          Your channel
-        </li>
-    </a>
-    <a href="#">
-        <li>
-          <img src="/images/history.svg" alt="" />
-          History
-        </li>
-    </a>
-    <a href="#">
-        <li>
-          <img src="/images/playlists.svg" alt="" />
-          Playlists
-        </li>
-    </a>
-    <a href="#">
-        <li>
-          <img src="/images/yourvideos.svg" alt="" />
-          Your videos
-        </li>
-    </a>
-    <a href="#">
-        <li>
-          <img src="/images/watchlater.svg" alt="" />
-          Watch Later
-        </li>
-    </a>
-    <a href="#">
-        <li>
-          <img src="/images/likedvideos.svg" alt="" />
-          Liked videos
-        </li>
-    </a>     
+      </Container>
     </>
-      :  
-      <>
-      <a href="#">
-      <li>
-        <img src="/images/history.svg" alt="" />
-        You
-      </li>
-  </a>
-      <a href="#">
-      <li>
-        <img src="/images/history.svg" alt="" />
-        History
-      </li>
-  </a>
-  </>
-    } 
-        </>
-    }
-      </ul>
 
-      {Minimize && 
-      <>
-      {User ? 
-      <hr style={{
-        height: "0.6px",
-        maxWidth: "236px",
-        backgroundColor: "#3d3d3d",
-        opacity: "0.18",
-            margin: "34px 0 18px 0"
-    }}></hr>
-  :
-  <hr style={{
-    height: "0.6px",
-    maxWidth: "236px",
-    backgroundColor: "#3d3d3d",
-    opacity: "0.18",
-        margin: "0px 0 18px 0"
-}}></hr>
-  }
-  
-
-    {User ?
-    <div className="subscriptionsbox">
-      <span>Subscriptions</span>
-      <ul>
-        <li>
-          <img src="https://yt3.ggpht.com/SieSOlanXFaZVE-5vJlrY9qq-zdGyWXrWCtF5JbjidPZvM2b_6ddCshm5i5n-yGSNHE2f2XASQ=s88-c-k-c0x00ffffff-no-rj" alt="" />
-          <span>
-          BeastBoyShub
-            <img src="/images/livestream.svg" alt="" />
-          </span>
-        </li>
-        <li>
-          <img src="https://yt3.ggpht.com/SieSOlanXFaZVE-5vJlrY9qq-zdGyWXrWCtF5JbjidPZvM2b_6ddCshm5i5n-yGSNHE2f2XASQ=s88-c-k-c0x00ffffff-no-rj" alt="" />
-          <span>
-          BeastBoyShub
-            <img src="/images/livestream.svg" alt="" />
-          </span>
-        </li>
-        <li>
-          <img src="https://yt3.ggpht.com/SieSOlanXFaZVE-5vJlrY9qq-zdGyWXrWCtF5JbjidPZvM2b_6ddCshm5i5n-yGSNHE2f2XASQ=s88-c-k-c0x00ffffff-no-rj" alt="" />
-          <span>
-          BeastBoyShub
-            <img src="/images/livestream.svg" alt="" />
-          </span>
-        </li>
-        <li>
-          <img src="https://yt3.ggpht.com/SieSOlanXFaZVE-5vJlrY9qq-zdGyWXrWCtF5JbjidPZvM2b_6ddCshm5i5n-yGSNHE2f2XASQ=s88-c-k-c0x00ffffff-no-rj" alt="" />
-          <span>
-          BeastBoyShub
-            <img src="/images/livestream.svg" alt="" />
-          </span>
-        </li>
-        <li>
-          <img src="https://yt3.ggpht.com/SieSOlanXFaZVE-5vJlrY9qq-zdGyWXrWCtF5JbjidPZvM2b_6ddCshm5i5n-yGSNHE2f2XASQ=s88-c-k-c0x00ffffff-no-rj" alt="" />
-          <span>
-          BeastBoyShub
-            <img src="/images/livestream.svg" alt="" />
-          </span>
-        </li>
-        <li>
-          <img src="https://yt3.ggpht.com/SieSOlanXFaZVE-5vJlrY9qq-zdGyWXrWCtF5JbjidPZvM2b_6ddCshm5i5n-yGSNHE2f2XASQ=s88-c-k-c0x00ffffff-no-rj" alt="" />
-          <span>
-          BeastBoyShub
-            <img src="/images/livestream.svg" alt="" />
-          </span>
-        </li>
-        <li className="showmore">
-          <img src="/images/arrow-down.svg" alt="" />
-          Show more
-        </li>
-      </ul>
-    </div>
-    :
-    <div className="signIn">
-      <span>
-        Sign in to like videos, comment, and subscribe.
-      </span>
-    <a href='/v3/Signin'>
-      <button className="signin">
-        <img src="/images/signin.svg" alt="" />
-        Sign in
-      </button>  
-    </a>
-    </div>
-    }
-
-    <hr style={{
-              maxWidth: "236px",
-            height: "0.6px",
-            backgroundColor: "#3d3d3d",
-            opacity: "0.18",
-            margin: "0 0 18px 0"
-    }}></hr>
-
-    <div className="ExploreBox">
-      <span>Explore</span>
-      <ul>
-        <li>
-          <img src="/images/trending.svg" alt="" />
-          <span>Trending</span>
-        </li>
-        <li>
-          <img src="/images/shopping.svg" alt="" />
-          <span>Shopping</span>
-          </li>
-        <li>
-          <img src="/images/Music.svg" alt="" />
-          <span>Music</span>
-          </li>
-        <li>
-          <img src="/images/Films.svg" alt="" />
-          <span>Films</span>
-          </li>
-        <li>
-          <img src="/images/Live.svg" alt="" />
-          <span>Live</span>
-          </li>
-        <li>
-          <img src="/images/Gaming.svg" alt="" />
-          <span>Gaming</span>
-          </li>
-        <li>
-          <img src="/images/News.svg" alt="" />
-          <span>News</span>
-          </li>
-        <li>
-          <img src="/images/Sports.svg" alt="" />
-          <span>Sport</span>
-          </li>
-        <li>
-          <img src="/images/Courses.svg" alt="" />
-          <span>Courses</span>
-          </li>
-        <li>
-          <img src="/images/Fashion.svg" alt="" />
-          <span>Fashion & beauty</span>
-          </li>
-        <li>
-          <img src="/images/Podcasts.svg" alt="" />
-          <span>Podcasts</span>
-          </li>
-      </ul>
-    </div>
-
-    <hr style={{
-              maxWidth: "236px",
-            height: "0.6px",
-            backgroundColor: "#3d3d3d",
-            opacity: "0.18",
-            margin: "38px 0 18px 0"
-    }}></hr>
-
-    <div className="madefromYoutube">
-      <span>
-        More from Youtube
-      </span>
-
-    <ul>
-      <li>
-        <img src="/images/Youtube-premium.svg" alt="" />
-      <span>Youtube Premuim</span>
-      </li>
-      <li>
-        <img src="/images/Youtube-studio.svg" alt="" />
-      <span>Youtube Studio</span>
-      </li>
-      <li>
-        <img src="/images/Youtube-music.svg" alt="" />
-      <span>Youtube Music</span>
-      </li>
-      <li>
-        <img src="/images/Youtube-kids.svg" alt="" />
-      <span>Youtube Kids</span>
-      </li>
-    </ul>
-    </div>
-
-    
-    <hr style={{
-            height: "0.6px",
-            maxWidth: "236px",
-            backgroundColor: "#3d3d3d",
-            opacity: "0.18",
-            margin: "0px 0 0px 0"
-    }}></hr>
-
-    <div className="settingAndFeedback">
-      <ul>
-        <li>
-          <img src="/images/Setting.svg" alt="" />
-        <span>Settings</span>
-        </li>
-        <li>
-          <img src="/images/Report-history.svg" alt="" />
-        <span>Report history</span>
-        </li>
-        <li>
-          <img src="/images/Help.svg" alt="" />
-        <span>Help</span>
-        </li>
-        <li>
-          <img src="/images/Send-feedback.svg" alt="" />
-        <span>Send feedback</span>
-        </li>
-      </ul>
-    </div>
-
-    <hr style={{
-            height: "0.6px",
-            maxWidth: "236px",
-            backgroundColor: "#3d3d3d",
-            opacity: "0.18",
-            margin: "0px 0 0px 0"
-    }}></hr>
-
-    <div className="footer">
-        <div className="tags1">
-            <a href="">About</a>
-            <a href="">Press</a>
-            <a href="">Copyright</a>
-            <a href="">Contact us</a>
-            <a href="">Creator</a>
-            <a href="">Advertise</a>
-            <a href="">Developers</a>
-        </div>
-        <div className="tags2">
-          <a href="">Terms</a>
-          <a href="">Privacy</a>
-          <a href="">Policy & Safety</a>
-          <a href="">How Youtube works</a>
-          <a href="">Test new features</a>
-        </div>
-
-        <div className="copyright">
-        © 2024 Google LLC
-        </div>
-    </div>
-    </>
-  }
-    </Container>
-    </>
-    
   );
 };
 
@@ -371,7 +371,7 @@ const Container = styled.div`
   background-color: #0F0F0F;
   flex: 0.18;
   max-width: fit-content;
-  height: 91vh;
+  height: 91.7vh;
   position: relative;
   flex-direction: column;
   margin-top: 56px;

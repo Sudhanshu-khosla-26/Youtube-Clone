@@ -10,6 +10,7 @@ const Navbar = (props) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [showModal, setShowModal] = useState("close");
+  const [Search, setSearch] = useState("");
   const [ShowSeetingsBox, setShowSeetingsBox] = useState(false)
   const [showUplaodbox, setshowUplaodbox] = useState(false);
 
@@ -101,9 +102,10 @@ const Navbar = (props) => {
                 <img src="" alt="" />
               </div>
               <div className="search-input">
-                <input placeholder='Search' type="text" />
+                <input onChange={(e) => setSearch(e.target.value)}
+                  value={Search} placeholder='Search' type="text" />
               </div>
-              <button className="search">
+              <button className="search" onClick={() => { navigate(`/search/${Search}`) }}>
                 <img src="/images/search.svg" alt="" />
               </button>
             </form>
@@ -284,7 +286,6 @@ const Navbar = (props) => {
           :
           <>
             <div className="sign_box">
-
               <div className="settingicon">
                 <img onClick={() => { ShowSeetingsBox ? setShowSeetingsBox(false) : setShowSeetingsBox(true) }} src="/images/tripledot.svg" alt="" />
                 {ShowSeetingsBox && <div className="functionbox">

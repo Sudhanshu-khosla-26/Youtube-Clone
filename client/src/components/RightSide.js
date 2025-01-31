@@ -1,81 +1,92 @@
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import React, { useEffect } from 'react'
 import axios from 'axios';
 import { useSelector } from 'react-redux';
-import { useState } from 'react';
 import moment from 'moment';
 
-const RightSide = (props) => {
-  const [AllVideos, setAllVideos] = useState([]);
-  const [YTAPIVIDEOS, setYTAPIVIDEOS] = useState([]);
-  const Minimize = useSelector((state) => state.MinimizeState);
+const RightSide = () => {
+  const [allVideos, setAllVideos] = useState([]);
+  const [ytApiVideos, setYtApiVideos] = useState([]);
+  const [categoryId, setCategoryId] = useState(0);
+  const [tagList, setTagList] = useState([]);
+  const [activetag, setactivetag] = useState("All");
   const [channelImages, setChannelImages] = useState({});
-
-  const User = JSON.parse(localStorage.getItem('USER'));
-
+  const [isOpen, setIsOpen] = useState(true);
+  const minimize = useSelector((state) => state.MinimizeState);
+  const user = JSON.parse(localStorage.getItem('USER'));
 
   useEffect(() => {
-    const AccessToken = (JSON.parse(localStorage.getItem('USER')))?.accessToken;
-    console.log(AccessToken);
-    const headers = {
-      'Authorization': AccessToken,
-      'Accept': 'application/json'
-    };
-    axios.get("http://localhost:8000/api/v1/videos/", { headers })
-      .then((videodata) => {
-        setAllVideos(videodata.data.data)
-        // console.log(videodata);
-      })
-      .catch((err) => {
-        // console.log(err);
-      })
+    fetchAllVideos();
+    fetchTagList();
+  }, []);
 
-    axios.get("https://youtube.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&chart=mostPopular&maxResults=300&regionCode=IN&key=AIzaSyDpicnbroQi7p8Sp0zbeQv91n-elyXVeD8")
-      .then((videos) => {
-        setYTAPIVIDEOS(videos.data.items)
-        // console.log(videos.data.items);
-      })
-      .catch((err) => {
-        console.log(err);
-      })
+  useEffect(() => {
+    if (categoryId === 0) {
+      fetchAllVideos();
+    }
+    fetchCategoryVideos(categoryId);
+  }, [categoryId]);
 
-  }, [])
+  useEffect(() => {
+    if (ytApiVideos.length > 0) {
+      fetchChannelImages();
+    }
+  }, [ytApiVideos]);
 
+  const fetchAllVideos = async () => {
+    try {
+      const accessToken = user?.accessToken;
+      const headers = {
+        'Authorization': accessToken,
+        'Accept': 'application/json'
+      };
+      const response = await axios.get("http://localhost:8000/api/v1/videos/", { headers });
+      setAllVideos(response.data.data);
+    } catch (error) {
+      console.error('Error fetching all videos:', error);
+    }
+  };
+
+  const fetchCategoryVideos = async (categoryId) => {
+    try {
+      const response = await axios.get(`https://youtube.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&chart=mostPopular&maxResults=20000&regionCode=IN&videoCategoryId=${categoryId}&key=AIzaSyDpicnbroQi7p8Sp0zbeQv91n-elyXVeD8`);
+      setYtApiVideos(response.data.items);
+    } catch (error) {
+      console.error('Error fetching category videos:', error);
+    }
+  };
+
+  const fetchTagList = async () => {
+    try {
+      const response = await axios.get(`https://youtube.googleapis.com/youtube/v3/videoCategories?part=snippet&regionCode=IN&key=AIzaSyDpicnbroQi7p8Sp0zbeQv91n-elyXVeD8`);
+      setTagList(response.data.items);
+    } catch (error) {
+      console.error('Error fetching tag list:', error);
+    }
+  };
 
   const getYTchannelInfo = async (channelId) => {
     try {
       const response = await axios.get(`https://youtube.googleapis.com/youtube/v3/channels?part=snippet%2CcontentDetails%2Cstatistics&id=${channelId}&key=AIzaSyDpicnbroQi7p8Sp0zbeQv91n-elyXVeD8`);
-      const url = response?.data?.items[0]?.snippet?.thumbnails?.high?.url;
-      console.log(url);
-      return url;
+      return response?.data?.items[0]?.snippet?.thumbnails?.high?.url;
     } catch (error) {
       console.error('Error fetching channel info:', error);
       return null;
     }
   };
 
-  useEffect(() => {
-    const fetchChannelImages = async () => {
-      const images = {};
-      for (const data of YTAPIVIDEOS) {
-        if (data?.snippet?.channelId) {
-          try {
-            const url = await getYTchannelInfo(data.snippet.channelId);
-            images[data.snippet.channelId] = url;
-          } catch (error) {
-            console.error('Error fetching channel image:', error);
-          }
+  const fetchChannelImages = async () => {
+    const images = {};
+    for (const data of ytApiVideos) {
+      if (data?.snippet?.channelId) {
+        const url = await getYTchannelInfo(data.snippet.channelId);
+        if (url) {
+          images[data.snippet.channelId] = url;
         }
       }
-      setChannelImages(images);
-      // console.log(channelImages);
-    };
-
-    if (YTAPIVIDEOS.length > 0) {
-      fetchChannelImages();
     }
-
-  }, [YTAPIVIDEOS]);
+    setChannelImages(images);
+  };
 
   const formatViewCount = (count) => {
     if (count < 1000) return count;
@@ -89,134 +100,97 @@ const RightSide = (props) => {
     const inputDate = moment(date);
     const diffInSeconds = now.diff(inputDate, 'seconds');
 
-    if (diffInSeconds < 60) {
-      return 'now';
-    } else if (diffInSeconds < 3600) {
-      const minutes = Math.floor(diffInSeconds / 60);
-      return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
-    } else if (diffInSeconds < 86400) {
-      const hours = Math.floor(diffInSeconds / 3600);
-      return `${hours} hour${hours > 1 ? 's' : ''} ago`;
-    } else if (diffInSeconds < 2592000) {
-      const days = Math.floor(diffInSeconds / 86400);
-      return `${days} day${days > 1 ? 's' : ''} ago`;
-    } else if (diffInSeconds < 31536000) {
-      const months = Math.floor(diffInSeconds / 2592000);
-      return `${months} month${months > 1 ? 's' : ''} ago`;
-    } else {
-      const years = Math.floor(diffInSeconds / 31536000);
-      return `${years} year${years > 1 ? 's' : ''} ago`;
+    if (diffInSeconds < 60) return 'now';
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minute${Math.floor(diffInSeconds / 60) > 1 ? 's' : ''} ago`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hour${Math.floor(diffInSeconds / 3600) > 1 ? 's' : ''} ago`;
+    if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)} day${Math.floor(diffInSeconds / 86400) > 1 ? 's' : ''} ago`;
+    if (diffInSeconds < 31536000) return `${Math.floor(diffInSeconds / 2592000)} month${Math.floor(diffInSeconds / 2592000) > 1 ? 's' : ''} ago`;
+    return `${Math.floor(diffInSeconds / 31536000)} year${Math.floor(diffInSeconds / 31536000) > 1 ? 's' : ''} ago`;
+  };
+
+  const videoViewUpdate = async (videoId) => {
+    try {
+      const accessToken = user?.accessToken;
+      const headers = {
+        'Authorization': accessToken,
+        'Accept': 'application/json'
+      };
+      await axios.patch(`http://localhost:8000/api/v1/videos/view/${videoId}`, {}, { headers });
+    } catch (error) {
+      console.error('Error updating video view:', error);
     }
   };
 
-  const videoViewUpdate = (VideoId) => {
-    const AccessToken = (JSON.parse(localStorage.getItem('USER'))).accessToken;
-    const headers = {
-      'Authorization': AccessToken,
-      'Accept': 'application/json'
-    };
-    console.log(VideoId);
-    axios.patch(`http://localhost:8000/api/v1/videos/view/${VideoId}`, {}, { headers })
-      .then((response) => {
-        console.log(response);
-      })
-      .catch((error) => {
-        console.error(error);
+  const closeModal = () => {
+    setIsOpen(false);
+    setactivetag("All");
+  };
+
+  const fetchMoodResult = async (mood) => {
+    try {
+      const response = await fetch("http://localhost:8000/api/v1/ai/get-result", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ prompt: mood })
       });
-  }
+      const result = await response.json();
+      localStorage.setItem('mood', mood);
+      console.log(result);
+      const resultArray = Object.values(result);
+      setYtApiVideos(resultArray);
+    } catch (error) {
+      console.error('Error fetching mood result:', error);
+    }
+  };
+
+  const logMood = (mood) => {
+    setYtApiVideos([]);
+    setAllVideos([]);
+    setactivetag("AI");
+    setIsOpen(false);
+    console.log(mood);
+    fetchMoodResult(mood);
+  };
+
+  console.log(isOpen, "modalbox");
 
   return (
-    <Container Minimize={Minimize}>
-      {User ?
+    <Container minimize={minimize}>
+      {user ? (
         <>
           <div className="tags">
-            <button className='active'>
-              All
-            </button>
-            <button>
-              Music
-            </button>
-            <button>
-              Disha Vakani
-            </button>
-            <button>
-              Mixes
-            </button>
-            <button>
-              Indian pop music
-            </button>
-            <button>
-              Sketch comedy
-            </button>
-            <button>
-              Roasts
-            </button>
-            <button>
-              Gaming
-            </button>
-            <button>
-              Podcasts
-            </button>
-            <button>
-              T-Series
-            </button>
-            <button>
-              Live
-            </button>
-            <button>
-              Movie musicals
-            </button>
-            <button>
-              Telenovelas
-            </button>
-            <button>
-              Thrillers
-            </button>
-            <button>
-              Cars
-            </button>
-            <button>
-              Presentations
-            </button>
-            <button>
-              Motorcycles
-            </button>
-            <button>
-              Action-adventure games
-            </button>
-            <button>
-              Recently uploaded
-            </button>
-            <button>
-              Watched
-            </button>
-            <button>
-              New to you
-            </button>
+            <button className={`${"AI" === activetag ? "bg-white text-black hover:bg-[FFFFFFF]" : "text-white bg-[#272727] hover:bg-[#3F3F3F]"}`} onClick={() => { setactivetag("AI"); setCategoryId(0); setIsOpen(true) }}>AI✦</button>
+            <button className={`${"All" === activetag ? "bg-white text-black hover:bg-[FFFFFFF]" : "text-white bg-[#272727] hover:bg-[#3F3F3F]"}`} onClick={() => { setactivetag("All"); setCategoryId(0) }}>All</button>
+            {tagList.map((tag) => (
+              <button className={`${tag.snippet.title === activetag ? "bg-white text-black" : "text-white bg-[#272727] hover:bg-[#3F3F3F]"}`} key={tag.id} onClick={() => { setactivetag(tag.snippet.title); setCategoryId(tag.id); setAllVideos([]); }} >
+                {tag.snippet.title}
+              </button>
+            ))}
+            <button>New to you</button>
           </div>
 
           <ul>
-            {AllVideos.length > 0 && AllVideos.map((Data) => (
-              <a href={`/watch/${Data._id}`} key={Data._id}
-                onClick={() => { videoViewUpdate(Data._id) }}
-              >
+            {allVideos.map((data) => (
+              <a href={`/watch/${data._id}`} key={data._id} onClick={() => videoViewUpdate(data._id)}>
                 <li>
-                  <img src={Data.thumbnail} alt="" />
+                  <img className='object-cover' src={data.thumbnail} alt="" />
                   <div className="videoInfo">
-                    <img src={Data.details.avatar} alt="" />
+                    <img src={data.details.avatar} alt="" />
                     <div className="Info">
                       <div className="title">
-                        <span>{Data.title.length > 74 ? Data.title.slice(0, 72) + "..." : Data.title}</span>
+                        <span>{data.title.length > 74 ? `${data.title.slice(0, 72)}...` : data.title}</span>
                         <img src="/images/tripledot.svg" alt="" />
                       </div>
                       <div className="channelname">
                         <span>
-                          {Data.details.username}
+                          {data.details.username}
                           <img src="/images/tick.svg" alt="" />
                         </span>
                       </div>
                       <span className='viewAndTime'>
-                        {formatViewCount(Data.views)} views • {timeAgo(Data.createdAt)}
+                        {formatViewCount(data.views)} views • {timeAgo(data.createdAt)}
                       </span>
                     </div>
                   </div>
@@ -224,147 +198,172 @@ const RightSide = (props) => {
               </a>
             ))}
 
-
-            {YTAPIVIDEOS.length > 0 && YTAPIVIDEOS.map((Data, index) => (
-              <a href={`/watch/${Data.id}`} key={index}>
-                <li className=' '>
-                  <img src={Data?.snippet?.thumbnails?.maxres?.url || Data?.snippet?.thumbnails?.standard?.url} alt="" />
+            {ytApiVideos.length > 0 && ytApiVideos.map((data, index) => (
+              <a href={`/watch/${data.id}`} key={index}>
+                <li>
+                  <img className='object-cover' src={data?.snippet?.thumbnails?.maxres?.url || data?.snippet?.thumbnails?.standard?.url || data?.snippet?.thumbnails?.high?.url} alt="" />
                   <div className="videoInfo">
-                    <img src={channelImages[Data.snippet.channelId]} alt="Channel" />
+                    <img src={channelImages[data?.snippet?.channelId]} alt="Channel" />
                     <div className="Info">
                       <div className="title">
-                        <span>{Data.snippet.title.length > 74 ? Data.snippet.title.slice(0, 72) + "..." : Data.snippet.title}</span>
+                        <span>{data?.snippet?.title.length > 74 ? `${data?.snippet?.title.slice(0, 72)}...` : data?.snippet?.title}</span>
                         <img src="/images/tripledot.svg" alt="" />
                       </div>
                       <div className="channelname">
                         <span>
-                          {Data?.snippet?.channelTitle}
+                          {data?.snippet?.channelTitle}
                           <img src="/images/tick.svg" alt="" />
                         </span>
                       </div>
                       <span className='viewAndTime'>
-                        {formatViewCount(Data?.statistics?.viewCount)} views • {timeAgo(Data?.snippet?.publishedAt)}                      </span>
+                        {formatViewCount(data?.statistics?.viewCount)} views • {timeAgo(data?.snippet?.publishedAt)}
+                      </span>
                     </div>
                   </div>
                 </li>
               </a>
             ))}
-
           </ul>
+
+          {isOpen && (
+            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+              <div className="bg-black p-10 rounded-lg text-center relative transform transition-transform scale-100">
+                <button onClick={closeModal} className="absolute top-2 right-4  bg-none border-none text-2xl cursor-pointer">X</button>
+                <h1 className='text-2xl mb-6'>What's your mood?</h1>
+                <div className="flex gap-2 mt-2">
+                  <span role="img" aria-label="happy" title="Happy" onClick={() => logMood('Happy')} className="text-3xl cursor-pointer transition-transform transform hover:scale-125">😊</span>
+                  <span role="img" aria-label="sad" title="Sad" onClick={() => logMood('Sad')} className="text-3xl cursor-pointer transition-transform transform hover:scale-125">😢</span>
+                  <span role="img" aria-label="angry" title="Angry" onClick={() => logMood('Angry')} className="text-3xl cursor-pointer transition-transform transform hover:scale-125">😠</span>
+                  <span role="img" aria-label="surprised" title="Surprised" onClick={() => logMood('Surprised')} className="text-3xl cursor-pointer transition-transform transform hover:scale-125">😲</span>
+                  <span role="img" aria-label="neutral" title="Neutral" onClick={() => logMood('Neutral')} className="text-3xl cursor-pointer transition-transform transform hover:scale-125">😐</span>
+                </div>
+              </div>
+            </div>
+          )}
         </>
-
-        :
-
-        <>
-          <div className="MessageBox">
-            <h2>Try searching to get started</h2>
-            <h4>Start watching videos to help us build a feed of videos you'll love.</h4>
-          </div>
-        </>
-
-      }
-    </Container >
-  )
-}
+      ) : (
+        <div className="MessageBox">
+          <h2>Try searching to get started</h2>
+          <h4>Start watching videos to help us build a feed of videos you'll love.</h4>
+        </div>
+      )}
+    </Container>
+  );
+};
 
 const Container = styled.div`
   margin-top: 56px;
   display: flex;
-  /* max-width: 92vw; */
   width: 81vw;
   height: 91vh;
   top: 0;
-  /* left: 73px; */
   left: 230px;
   overflow-y: scroll;
-  /* background-color: blueviolet; */
   position: absolute;
+  transition: all 0.3s ease-in-out;
 
-  .tags{
-    margin-top: 4px;
-     display: flex;
-     scroll-behavior: smooth;
-     overflow-x: scroll;
-      margin-left: 24px;
-      white-space: nowrap;
-    
-    & > button{
+  .tags {
+    margin-top: 16px;
+    display: flex;
+    scroll-behavior: smooth;
+    overflow-x: scroll;
+    margin-left: 24px;
+    white-space: nowrap;
+    gap: 10px;
+
+
+    & > button {
       width: max-content;
       cursor: pointer;
       text-align: center;
       padding: 0 12px;
       line-height: 20px;
       font-size: 14px;
-      background-color: #272727;
+      /* background-color: #272727; */
       font-weight: 500;
       font-family: "Gill Sans Extrabold", sans-serif;
       border: none;
       height: 32px;
       border-radius: 8px;
-      margin: 12px 12px 12px 0;
-      &:hover{
+      transition: background-color 0.3s ease;
+      /* &:hover {
         background-color: #3F3F3F;
-      }
-
+      } */
     }
   }
 
-  .active{
-        background-color: #F1F1F1 !important;
-        color: rgb(15,15,15);
-        &:hover{
-          background-color: #FFFFFF !important;
-        }
-      }
+  /* .active {
+    background-color: #F1F1F1 !important;
+    color: rgb(15,15,15);
+    &:hover {
+      background-color: #FFFFFF !important;
+    }
+  } */
 
-  ul{
+  ul {
     display: flex;
     position: absolute;
     flex-wrap: wrap;
     top: 90px;
     left: 17px;
-    /* left: 30px; */
-    a{
+
+    a {
       text-decoration: none;
       margin: 0 7.3px 40px 7.3px !important;
-      li{
-        list-style : none ;
+      transition: transform 0.3s ease;
 
-        img{
+      &:hover {
+        transform: scale(1.05);
+      }
+
+      li {
+        list-style: none;
+        /* transition: transform 0.3s ease; */
+/* 
+        &:hover {
+          transform: scale(1.05);
+        } */
+
+        img {
           width: 343px;
           height: 193px;
           border-radius: 8px;
+          /* transition: transform 0.3s ease; */
+
+          /* &:hover {
+            transform: scale(1.05);
+          } */
         }
 
-        .videoInfo{
+        .videoInfo {
           display: flex;
           margin-top: 6px;
-          img{
+
+          img {
             margin-top: 4px;
             border-radius: 50%;
             width: 36px;
             height: 36px;
           }
-          .Info{
+
+          .Info {
             width: 100%;
             margin-left: 14px;
             max-width: 298px;
-            /* display: flex;
-            align-items: start;
-            justify-content: center;
-            flex-direction: column; */
-            .title{
+
+            .title {
               display: flex;
               align-items: center;
               justify-content: space-between;
-              span{
+
+              span {
                 cursor: pointer;
                 line-height: 22px;
                 font-weight: 500;
                 font-size: 16px;
               }
 
-              img{
+              img {
                 width: 24px;
                 cursor: pointer;
                 height: 24px;
@@ -373,10 +372,11 @@ const Container = styled.div`
               }
             }
 
-            .channelname{
+            .channelname {
               display: flex;
               align-items: center;
-              span{
+
+              span {
                 display: flex;
                 align-items: center;
                 font-weight: 400;
@@ -384,36 +384,36 @@ const Container = styled.div`
                 cursor: pointer;
                 font-size: 14px;
                 line-height: 20px;
-              
-              img{
-                width: 14px;
-                margin-left: 4px;
-                height: 14px;
-                filter: invert(0.6);
+
+                img {
+                  width: 14px;
+                  margin-left: 4px;
+                  height: 14px;
+                  filter: invert(0.6);
+                }
               }
-            }
-              &:hover{
-                span{
+
+              &:hover {
+                span {
                   color: white;
                 }
               }
             }
 
-            .viewAndTime{
-                color: #949494;           
-                font-weight: 400;
-                cursor: pointer;
-                font-size: 14px;
-                line-height: 20px;
+            .viewAndTime {
+              color: #949494;
+              font-weight: 400;
+              cursor: pointer;
+              font-size: 14px;
+              line-height: 20px;
             }
-
           }
         }
       }
     }
   }
 
-  .MessageBox{
+  .MessageBox {
     display: flex;
     border-radius: 18px;
     margin: 20px auto;
@@ -422,47 +422,98 @@ const Container = styled.div`
     height: 100px;
     padding: 0 30px;
     flex-direction: column;
-    /* justify-content: center; */
     align-items: center;
-    
-    h2{
-        width: 440px;
-        font-family: "Roboto", "Arial", sans-serif;
+
+    h2 {
+      width: 440px;
+      font-family: "Roboto", "Arial", sans-serif;
+      font-size: 20px;
+      text-align: center;
+      line-height: 22px;
+      margin: 26px 0 12px 0 !important;
+      font-weight: 900;
+    }
+
+    h4 {
+      width: 440px;
+      font-family: "Roboto", "Arial", sans-serif;
+      font-size: 14px;
+      line-height: 20px;
+      font-weight: 400;
+      text-align: center;
+      color: darkgray;
+    }
+  }
+
+  .modal {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    opacity: ${props => (props.isOpen ? 1 : 0)};
+    pointer-events: ${props => (props.isOpen ? 'auto' : 'none')};
+    transition: opacity 0.3s ease;
+
+    .modal-content {
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+      position: relative;
+      transform: ${props => (props.isOpen ? 'scale(1)' : 'scale(0.9)')};
+      transition: transform 0.3s ease;
+
+      .close-button {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: none;
+        border: none;
         font-size: 20px;
-        text-align: center;
-    line-height: 22px ;
-    margin: 26px 0 12px 0 !important;
-    font-weight: 900;
+        cursor: pointer;
+      }
+
+      .mood-icons {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+
+        span {
+          font-size: 30px;
+          cursor: pointer;
+          transition: transform 0.3s ease;
+
+          &:hover {
+            transform: scale(1.2);
+          }
+        }
+      }
     }
-    
-    h4{
-        width: 440px;
-        font-family: "Roboto", "Arial", sans-serif;
-         font-size: 14px;
-    line-height: 20px;
-    font-weight: 400;
-    text-align: center;
-    color: darkgray;
+  }
 
+  ${props => props.minimize === false && `
+    left: 72px !important;
+    width: 92vw !important;
+
+    ul > a {
+      margin: 0 7px 40px 7px !important;
     }
-}
 
+    ul > a > li > img {
+      width: 398.984px !important;
+      height: 224.422px !important;
+    }
 
-  ${props => props.Minimize === false && `
-      left: 72px !important;
-      width: 92vw !important;
-      ul > a{
-            margin: 0 7px 40px 7px !important;
-      }
-      ul> a > li > img {
-              width: 398.984px !important;
-              height: 224.422px !important;
-      }
-      ul > a > li >.videoInfo >.Info{
-              max-width: 348px !important;
-      }
+    ul > a > li > .videoInfo > .Info {
+      max-width: 348px !important;
+    }
   `}
-
 `;
 
-export default RightSide
+export default RightSide;
