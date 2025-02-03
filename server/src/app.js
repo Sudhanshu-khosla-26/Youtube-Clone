@@ -8,7 +8,7 @@ const app = express()
 
 app.use(cors(
     {
-        origin: ['https://nextube-eta.vercel.app'],
+        origin: ['https://nexttube.vercel.app'],
         methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'],
         credentials: true,
     }
