@@ -49,7 +49,7 @@ const RightSide = () => {
 
   const fetchCategoryVideos = async (categoryId) => {
     try {
-      const response = await axios.get(`https://youtube.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&chart=mostPopular&maxResults=20000&regionCode=IN&videoCategoryId=${categoryId}&key=AIzaSyDpicnbroQi7p8Sp0zbeQv91n-elyXVeD8`);
+      const response = await axios.get(`https://youtube.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&chart=mostPopular&maxResults=20000&regionCode=IN&videoCategoryId=${categoryId}&key=AIzaSyDlhskfkjE7kLtNtHFCWJf2mpaTOV6Wbno`);
       setYtApiVideos(response.data.items);
     } catch (error) {
       console.error('Error fetching category videos:', error);
@@ -58,7 +58,7 @@ const RightSide = () => {
 
   const fetchTagList = async () => {
     try {
-      const response = await axios.get(`https://youtube.googleapis.com/youtube/v3/videoCategories?part=snippet&regionCode=IN&key=AIzaSyDpicnbroQi7p8Sp0zbeQv91n-elyXVeD8`);
+      const response = await axios.get(`https://youtube.googleapis.com/youtube/v3/videoCategories?part=snippet&regionCode=IN&key=AIzaSyDlhskfkjE7kLtNtHFCWJf2mpaTOV6Wbno`);
       setTagList(response.data.items);
     } catch (error) {
       console.error('Error fetching tag list:', error);
@@ -67,7 +67,7 @@ const RightSide = () => {
 
   const getYTchannelInfo = async (channelId) => {
     try {
-      const response = await axios.get(`https://youtube.googleapis.com/youtube/v3/channels?part=snippet%2CcontentDetails%2Cstatistics&id=${channelId}&key=AIzaSyDpicnbroQi7p8Sp0zbeQv91n-elyXVeD8`);
+      const response = await axios.get(`https://youtube.googleapis.com/youtube/v3/channels?part=snippet%2CcontentDetails%2Cstatistics&id=${channelId}&key=AIzaSyDlhskfkjE7kLtNtHFCWJf2mpaTOV6Wbno`);
       return response?.data?.items[0]?.snippet?.thumbnails?.high?.url;
     } catch (error) {
       console.error('Error fetching channel info:', error);
@@ -138,7 +138,7 @@ const RightSide = () => {
       const result = await response.json();
       localStorage.setItem('mood', mood);
       console.log(result);
-      const resultArray = Object.values(result);
+      const resultArray = (result);
       setYtApiVideos(resultArray);
     } catch (error) {
       console.error('Error fetching mood result:', error);
@@ -198,31 +198,65 @@ const RightSide = () => {
               </a>
             ))}
 
-            {ytApiVideos.length > 0 && ytApiVideos.map((data, index) => (
-              <a href={`/watch/${data.id}`} key={index}>
-                <li>
-                  <img className='object-cover' src={data?.snippet?.thumbnails?.maxres?.url || data?.snippet?.thumbnails?.standard?.url || data?.snippet?.thumbnails?.high?.url} alt="" />
-                  <div className="videoInfo">
-                    <img src={channelImages[data?.snippet?.channelId]} alt="Channel" />
-                    <div className="Info">
-                      <div className="title">
-                        <span>{data?.snippet?.title.length > 74 ? `${data?.snippet?.title.slice(0, 72)}...` : data?.snippet?.title}</span>
-                        <img src="/images/tripledot.svg" alt="" />
-                      </div>
-                      <div className="channelname">
-                        <span>
-                          {data?.snippet?.channelTitle}
-                          <img src="/images/tick.svg" alt="" />
+
+            {Array.isArray(ytApiVideos) ?
+              ytApiVideos.length > 0 && ytApiVideos.map((data) => (
+                <a href={`/watch/${data.id}`} key={data.id}>
+                  <li>
+                    <img className='object-cover' src={data?.snippet?.thumbnails?.maxres?.url || data?.snippet?.thumbnails?.standard?.url || data?.snippet?.thumbnails?.high?.url} alt="" />
+                    <div className="videoInfo">
+                      <img src={channelImages[data?.snippet?.channelId]} alt="Channel" />
+                      <div className="Info">
+                        <div className="title">
+                          <span>{data?.snippet?.title.length > 74 ? `${data?.snippet?.title.slice(0, 72)}...` : data?.snippet?.title}</span>
+                          <img src="/images/tripledot.svg" alt="" />
+                        </div>
+                        <div className="channelname">
+                          <span>
+                            {data?.snippet?.channelTitle}
+                            <img src="/images/tick.svg" alt="" />
+                          </span>
+                        </div>
+                        <span className='viewAndTime'>
+                          {formatViewCount(data?.statistics?.viewCount)} views • {timeAgo(data?.snippet?.publishedAt)}
                         </span>
                       </div>
-                      <span className='viewAndTime'>
-                        {formatViewCount(data?.statistics?.viewCount)} views • {timeAgo(data?.snippet?.publishedAt)}
-                      </span>
                     </div>
-                  </div>
-                </li>
-              </a>
-            ))}
+                  </li>
+                </a>
+              ))
+              :
+              Object.entries(ytApiVideos).map(([category, videos]) => (
+                <div className='flex flex-col' key={category}>
+                  <h1 className="text-white ml-2">{category}</h1>
+                  {videos.length > 0 && videos.map((data) => (
+                    <a href={`/watch/${data?.id?.videoId}`} key={data?.id?.videoId} className="no-underline mx-[7.3px] my-[40px] transition-transform duration-300 hover:scale-105">
+                      <li className={`list-none ${minimize === true ? "w-[250px]" : "w-[290px]"}`}>
+                        <img className="object-cover w-full h-[193px] rounded-lg " src={data?.snippet?.thumbnails?.maxres?.url || data?.snippet?.thumbnails?.standard?.url || data?.snippet?.thumbnails?.high?.url} alt="" />
+                        <div className="videoInfo flex mt-1.5">
+                          <img className="rounded-full w-9 h-9 mt-1" src={channelImages[data?.snippet?.channelId]} alt="Channel" />
+                          <div className="Info ml-3.5 max-w-[298px] w-full">
+                            <div className="title flex justify-between items-center">
+                              <span className="cursor-pointer leading-[22px] font-medium text-lg">{data?.snippet?.title.length > 56 ? `${data?.snippet?.title.slice(0, 56)}...` : data?.snippet?.title}</span>
+                              <img className="w-6 h-6 ml-0.5 cursor-pointer invert" src="/images/tripledot.svg" alt="" />
+                            </div>
+                            <div className="channelname flex items-center mt-1">
+                              <span className="flex items-center font-normal text-[#949494] cursor-pointer text-sm leading-[20px]">
+                                {data?.snippet?.channelTitle}
+                                <img className="w-3.5 h-3.5 ml-1 invert-[0.6]" src="/images/tick.svg" alt="" />
+                              </span>
+                            </div>
+                            <span className="viewAndTime text-[#949494] font-normal cursor-pointer text-sm leading-[20px]">
+                              {timeAgo(data?.snippet?.publishedAt)}
+                            </span>
+                          </div>
+                        </div>
+                      </li>
+                    </a>
+                  ))}
+                </div>
+              ))
+            }
           </ul>
 
           {isOpen && (
@@ -240,6 +274,7 @@ const RightSide = () => {
               </div>
             </div>
           )}
+
         </>
       ) : (
         <div className="MessageBox">

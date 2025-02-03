@@ -84,7 +84,7 @@ const model = genAI.getGenerativeModel({
 const fetchYouTubeResults = async (query) => {
     try {
         await new Promise(resolve => setTimeout(resolve, 1000)); // Add a delay of 1 second
-        const response = await fetch(`https://youtube.googleapis.com/youtube/v3/search?part=snippet&maxResults=25&q=${query}&key=AIzaSyDpicnbroQi7p8Sp0zbeQv91n-elyXVeD8`);
+        const response = await fetch(`https://youtube.googleapis.com/youtube/v3/search?part=snippet&maxResults=25&q=${query}&key=AIzaSyDlhskfkjE7kLtNtHFCWJf2mpaTOV6Wbno`);
         const data = await response.json();
         return data.items;
     } catch (error) {
@@ -93,32 +93,7 @@ const fetchYouTubeResults = async (query) => {
     }
 };
 
-// export const generateResult = async (prompt) => {
-//     try {
-//         const result = await model.generateContent(prompt);
-//         console.log(result);
 
-//         const subcategories = JSON.parse(result.response.text());
-//         console.log(typeof (subcategories));
-//         const youtubeResults = {};
-
-//         for (const [emotion, categories] of Object.entries(subcategories)) {
-//             youtubeResults[emotion] = {};
-//             const videoPromises = categories.map(category => fetchYouTubeResults(category));
-//             const videosArray = await Promise.all(videoPromises);
-//             videosArray.forEach((videos, index) => {
-//                 const category = categories[index];
-//                 youtubeResults[emotion][category] = videos;
-//             });
-
-//         }
-//         console.log(youtubeResults);
-//         return youtubeResults;
-//     } catch (error) {
-//         console.error('Error generating result:', error);
-//         return {};
-//     }
-// };
 
 
 export const generateResult = async (emotion) => {

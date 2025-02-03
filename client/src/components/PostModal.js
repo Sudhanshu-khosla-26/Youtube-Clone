@@ -1,48 +1,82 @@
 import { useRef, useState } from "react";
 import styled from "styled-components";
 
+const steps = ["details", "elements", "checks", "visibility"]
 
 const PostModal = (props) => {
   const InputRef = useRef(null);
   const selectRef = useRef(null);
 
-    const [files, setFiles] = useState();
-  
-    const handleFileChange = (event) => {
-      const selectedFiles = event.target.files;
-      if (selectedFiles && selectedFiles.length > 0) {
-        setFiles(selectedFiles);
-      }
-      console.log(selectedFiles, "selected files");
-    };
-    
-    const handleDrop = (event) => {
-      event.preventDefault();
-      const droppedFile = event.dataTransfer.files;
-        setFiles(droppedFile);
-        console.log(droppedFile, "dropped files");
-        console.log(files, "file");
-    };
-  
-    const handleRemoveFile = () => {
-      setFiles();
-    };
+  const [files, setFiles] = useState();
 
-    const handleSelect = () => {
-      selectRef.current.click();
-    };
-    
+  const handleFileChange = (event) => {
+    const selectedFiles = event.target.files;
+    if (selectedFiles && selectedFiles.length > 0) {
+      setFiles(selectedFiles);
+    }
+    console.log(selectedFiles, "selected files");
+  };
+
+  const handleDrop = (event) => {
+    event.preventDefault();
+    const droppedFile = event.dataTransfer.files;
+    setFiles(droppedFile);
+    console.log(droppedFile, "dropped files");
+    console.log(files, "file");
+  };
+
+  const handleRemoveFile = () => {
+    setFiles();
+  };
+
+  const handleSelect = () => {
+    selectRef.current.click();
+  };
+
 
   const reset = (e) => {
     setFiles();
     props.handleClick(e);
   };
 
+
+
+  const [currentStep, setCurrentStep] = useState("details")
+  const [progress, setProgress] = useState(25)
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    videoElements: false,
+    checks: false,
+    visibility: false,
+  })
+
+  const handleStepClick = (step) => {
+    setCurrentStep(step)
+    setProgress((steps.indexOf(step) + 1) * 25)
+  }
+
+  const handleNext = () => {
+    const currentIndex = steps.indexOf(currentStep)
+    if (currentIndex < steps.length - 1) {
+      setCurrentStep(steps[currentIndex + 1])
+      setProgress((currentIndex + 2) * 25)
+    }
+  }
+
+  const handleBack = () => {
+    const currentIndex = steps.indexOf(currentStep)
+    if (currentIndex > 0) {
+      setCurrentStep(steps[currentIndex - 1])
+      setProgress(currentIndex * 25)
+    }
+  }
+
   return (
     <>
       {props.showModal === "open" && (
         <Container>
-          <Content> 
+          <Content>
             <div className="header w-full h-[61px]  flex items-center justify-between">
               <div className="titleside text-[20px] leading-[28px] font-[600]">
                 Upload videos
@@ -57,10 +91,10 @@ const PostModal = (props) => {
               </div>
             </div>
 
-            
-           {files ?
-           <>
-            <div className="statusBar">
+
+            {files ?
+              <>
+                {/* <div className="statusBar">
               <div className="line">
                 <div className="progress-bar"></div>
               </div>
@@ -83,42 +117,153 @@ const PostModal = (props) => {
 
               </div>
 
-            </div>
-           </>
-            :
-            <div className="drag-container" 
-              ref={InputRef}
-              onDrop={handleDrop}
-              onDragOver={(event) => {
-                event.preventDefault();
-                
-              }}
-            >
+            </div> */}
+
+
+
+
+
+                <div className="w-full">
+
+                  {/* Timeline */}
+                  <div className="px-4 py-6 border-b border-neutral-700">
+                    <div className="relative">
+                      <div className="absolute top-1/2 left-0 right-0 h-[2px] bg-neutral-600 -translate-y-1/2">
+                        <div
+                          className="h-full bg-white transition-all duration-300 ease-in-out"
+                          style={{ width: `${progress}%` }}
+                        />
+                      </div>
+                      <div className="relative flex justify-between">
+                        {steps.map((step, index) => (
+                          <button
+                            key={step}
+                            onClick={() => handleStepClick(step)}
+                            className={`w-5 h-5 rounded-full border-2 transition-all duration-200 ease-in-out
+                  ${index <= steps.indexOf(currentStep) ? "border-white bg-white" : "border-white bg-black"}
+                  ${currentStep === step ? "scale-125" : ""}
+                `}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex justify-between mt-2 text-sm">
+                      {steps.map((step) => (
+                        <button
+                          key={step}
+                          onClick={() => handleStepClick(step)}
+                          className={`text-neutral-400 hover:text-white transition-colors duration-200 ease-in-out
+                ${currentStep === step ? "text-white font-medium" : ""}
+              `}
+                        >
+                          {step.charAt(0).toUpperCase() + step.slice(1)}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Content */}
+                  <div className="p-6">
+                    {currentStep === "details" && (
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-sm text-neutral-400 mb-2">Title (required)</label>
+                          <input
+                            type="text"
+                            value={formData.title}
+                            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                            className="w-full px-3 py-2 bg-[#1f1f1f] border border-neutral-700 rounded-md text-white placeholder-neutral-500"
+                            placeholder="Add a title that describes your video"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm text-neutral-400 mb-2">Description</label>
+                          <textarea
+                            value={formData.description}
+                            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                            className="w-full px-3 py-2 min-h-[150px] bg-[#1f1f1f] border border-neutral-700 rounded-md text-white placeholder-neutral-500"
+                            placeholder="Tell viewers about your video"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {currentStep === "elements" && (
+                      <div className="text-white">
+                        <h3 className="text-lg mb-4">Video elements</h3>
+                        <p className="text-neutral-400">Add cards, end screens, and captions to your video.</p>
+                      </div>
+                    )}
+
+                    {currentStep === "checks" && (
+                      <div className="text-white">
+                        <h3 className="text-lg mb-4">Checks</h3>
+                        <p className="text-neutral-400">Review potential copyright issues and age restrictions.</p>
+                      </div>
+                    )}
+
+                    {currentStep === "visibility" && (
+                      <div className="text-white">
+                        <h3 className="text-lg mb-4">Visibility</h3>
+                        <p className="text-neutral-400">Choose when to publish and who can see your video.</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Footer */}
+                  <div className="flex justify-between p-4 border-t border-neutral-700">
+                    <button
+                      onClick={handleBack}
+                      disabled={currentStep === "details"}
+                      className="px-4 py-2 text-white bg-transparent hover:bg-neutral-700 rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Back
+                    </button>
+                    <button
+                      onClick={handleNext}
+                      disabled={currentStep === "visibility"}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
+
+              </>
+              :
+              <div className="drag-container"
+                ref={InputRef}
+                onDrop={handleDrop}
+                onDragOver={(event) => {
+                  event.preventDefault();
+
+                }}
+              >
                 <div className="center-cirle">
                   <div className="arrow-up"></div>
                   <div className="arrow-rectanglebox"></div>
                   <div className="arrow-baseline"></div>
                 </div>
                 <p className="dragtext1">Drag and drop video files to upload</p>
-                <p className="dragtext2">Your videos will be private until you publish them.</p>  
+                <p className="dragtext2">Your videos will be private until you publish them.</p>
                 <button onClick={handleSelect} className="select">
-                    Select files
+                  Select files
                 </button>
 
-                <input ref={selectRef} className="inputbox" type="file"  onChange={handleFileChange} accept="video/*" />
+                <input ref={selectRef} className="inputbox" type="file" onChange={handleFileChange} accept="video/*" />
 
                 <p className="dragtext3">
-                By submitting your videos to YouTube, you acknowledge that you agree to YouTube's 
-                <span>Terms of Service </span>
-                and 
-                <span>Community Guidelines.</span>
+                  By submitting your videos to YouTube, you acknowledge that you agree to YouTube's
+                  <span>Terms of Service </span>
+                  and
+                  <span>Community Guidelines.</span>
                 </p>
                 <p className="dragtext4">
-                Please make sure that you do not violate others' copyright or privacy rights. 
-                <span>Learn more</span>
+                  Please make sure that you do not violate others' copyright or privacy rights.
+                  <span>Learn more</span>
                 </p>
-            </div>
-            
+              </div>
+
             }
 
           </Content>

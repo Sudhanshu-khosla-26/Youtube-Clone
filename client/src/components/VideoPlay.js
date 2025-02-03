@@ -7,6 +7,7 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import '../App.css';
 import moment from 'moment';
+import PYPopupBox from './PYPopupBox';
 
 const VideoPlay = (props) => {
   const Minimize = useSelector((state) => state.MinimizeState);
@@ -20,12 +21,17 @@ const VideoPlay = (props) => {
   const [commentsbuttons, setcommentsbuttons] = useState(false);
   const [commentInput, setCommentInput] = useState('');
   const [comments, setComments] = useState([]);
-
-
+  const [isPopupVisible, setIsPopupVisible] = useState(false);
   const User = JSON.parse(localStorage.getItem('USER'));
+  const [isSaveBoxVisible, setIsSaveBoxVisible] = useState(false);
 
+  const togglePopup = () => {
+    setIsPopupVisible(!isPopupVisible);
+  };
 
-
+  const toggleSaveBox = () => {
+    setIsSaveBoxVisible(!isSaveBoxVisible);
+  };
 
   useEffect(() => {
     const AccessToken = (JSON.parse(localStorage.getItem('USER'))).accessToken;
@@ -100,7 +106,7 @@ const VideoPlay = (props) => {
 
     if (VideoDetail.id) {
       let catergoryid = VideoDetail?.snippet?.categoryId;
-      axios.get(`https://youtube.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&chart=mostPopular&maxResults=20000&regionCode=IN&videoCategoryId=${catergoryid}&key=AIzaSyDpicnbroQi7p8Sp0zbeQv91n-elyXVeD8`)
+      axios.get(`https://youtube.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&chart=mostPopular&maxResults=20000&regionCode=IN&videoCategoryId=${catergoryid}&key=AIzaSyDlhskfkjE7kLtNtHFCWJf2mpaTOV6Wbno`)
         .then((videos) => {
           const filteredVideos = videos.data.items.filter(video => video.id !== VideoDetail.id);
           setYTAPIVIDEOS(filteredVideos);
@@ -112,7 +118,7 @@ const VideoPlay = (props) => {
     }
     else {
       let catergoryid = 0;
-      axios.get(`https://youtube.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&chart=mostPopular&maxResults=20000&regionCode=IN&videoCategoryId=${catergoryid}&key=AIzaSyDpicnbroQi7p8Sp0zbeQv91n-elyXVeD8`)
+      axios.get(`https://youtube.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&chart=mostPopular&maxResults=20000&regionCode=IN&videoCategoryId=${catergoryid}&key=AIzaSyDlhskfkjE7kLtNtHFCWJf2mpaTOV6Wbno`)
         .then((videos) => {
           setYTAPIVIDEOS(videos.data.items)
           // console.log(videos.data.items);
@@ -128,7 +134,7 @@ const VideoPlay = (props) => {
 
   const getYTchannelInfo = async (channelId) => {
     try {
-      const response = await axios.get(`https://youtube.googleapis.com/youtube/v3/channels?part=snippet%2CcontentDetails%2Cstatistics&id=${channelId}&key=AIzaSyDpicnbroQi7p8Sp0zbeQv91n-elyXVeD8`);
+      const response = await axios.get(`https://youtube.googleapis.com/youtube/v3/channels?part=snippet%2CcontentDetails%2Cstatistics&id=${channelId}&key=AIzaSyDlhskfkjE7kLtNtHFCWJf2mpaTOV6Wbno`);
       const url = response?.data?.items[0]?.snippet?.thumbnails?.high?.url;
       const subscribers = response?.data?.items[0]?.statistics?.subscriberCount;
       console.log(url);
@@ -353,10 +359,30 @@ const VideoPlay = (props) => {
                   <img className='invert' src="/images/Download.svg" alt="" />
                   Download
                 </button>
-
-                <button className="more">
-                  <img className='invert rotate-90' src="/images/tripledot.svg" alt="" />
-                </button>
+                <div className="relative">
+                  <button className="more" onClick={togglePopup}>
+                    <img className='invert rotate-90' src="/images/tripledot.svg" alt="" />
+                  </button>
+                  {isPopupVisible && (
+                    <div className="popup-box w-[120px] py-2 absolute bottom-12 bg-[#282828]  shadow-lg rounded-lg">
+                      <button className="flex items-center justify-evenly  w-full text-start text-[14px] leading-[20px] font-normal  py-1 hover:bg-[#535353]">
+                        <img className="invert" src="/images/Clip.svg" alt="" />
+                        Clip
+                      </button>
+                      <button className="flex items-center justify-evenly  w-full text-start text-[14px] leading-[20px] font-normal  py-1 hover:bg-[#535353]" onClick={toggleSaveBox}>
+                        <img className="invert" src="/images/Save.svg" alt="" />
+                        Save
+                      </button>
+                      <button className="flex items-center justify-evenly  w-full  text-start text-[14px] leading-[20px] font-normal py-1 hover:bg-[#535353]">
+                        <img className="ml-1 invert" src="/images/Report-history.svg" alt="" />
+                        Report
+                      </button>
+                    </div>
+                  )}
+                  {isSaveBoxVisible && (
+                    <PYPopupBox />
+                  )}
+                </div>
               </div>
             </div>
 
@@ -527,7 +553,7 @@ const VideoPlay = (props) => {
               {AllVideos?.length > 0 && AllVideos.map((Data) => (
                 <a href={`/watch/${Data._id}`}>
                   <li>
-                    <img src={Data.thumbnail} alt="" />
+                    <img className='object-cover' src={Data.thumbnail} alt="" />
                     <div className="videoInfo">
                       {/* <img src={Data.details.avatar} alt="" /> */}
                       <div className="Info">
@@ -554,9 +580,9 @@ const VideoPlay = (props) => {
               ))}
               {YTAPIVIDEOS?.length > 0 && YTAPIVIDEOS.map((Data) => (
                 <a href={`/watch/${Data.id}`}>
-                  <li>
-                    <img src={Data?.snippet?.thumbnails?.high?.url} alt="" />
-                    <div className="videoInfo">
+                  <li >
+                    <img className='object-cover' src={Data?.snippet?.thumbnails?.high?.url} alt="" />
+                    <div className="videoInfo max-w-[254px]">
                       {/* <img src={Data.details.avatar} alt="" /> */}
                       <div className="Info">
                         <div className="title">
@@ -580,7 +606,6 @@ const VideoPlay = (props) => {
                   </li>
                 </a>
               ))}
-
             </ul>
           </div>
 
@@ -923,8 +948,8 @@ const SuggestedVideosSection = styled.div`
           /* align-items: center; */
           img{
             /* margin-top: 8px; */
-            width: 168px;
-          height: 94px;
+            width: 168px ;
+          height: 94px ;
           border-radius: 8px;
         }
 
