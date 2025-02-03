@@ -6,13 +6,11 @@ import morgan from 'morgan';
 const app = express()
 
 
-app.use(cors(
-    {
-        origin: ['https://nextube-eta.vercel.app'],
-        methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'],
-        credentials: true,
-    }
-))
+app.use(cors({
+    origin: process.env.CORS_ORIGIN,
+    credentials: true
+}))
+
 
 app.use(morgan('dev'));
 app.use(express.json({ limit: "16kb" }))
