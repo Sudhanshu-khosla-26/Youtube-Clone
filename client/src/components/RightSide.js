@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import moment from 'moment';
+import LoadingGrid from './Loadinggrid';
 
 const RightSide = () => {
   const [allVideos, setAllVideos] = useState([]);
@@ -10,6 +11,7 @@ const RightSide = () => {
   const [categoryId, setCategoryId] = useState(0);
   const [tagList, setTagList] = useState([]);
   const [activetag, setactivetag] = useState("All");
+  const [loading, setLoading] = useState(false);
   const [channelImages, setChannelImages] = useState({});
   const [isOpen, setIsOpen] = useState(true);
   const minimize = useSelector((state) => state.MinimizeState);
@@ -22,12 +24,14 @@ const RightSide = () => {
 
   useEffect(() => {
     if (categoryId === 0) {
+
       fetchAllVideos();
     }
     fetchCategoryVideos(categoryId);
   }, [categoryId]);
 
   useEffect(() => {
+      setLoading(true);
     if (ytApiVideos.length > 0) {
       fetchChannelImages();
     }
@@ -86,8 +90,9 @@ const RightSide = () => {
       }
     }
     setChannelImages(images);
+    setLoading(false);
   };
-
+  
   const formatViewCount = (count) => {
     if (count < 1000) return count;
     if (count <= 1000000) return (count / 1000).toFixed(1) + ' K';
@@ -154,8 +159,9 @@ const RightSide = () => {
     fetchMoodResult(mood);
   };
 
+  console.log(channelImages);
   console.log(isOpen, "modalbox");
-
+  
   return (
     <Container minimize={minimize}>
       {user ? (
@@ -171,93 +177,99 @@ const RightSide = () => {
             <button>New to you</button>
           </div>
 
-          <ul>
-            {allVideos.map((data) => (
-              <a href={`/watch/${data._id}`} key={data._id} onClick={() => videoViewUpdate(data._id)}>
-                <li>
-                  <img className='object-cover' src={data.thumbnail} alt="" />
-                  <div className="videoInfo">
-                    <img src={data.details.avatar} alt="" />
-                    <div className="Info">
-                      <div className="title">
-                        <span>{data.title.length > 74 ? `${data.title.slice(0, 72)}...` : data.title}</span>
-                        <img src="/images/tripledot.svg" alt="" />
-                      </div>
-                      <div className="channelname">
-                        <span>
-                          {data.details.username}
-                          <img src="/images/tick.svg" alt="" />
-                        </span>
-                      </div>
-                      <span className='viewAndTime'>
-                        {formatViewCount(data.views)} views • {timeAgo(data.createdAt)}
-                      </span>
-                    </div>
-                  </div>
-                </li>
-              </a>
-            ))}
-
-
-            {Array.isArray(ytApiVideos) ?
-              ytApiVideos.length > 0 && ytApiVideos.map((data) => (
-                <a href={`/watch/${data.id}`} key={data.id}>
+      
+          {!(ytApiVideos && allVideos) || loading ? (
+              <div className={`flex ${minimize ? "w-[81vw]" :  "w-[91.6vw]" } justify-center items-center`} style={{position: "absolute", flexWrap: "wrap", top: "90px", left: "17px"}}>
+              <LoadingGrid />
+            </div>
+          ) : (
+            <ul>
+              {allVideos.map((data) => (
+                <a href={`/watch/${data._id}`} key={data._id} onClick={() => videoViewUpdate(data._id)}>
                   <li>
-                    <img className='object-cover' src={data?.snippet?.thumbnails?.maxres?.url || data?.snippet?.thumbnails?.standard?.url || data?.snippet?.thumbnails?.high?.url} alt="" />
+                    <img className='object-cover' src={data.thumbnail} alt="" />
                     <div className="videoInfo">
-                      <img src={channelImages[data?.snippet?.channelId]} alt="Channel" />
+                      <img src={data.details.avatar} alt="" />
                       <div className="Info">
                         <div className="title">
-                          <span>{data?.snippet?.title.length > 74 ? `${data?.snippet?.title.slice(0, 72)}...` : data?.snippet?.title}</span>
+                          <span>{data.title.length > 74 ? `${data.title.slice(0, 72)}...` : data.title}</span>
                           <img src="/images/tripledot.svg" alt="" />
                         </div>
                         <div className="channelname">
                           <span>
-                            {data?.snippet?.channelTitle}
+                            {data.details.username}
                             <img src="/images/tick.svg" alt="" />
                           </span>
                         </div>
                         <span className='viewAndTime'>
-                          {formatViewCount(data?.statistics?.viewCount)} views • {timeAgo(data?.snippet?.publishedAt)}
+                          {formatViewCount(data.views)} views • {timeAgo(data.createdAt)}
                         </span>
                       </div>
                     </div>
                   </li>
                 </a>
-              ))
-              :
-              Object.entries(ytApiVideos).map(([category, videos]) => (
-                <div className='flex flex-col' key={category}>
-                  <h1 className="text-white ml-2">{category}</h1>
-                  {videos.length > 0 && videos.map((data) => (
-                    <a href={`/watch/${data?.id?.videoId}`} key={data?.id?.videoId} className="no-underline mx-[7.3px] my-[40px] transition-transform duration-300 hover:scale-105">
-                      <li className={`list-none ${minimize === true ? "w-[250px]" : "w-[290px]"}`}>
-                        <img className="object-cover w-full h-[193px] rounded-lg " src={data?.snippet?.thumbnails?.maxres?.url || data?.snippet?.thumbnails?.standard?.url || data?.snippet?.thumbnails?.high?.url} alt="" />
-                        <div className="videoInfo flex mt-1.5">
-                          <img className="rounded-full w-9 h-9 mt-1" src={channelImages[data?.snippet?.channelId]} alt="Channel" />
-                          <div className="Info ml-3.5 max-w-[298px] w-full">
-                            <div className="title flex justify-between items-center">
-                              <span className="cursor-pointer leading-[22px] font-medium text-lg">{data?.snippet?.title.length > 56 ? `${data?.snippet?.title.slice(0, 56)}...` : data?.snippet?.title}</span>
-                              <img className="w-6 h-6 ml-0.5 cursor-pointer invert" src="/images/tripledot.svg" alt="" />
-                            </div>
-                            <div className="channelname flex items-center mt-1">
-                              <span className="flex items-center font-normal text-[#949494] cursor-pointer text-sm leading-[20px]">
-                                {data?.snippet?.channelTitle}
-                                <img className="w-3.5 h-3.5 ml-1 invert-[0.6]" src="/images/tick.svg" alt="" />
-                              </span>
-                            </div>
-                            <span className="viewAndTime text-[#949494] font-normal cursor-pointer text-sm leading-[20px]">
-                              {timeAgo(data?.snippet?.publishedAt)}
+              ))}
+
+              {Array.isArray(ytApiVideos) ?
+                ytApiVideos.length > 0 && ytApiVideos.map((data) => (
+                  <a href={`/watch/${data.id}`} key={data.id}>
+                    <li>
+                      <img className='object-cover' src={data?.snippet?.thumbnails?.maxres?.url || data?.snippet?.thumbnails?.standard?.url || data?.snippet?.thumbnails?.high?.url} alt="" />
+                      <div className="videoInfo">
+                        <img src={channelImages[data?.snippet?.channelId]} alt="Channel" />
+                        <div className="Info">
+                          <div className="title">
+                            <span>{data?.snippet?.title.length > 74 ? `${data?.snippet?.title.slice(0, 72)}...` : data?.snippet?.title}</span>
+                            <img src="/images/tripledot.svg" alt="" />
+                          </div>
+                          <div className="channelname">
+                            <span>
+                              {data?.snippet?.channelTitle}
+                              <img src="/images/tick.svg" alt="" />
                             </span>
                           </div>
+                          <span className='viewAndTime'>
+                            {formatViewCount(data?.statistics?.viewCount)} views • {timeAgo(data?.snippet?.publishedAt)}
+                          </span>
                         </div>
-                      </li>
-                    </a>
-                  ))}
-                </div>
-              ))
-            }
-          </ul>
+                      </div>
+                    </li>
+                  </a>
+                ))
+                :
+                Object.entries(ytApiVideos).map(([category, videos]) => (
+                  <div className='flex flex-col' key={category}>
+                    <h1 className="text-white ml-2">{category}</h1>
+                    {videos.length > 0 && videos.map((data) => (
+                      <a href={`/watch/${data?.id?.videoId}`} key={data?.id?.videoId} className="no-underline mx-[7.3px] my-[40px] transition-transform duration-300 hover:scale-105">
+                        <li className={`list-none ${minimize === true ? "w-[250px]" : "w-[290px]"}`}>
+                          <img className="object-cover w-full h-[193px] rounded-lg " src={data?.snippet?.thumbnails?.maxres?.url || data?.snippet?.thumbnails?.standard?.url || data?.snippet?.thumbnails?.high?.url} alt="" />
+                          <div className="videoInfo flex mt-1.5">
+                            <img className="rounded-full w-9 h-9 mt-1" src={channelImages[data?.snippet?.channelId]} alt="Channel" />
+                            <div className="Info ml-3.5 max-w-[298px] w-full">
+                              <div className="title flex justify-between items-center">
+                                <span className="cursor-pointer leading-[22px] font-medium text-lg">{data?.snippet?.title.length > 56 ? `${data?.snippet?.title.slice(0, 56)}...` : data?.snippet?.title}</span>
+                                <img className="w-6 h-6 ml-0.5 cursor-pointer invert" src="/images/tripledot.svg" alt="" />
+                              </div>
+                              <div className="channelname flex items-center mt-1">
+                                <span className="flex items-center font-normal text-[#949494] cursor-pointer text-sm leading-[20px]">
+                                  {data?.snippet?.channelTitle}
+                                  <img className="w-3.5 h-3.5 ml-1 invert-[0.6]" src="/images/tick.svg" alt="" />
+                                </span>
+                              </div>
+                              <span className="viewAndTime text-[#949494] font-normal cursor-pointer text-sm leading-[20px]">
+                                {timeAgo(data?.snippet?.publishedAt)}
+                              </span>
+                            </div>
+                          </div>
+                        </li>
+                      </a>
+                    ))}
+                  </div>
+                ))
+              }
+            </ul>
+          )}
 
           {isOpen && (
             <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">

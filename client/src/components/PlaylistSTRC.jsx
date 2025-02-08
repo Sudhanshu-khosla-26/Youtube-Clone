@@ -12,7 +12,9 @@ const Playlist = () => {
   const [gradient, setGradient] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [activeTag, setActiveTag] = useState('All');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const User = JSON.parse(localStorage.getItem('USER'));
+
 
   const handleAnalyzeImage = () => {
     if (!imageUrl) {
@@ -71,6 +73,42 @@ const Playlist = () => {
 
   const getWLPlaylist = async () => {
     // in work
+    //on login a playlist of watch later is created  if its not there 
+    //we will create a url to get watch later just like liked videos
+    // then fetch it here 
+    //playlist/watchlater
+
+    const accessToken = JSON.parse(localStorage.getItem('USER'))?.accessToken;
+    const headers = {
+      Authorization: accessToken,
+      Accept: 'application/json',
+    };
+    axios
+      .get('http://localhost:8000/api/v1/playlist/watchlater', { headers })
+      .then((response) => {
+        // console.log(response);
+        // setPlaylistData(response.data.data);
+        const videoslist = response.data.data.videos;
+        const videoDataPromises = videoslist.map(videoId =>
+          axios.get(`http://localhost:8000/api/v1/videos/${videoId}`, { headers })
+        );
+
+        Promise.all(videoDataPromises)
+          .then(responses => {
+            const videoData = responses.map(response => response.data.data);
+            setPlaylistData(playlistData.videos = videoData);
+            // console.log(videoData);
+            setImageUrl(videoData[0]?.thumbnail);
+          })
+          .catch(error => {
+            console.error('Error fetching video data:', error);
+          });
+
+      })
+      .catch((error) => {
+        console.error('Error fetching playlist data:', error);
+      });
+
   };
 
   const getLLPlaylist = async () => {
@@ -154,6 +192,8 @@ const Playlist = () => {
       });
   };
 
+  console.log(gradient);
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -168,9 +208,9 @@ const Playlist = () => {
             PLAY ALL
           </div>
         </div>
-        <h1 className="font-[700] leading-[38px] text-[28px] text-[#fff] mt-6">Liked videos</h1>
+        <h1 className="font-[700] leading-[38px] text-[28px] text-[#fff] mt-6">{listquery === "WL" ? "Watch Later" : "Liked videos"}</h1>
         <span className="owenerdetials font-bold leading-[20px] text-[14px] text-[#fff] mt-4">
-          sudhanshu Khosla <br />
+          {User.user.username} <br />
           <pre className="font-medium leading-[18px] text-[12px] text-[#ffffffb3]">
             {playlistData?.length} videos No views Updated yesterday
           </pre>
@@ -215,9 +255,14 @@ const Playlist = () => {
                 onClick={() => {
                   videoViewUpdate(data._id);
                 }}
-                className="no-underline mx-[7.3px] my-[10px] flex items-center justify-between"
+                className={`no-underline mx-[7.3px] my-[10px] flex items-center justify-between `}
               >
-                <span className="">{index + 1}</span>
+                <span className={`${listquery === "WL" ? "text-[35px] scale-y-75 scale-x-150" : ""}`}>
+                  {listquery === "WL" ?
+                    "="
+                    :
+                    index + 1}
+                </span>
                 <li className="flex flex-grow h-fit list-none ml-3.5 cursor-pointer">
                   <img className="h-[113px] object-cover min-w-[200px] max-w-[200px] rounded-2xl" src={data?.thumbnail} alt="" />
                   <div className="videoInfo flex flex-grow mt-1.5">

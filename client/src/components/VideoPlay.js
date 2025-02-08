@@ -30,6 +30,7 @@ const VideoPlay = (props) => {
   };
 
   const toggleSaveBox = () => {
+    setIsPopupVisible(false);
     setIsSaveBoxVisible(!isSaveBoxVisible);
   };
 
@@ -379,10 +380,10 @@ const VideoPlay = (props) => {
                       </button>
                     </div>
                   )}
-                  {isSaveBoxVisible && (
-                    <PYPopupBox />
-                  )}
                 </div>
+                {isSaveBoxVisible && (
+                  <PYPopupBox VideoId={VideoId} />
+                )}
               </div>
             </div>
 

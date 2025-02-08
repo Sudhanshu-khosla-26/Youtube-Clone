@@ -1,117 +1,98 @@
-import styled from 'styled-components';
-import React, { useRef, useState , useEffect} from 'react'
-import axios from 'axios';
+import { useRef, useState, useEffect } from "react"
+import { motion } from "framer-motion"
+import axios from "axios"
 import { useNavigate } from "react-router-dom";
 
-
-const SignUp = (props) => {
-    const navigate = useNavigate();
-    const [username, setusername] = useState("");
-    const [FullName, setFullName] = useState("");
-    const [Email, setEmail] = useState("");
-    const [coverImage, setcoverImage] = useState("");
-    const [avatar, setavatar] = useState("");
-    const [Password, setPassword] = useState("");
-    const [ConfirmPassword, setConfirmPassword] = useState("");
-    // const [country, setcountry] = useState("");
-    // const [Address, setAddress] = useState("");
-    // const [City, setCity] = useState("");
-    // const [State, setState] = useState("");
-    // const [PinCode, setPinCode] = useState("");
-
-    const hiddenAvatarInput = useRef(null);
-    const hiddenCoverInput = useRef(null);
-
-    const handleClickAvatar = event => {
-      hiddenAvatarInput.current.click();
-    };
-
-    const handleClickCover = event => {
-      hiddenCoverInput.current.click();
-    };
-
-    const handleChangeCover = (e) => {
-        const image = e.target.files[0];
+const SignUp = () => {
+  const navigate = useNavigate();
+  const [username, setUsername] = useState("");
+  const [FullName, setFullName] = useState("");
+  const [Email, setEmail] = useState("");
+  const [coverImage, setcoverImage] = useState("");
+  const [avatar, setavatar] = useState("");
+  const [Password, setPassword] = useState("");
+  const [ConfirmPassword, setConfirmPassword] = useState("");
+  const hiddenAvatarInput = useRef(null);
+  const hiddenCoverInput = useRef(null);
     
-        if (image === "" || image === undefined) {
-          alert(`not an image, the file is a ${typeof image}`);
-          return;
-        }
-    
-        setcoverImage(image);
-      };
+  const handleClickAvatar = event => {
+    hiddenAvatarInput.current.click();
+  };
 
-    const handleChangeAvatar = (e) => {
-        const image = e.target.files[0];
-    
-        if (image === "" || image === undefined) {
-          alert(`not an image, the file is a ${typeof image}`);
-          return;
-        }
-    
-        setavatar(image);
-      };
+  const handleClickCover = event => {
+    hiddenCoverInput.current.click();
+  };
 
- 
+  const handleChangeCover = (e) => {
+    const image = e.target.files[0];
+    if (image === "" || image === undefined) {
+      alert(`not an image, the file is a ${typeof image}`);
+      return;
+    }
+    setcoverImage(image);
+  };
 
-    const CreateUser = async(event) => {
-         event.preventDefault();
+  const handleChangeAvatar = (e) => {
+    const image = e.target.files[0];
+    if (image === "" || image === undefined) {
+      alert(`not an image, the file is a ${typeof image}`);
+      return;
+    }
+    setavatar(image);
+  };
 
-        if(Password!==ConfirmPassword){
-          alert("Passwords do not match");
-          return;
-        }
+  const CreateUser = async(event) => {
+    event.preventDefault();
+    if(Password!==ConfirmPassword){
+      alert("Passwords do not match");
+      return;
+    }
+    const formData = new FormData();
+    formData.append("fullName", FullName)
+    formData.append("email",Email)
+    formData.append("username", username)
+    formData.append("password", Password)
+    formData.append("avatar", avatar)
+    formData.append("coverImage", coverImage)
+    try{
+      axios.post("http://localhost:8000/api/v1/users/register", formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+      .then((Response) => {
+        console.log(Response);
+        localStorage.setItem("USER", JSON.stringify(Response.data.data));
+        navigate("/");
+      }).catch((err) => {
+        console.log(err);
+      })
+    }
+    catch(err){
+      console.log(err);
+    }
+  }
 
-        const formData = new FormData();
-        formData.append("fullName", FullName)
-        formData.append("email",Email)
-        formData.append("username", username)
-        formData.append("password", Password)
-        formData.append("avatar", avatar)
-        formData.append("coverImage", coverImage)
+  console.log(username, 
+    FullName, 
+    username, 
+    Email, 
+    coverImage, 
+    avatar, 
+    Password, 
+    ConfirmPassword, 
+  );
 
-        try{
-        axios.post("http://localhost:8000/api/v1/users/register", formData,  {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        })
-        .then((Response) => {
-          console.log(Response);
-          localStorage.setItem("USER", JSON.stringify(Response.data.data));
-          navigate("/");
-        }).catch((err) => {
-          console.log(err);
-        })
-      }
-      catch(err){
-          console.log(err);
-        }
-      }
-
-
-    console.log(username,
-        FullName,
-        username,
-        Email,
-        coverImage,
-        avatar,
-        Password,
-        ConfirmPassword,
-    );
-
-      
   const User = localStorage.getItem("USER");
-
   const reset = () => {
-    setusername();
-    setEmail();
-    setFullName();
+    setUsername("");
+    setEmail("");
+    setFullName("");
     setPassword("");
     setConfirmPassword("");
-    setavatar();
-    setcoverImage();
-  }  
+    setavatar("");
+    setcoverImage("");
+  } 
 
   const handleCancel = () => {
     navigate("/v3/Signin");
@@ -126,222 +107,130 @@ const SignUp = (props) => {
   }, [])
 
   return (
-    <Container>
- 
-
-    <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-4 lg:px-8">
-        <div className="sm:mx-auto  sm:w-full sm:max-w-sm">
-          <h2 className="mt-1 flex justify-center items-center  text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
-          <img
-            alt="Your Company"
+    <div className="fixed inset-0 bg-[#0f0f0f] flex items-center justify-center z-[100000] overflow-y-auto">
+      <motion.div
+        initial={{ opacity: 0, x: -50 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5 }}
+        className="bg-[#272727] w-5/6 h-5/6  rounded-lg shadow-xl p-8 my-8 flex flex-row items-center"
+      >
+        <div className="w-1/2 flex flex-col items-center">
+          <motion.img
+            whileHover={{ scale: 1.1 }}
             src="/favicon.svg"
-            className="mx-2 h-[28px] w-auto"
+            alt="Your Company"
+            className="h-14 w-auto  mb-4"
           />
-          Create your account
-          </h2>
-        </div>
-
-
-
-        <div className="mt-4 sm:mx-auto sm:w-full sm:max-w-sm">
-          <form action="#" method="POST" className="space-y-6">
-
-          <div>
-            <div className="relative coverimage-and-avatar">
-              <div className=" coverimage">
-              {coverImage ?
-                <img className='h-[96px] w-[384px] rounded-xl' src={URL.createObjectURL(coverImage)} alt="" />
-                :
-                <img className='h-[96px] w-[384px] rounded-xl' src="/images/card-bg.svg" alt="" />
-              }  
-              </div>
-
-              <div className="absolute top-[42px] left-[39%] rounded-full avatar">
-                {
-                  avatar ?
-                  <img className='w-[80px] h-[80px] rounded-full' src={URL.createObjectURL(avatar)} alt="" />
-                  : 
-                  <img className='w-[80px] h-[80px] rounded-full' src="/images/user.png" alt="" />
-                }
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-6 flex items-center justify-between gap-x-6 mb-6">
-
-          <div className="uploadavatar">
-          {/* <div className="absolute top-0 bottom-0 left-0 right-0 w-[118px]
-                        h-[38px] z-10 avatarinput"> */}
-          <input
-                        required
-                        onChange={handleChangeAvatar}
-                        id="avatar-upload"
-                        name="avatar-upload"
-                        type="file"
-                        ref={hiddenAvatarInput}
-                        className="hidden sr-only  " />
-          {/* </div> */}
-          <span onClick={handleClickAvatar} className='cursor-pointer rounded-md bg-indigo-600 px-3 py-[10px] text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'>upload Avatar</span>
-          </div>
-
-          <div className="uploadcover">
-          {/* <div className="absolute top-0 bottom-0 left-0 right-0 w-[118px]
-                        h-[38px] z-10 avatarinput"> */}
-          <input
-                        required
-                        onChange={handleChangeCover}
-                        id="cover-upload"
-                        name="cover-upload"
-                        type="file"
-                        ref={hiddenCoverInput}
-                        className="hidden sr-only  " />
-          {/* </div> */}
-          <span onClick={handleClickCover} className='cursor-pointer rounded-md bg-indigo-600 px-3 py-[10px] text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'>upload Cover</span>
-          </div>
-
- 
-        </div>
-
-            <div>
-              <label htmlFor="username" className="block text-sm font-medium leading-6 text-gray-900">
-                User Name
-              </label>
-              <div className="mt-2">
-                <input
-                  id="username"
-                  onChange={(e) => setusername(e.target.value)}
-                  name="username"
-                  type="text"
-                  required
-                  className="block w-full px-2 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label htmlFor="FullName" className="block text-sm font-medium leading-6 text-gray-900">
-                Full Name
-              </label>
-              <div className="mt-2">
-                <input
-                  id="fullname"
-                  name="fullname"
-                  onChange={(e) => setFullName(e.target.value)}
-                  type="text"
-                  required
-                  className="block w-full px-2 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                />
-              </div>
-            </div>
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
-                Email Address
-              </label>
-              <div className="mt-2">
-                <input
-                  id="email"
-                  onChange={(e) => setEmail(e.target.value)}
-                  name="email"
-                  type="email"
-                  required
-                  autoComplete="email"
-                  className="block w-full px-2 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                />
-              </div>
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between">
-                <label htmlFor="password" className="block text-sm font-medium leading-6 text-gray-900">
-                  Password
-                </label>
-                {/* <div className="text-sm">
-                  <a href="#" className="font-semibold text-indigo-600 hover:text-indigo-500">
-                    Forgot password?
-                  </a>
-                </div> */}
-              </div>
-              <div className="mt-2">
-                <input
-                  id="password"
-                  onChange={(e) => setPassword(e.target.value)}
-                  name="password"
-                  type="password"
-                  required
-                  className="block px-2 w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                />
-              </div>
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between">
-                <label htmlFor="confirm-password" className="block text-sm font-medium leading-6 text-gray-900">
-                  Confirm Password
-                </label>
-                {/* <div className="text-sm">
-                  <a href="#" className="font-semibold text-indigo-600 hover:text-indigo-500">
-                    Forgot password?
-                  </a>
-                </div> */}
-              </div>
-              <div className="mt-2">
-                <input
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                  id="confirm-password"
-                  name="confirm-password"
-                  type="password"
-                  required
-                  className="block px-2 w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                />
-              </div>
-            </div>
-
-            <div className="mt-6 flex items-center justify-between gap-x-6 mb-6">
-        <button onClick={handleCancel} type="button" className="text-sm font-semibold leading-6 text-gray-900">
-          Cancel
-        </button>
-        <button 
-          // type="submit"
-          disabled={!FullName || !username || !Email || !coverImage || !avatar || !Password || !ConfirmPassword}
-          onClick={CreateUser}
-          className="cursor-pointer rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-        >
-          Save
-        </button>
-        </div>
-
-            {/* <div>
-              <button
-                type="button"
-                className="flex justify-center align-centre block w-full rounded-md border-0 py-1.5 text-indigo-600 shadow-sm ring-1 ring-inset font-semibold ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-grey-600 sm:text-sm sm:leading-6"
-              >
-                <img className='w-[24px] mx-2 h-[24px]:' src="/images/google-icon.png" alt="" />
-                Continue with Google
-              </button>
-            </div> */}
-          </form>
-
+          <h2 className="text-3xl font-bold text-red-500">Create your account</h2>
           
-        </div>
-      </div>
+          <div className="relative mt-8 mb-4">
+            <div className="h-48 w-full rounded-xl overflow-hidden">
+              {coverImage ? (
+                <img
+                  className="w-full h-full object-cover"
+                  src={URL.createObjectURL(coverImage) || "/images/card-bg.svg"}
+                  alt="Cover"
+                />
+              ) : (
+                <img className='h-[96px] w-[384px] rounded-xl' src="/images/card-bg.svg" alt="" />
+              )}
+            </div>
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+              {avatar ? (
+                <img
+                  className="w-28 h-28 rounded-full object-cover"
+                  src={URL.createObjectURL(avatar) || "/images/user.png"}
+                  alt="Avatar"
+                />
+              ) : (
+                <img className='w-[80px] h-[80px] rounded-full' src="/images/user.png" alt="" />
+              )}
+            </div>
+          </div>
 
-    </Container>
+          <div className="flex justify-between relative w-4/6 bottom-8 gap-4 ">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              type="button"
+              onClick={handleClickAvatar}
+              className="flex-1 bg-red-600 text-white py-2 rounded-md font-semibold hover:bg-red-700 transition duration-300"
+            >
+              Upload Avatar
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              type="button"
+              onClick={handleClickCover}
+              className="flex-1 bg-red-600  text-white py-2 rounded-md font-semibold hover:bg-red-700 transition duration-300"
+            >
+              Upload Cover
+            </motion.button>
+          </div>
+        </div>
+
+        <form onSubmit={CreateUser} className="w-1/2 flex flex-col">
+          <div className="flex flex-col gap-4">
+      
+            <input
+              type="file"
+              ref={hiddenAvatarInput}
+              onChange={handleChangeAvatar}
+              className="hidden"
+              accept="image/*"
+            />
+            <input type="file" ref={hiddenCoverInput} onChange={handleChangeCover} className="hidden" accept="image/*" />
+
+            {["username", "fullName", "email", "password", "confirmPassword"].map((field) => (
+              <div key={field}>
+                <label htmlFor={field} className="block text-sm font-medium text-gray-300 mb-1">
+                  {field.charAt(0).toUpperCase() + field.slice(1).replace(/([A-Z])/g, " $1")}
+                </label>
+                <input
+                  id={field}
+                  name={field}
+                  type={field.includes("password") ? "password" : field === "email" ? "email" : "text"}
+                  required
+                  onChange={(e) => {
+                    const setters = {
+                      username: setUsername,
+                      fullName: setFullName,
+                      email: setEmail,
+                      password: setPassword,
+                      confirmPassword: setConfirmPassword,
+                    }
+                    setters[field](e.target.value)
+                  }}
+                  className="w-full px-3 py-2 bg-[#333] text-white rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                />
+              </div>
+            ))}
+
+            <div className="flex justify-between gap-4">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                type="button"
+                onClick={handleCancel}
+                className="flex-1 bg-gray-600 text-white py-2 rounded-md font-semibold hover:bg-gray-700 transition duration-300"
+              >
+                Cancel
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                type="submit"
+                className="flex-1 bg-red-600 text-white py-2 rounded-md font-semibold hover:bg-red-700 transition duration-300"
+              >
+                Sign Up
+              </motion.button>
+            </div>
+          </div>
+        </form>
+      </motion.div>
+    </div>
   )
 }
-
-const Container = styled.div`
-  z-index: 9999999;
-  background-color: white;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  position: fixed;
-  overflow-y: scroll;
-    form{
-        /* margin: 30px auto 0 ; */
-        width: fit-content;
-    }
-`;
 
 export default SignUp

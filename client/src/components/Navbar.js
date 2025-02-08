@@ -143,7 +143,7 @@ const Navbar = (props) => {
               <img src="/images/notifications.svg" alt="" />
             </button>
             <div className="relative userbox">
-              <img onClick={() => { ShowSeetingsBox ? setShowSeetingsBox(false) : setShowSeetingsBox(true) }} src="/images/my photo.jpg" alt="" />
+              <img onClick={() => { ShowSeetingsBox ? setShowSeetingsBox(false) : setShowSeetingsBox(true) }} src={User?.user?.avatar} alt="" />
               {ShowSeetingsBox && <div className="functionbox">
                 <ul>
 
@@ -156,7 +156,7 @@ const Navbar = (props) => {
                       <span className="cursor-default leading-[22px] text-[16px] font-[400]">
                         @{User?.user?.username}
                       </span>
-                      <a href="#" style={{ color: "rgb(62, 166, 255)", margin: "8px 0 0 0 " }} className=' leading-[20px] text-[14px] font-[400]'>
+                      <a href={`/@${User.user.username}`} style={{ color: "rgb(62, 166, 255)", margin: "8px 0 0 0 " }} className=' leading-[20px] text-[14px] font-[400]'>
                         View your channel
                       </a>
                     </div>

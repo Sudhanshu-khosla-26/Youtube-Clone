@@ -3,14 +3,15 @@ import React from 'react'
 import RightSide from './RightSide'
 import LeftSide from "./LeftSide";
 // import MoodBox from "./MoodBox";
-import Playlist from "./Playlist";
+import Playlist from "./PlaylistSTRC";
 import { useParams } from "react-router-dom";
 import Search from "./Search";
 
 const HomePage = (props) => {
-  const { query }
-    = useParams();
+
+  const { query } = useParams();
   const { listquery } = useParams();
+  console.log(listquery);
   return (
     <>
       <Container>
@@ -20,7 +21,8 @@ const HomePage = (props) => {
             <Search />
             :
             listquery ?
-              <Playlist /> :
+              <Playlist />
+              :
               <RightSide />
           }
         </div>

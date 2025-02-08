@@ -63,19 +63,19 @@ const LeftSide = (props) => {
                       <img src="/images/arrow-right.svg" alt="" />
                     </li>
                   </a>
-                  <a href="#">
+                  <a href={`/@${User.user.username}`} >
                     <li>
                       <img src="/images/yourchannel.svg" alt="" />
                       Your channel
                     </li>
                   </a>
-                  <a href="feed/history">
+                  <a href="/feed/history">
                     <li>
                       <img src="/images/history.svg" alt="" />
                       History
                     </li>
                   </a>
-                  <a href="#">
+                  <a href="/feed/playlists">
                     <li>
                       <img src="/images/playlists.svg" alt="" />
                       Playlists
@@ -87,7 +87,7 @@ const LeftSide = (props) => {
                       Your videos
                     </li>
                   </a>
-                  <a href="#">
+                  <a href="/playlist/list/WL">
                     <li>
                       <img src="/images/watchlater.svg" alt="" />
                       Watch Later
