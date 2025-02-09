@@ -56,10 +56,14 @@ const SignUp = () => {
     formData.append("avatar", avatar)
     formData.append("coverImage", coverImage)
     try{
-      api.post("/users/register", formData)
-      .then((Response) => {
+      api.post("/users/register", formData,  {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+      .then(async(Response) => {
         console.log(Response);
-        localStorage.setItem("USER", JSON.stringify(Response.data.data));
+        await localStorage.setItem("USER", JSON.stringify(Response.data.data));
         navigate("/");
       }).catch((err) => {
         console.log(err);

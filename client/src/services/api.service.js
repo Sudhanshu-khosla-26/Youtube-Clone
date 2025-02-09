@@ -11,6 +11,7 @@ const api = axios.create({
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${AuthService.getAccessToken()}`,
         'Accept': 'application/json',
+        
     }
 });
 
@@ -58,7 +59,7 @@ api.interceptors.response.use(
             AuthService.updateTokens(accessToken, refreshToken);
 
             // Retry the original request with new token
-            originalRequest.headers['Authorization'] = `Bearer ${refreshToken}`;
+            originalRequest.headers['Authorization'] = `Bearer ${accessToken}`;
             return api(originalRequest);
         } catch (error) {
             // If refresh token fails, logout user
