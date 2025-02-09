@@ -7,11 +7,13 @@ import Playlist from "./PlaylistSTRC";
 import { useParams } from "react-router-dom";
 import Search from "./Search";
 
+
 const HomePage = (props) => {
 
   const { query } = useParams();
   const { listquery } = useParams();
-  console.log(listquery);
+  console.log(listquery); 
+
   return (
     <>
       <Container>

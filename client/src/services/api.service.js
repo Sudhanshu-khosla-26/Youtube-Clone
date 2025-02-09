@@ -42,23 +42,23 @@ api.interceptors.response.use(
         originalRequest._retry = true;
 
         try {
-            const refreshToken = AuthService.getRefreshToken();
-            if (!refreshToken || AuthService.isTokenExpired(refreshToken)) {
+            const refToken = AuthService.getRefreshToken();
+            if (!refToken || AuthService.isTokenExpired(refToken)) {
                 throw new Error('Refresh token is invalid or expired');
             }
 
             // Call refresh token endpoint
             const response = await axios.post(`${API_URL}/users/refresh-token`, {
-                refreshToken
+                refreshToken: refToken
             });
-
-            const { accessToken, newRefreshToken } = response.data.data;
+            
+            const { accessToken, refreshToken } = response.data.data;
 
             // Update tokens in storage
-            AuthService.updateTokens(accessToken, newRefreshToken);
+            AuthService.updateTokens(accessToken, refreshToken);
 
             // Retry the original request with new token
-            originalRequest.headers['Authorization'] = `Bearer ${accessToken}`;
+            originalRequest.headers['Authorization'] = `Bearer ${refreshToken}`;
             return api(originalRequest);
         } catch (error) {
             // If refresh token fails, logout user

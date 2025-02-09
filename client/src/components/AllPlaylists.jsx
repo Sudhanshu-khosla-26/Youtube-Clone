@@ -42,7 +42,7 @@ const AllPlaylists = () => {
         getuserplaylists();
     }, [])
 
-
+    
     return (
         <div className="flex flex-row ">
             <LeftSide />
