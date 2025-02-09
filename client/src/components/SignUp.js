@@ -2,6 +2,7 @@ import { useRef, useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import axios from "axios"
 import { useNavigate } from "react-router-dom";
+import api from "../services/api.service";
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -55,11 +56,7 @@ const SignUp = () => {
     formData.append("avatar", avatar)
     formData.append("coverImage", coverImage)
     try{
-      axios.post("http://localhost:8000/api/v1/users/register", formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      })
+      api.post("/users/register", formData)
       .then((Response) => {
         console.log(Response);
         localStorage.setItem("USER", JSON.stringify(Response.data.data));

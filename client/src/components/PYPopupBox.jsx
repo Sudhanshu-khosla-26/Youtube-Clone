@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import axios from "axios"
 import { useParams } from "react-router-dom"
+import api from "../services/api.service";
 
 const PYPopupBox = (props) => {
     const [isOpen, setIsOpen] = useState(true)
@@ -19,8 +20,7 @@ const PYPopupBox = (props) => {
             Authorization: accessToken,
             Accept: "application/json",
         }
-        axios
-            .get(`http://localhost:8000/api/v1/playlist/user/${user.user._id}`, { headers })
+        api.get(`/playlist/user/${user.user._id}`)
             .then((response) => {
                 const data = response.data.data
                 data.forEach((item) => {
@@ -39,13 +39,7 @@ const PYPopupBox = (props) => {
     }
 
     const addvideotoplaylist = (playlistid) => {
-        const accessToken = user?.accessToken
-        const headers = {
-            Authorization: accessToken,
-            Accept: "application/json",
-        }
-        axios
-            .patch(`http://localhost:8000/api/v1/playlist/add/${VideoId}/${playlistid}`, {}, { headers })
+        api.patch(`/playlist/add/${VideoId}/${playlistid}`, {})
             .then((response) => {
                 console.log("Video added to playlist:", response.data)
             })
@@ -55,13 +49,8 @@ const PYPopupBox = (props) => {
     }
 
     const removevideofromplaylist = (playlistid) => {
-        const accessToken = user?.accessToken
-        const headers = {
-            Authorization: accessToken,
-            Accept: "application/json",
-        }
-        axios
-            .patch(`http://localhost:8000/api/v1/playlist/remove/${VideoId}/${playlistid}`, {}, { headers })
+
+        api.patch(`/playlist/remove/${VideoId}/${playlistid}`, {})
             .then((response) => {
                 console.log("Video removed from playlist:", response.data)
             })
@@ -71,17 +60,11 @@ const PYPopupBox = (props) => {
     }
 
     const createPlaylist = (name) => {
-        const accessToken = user?.accessToken
-        const headers = {
-            Authorization: accessToken,
-            Accept: "application/json",
-        }
-        axios.post(`http://localhost:8000/api/v1/playlist/`, {
+      api.post(`/playlist/`, {
             "name": name,
             "description": ""
-        },
-            { headers })
-            .then((response) => {
+        })
+        .then((response) => {
                 console.log("Playlist created:", response.data)
                 // getuserplaylists()
                 setIsOpened(false);
@@ -93,23 +76,6 @@ const PYPopupBox = (props) => {
             })
     }
 
-    // const [showCreateForm, setShowCreateForm] = useState(false)
-    // const [newPlaylistName, setNewPlaylistName] = useState("")
-    // const [newPlaylistDescription, setNewPlaylistDescription] = useState("")
-    // Remove unused state
-    // const [newPlaylistVisibility, setNewPlaylistVisibility] = useState("public");
-    // const [newPlaylistCollaborate, setNewPlaylistCollaborate] = useState(false);
-
-    // Update the handleCreatePlaylist function
-
-    // const handleCreatePlaylist = () => {
-    //     // if (newPlaylistName.trim() && newPlaylistDescription.trim()) {
-    //     //     createPlaylist(newPlaylistName, newPlaylistDescription)
-    //     //     setShowCreateForm(false)
-    //     //     setNewPlaylistName("")
-    //     //     setNewPlaylistDescription("")
-    //     // }
-    // }
 
     useEffect(() => {
         getuserplaylists()

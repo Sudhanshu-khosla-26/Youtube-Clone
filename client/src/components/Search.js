@@ -3,10 +3,13 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import LeftSide from "./LeftSide";
 import styled from "styled-components";
+import { useSelector } from "react-redux";
+
 
 const Search = () => {
   const [SEARCHVIDEOS, setSEARCHVIDEOs] = useState([]);
   const [activetag, setactiveta] = useState("All");
+  const minimize = useSelector((state) => state.MinimizeState);
 
   const tags = ["All", "Shorts", "Videos", "Unwatched", "Watched", "Recently uploaded", "Live"];
 
@@ -34,7 +37,7 @@ const Search = () => {
   return (
     <>
 
-      <Container>
+      <Container minimize={minimize}>
         <LeftSide />
         <div className="right flex flex-col w-screen h-screen ">
           <div className="tags w-screen h-48">
@@ -151,19 +154,20 @@ const Container = styled.div`
             height: 36px;
           }
           .Info{
-
             width: 100%;
             margin-left: 14px;
             max-width: 298px;
         
             display: flex;
             align-items: start;
-            justify-content: space-between;
+            flex-direction: column;
+            justify-content: flex-start;
             /* flex-direction: column;  */
             .title{
               display: flex;
               align-items: center;
               justify-content: space-between;
+              width: ${props => (props.minimize ? "50vw" : "40vw")};
               span{
                 cursor: pointer;
                 line-height: 22px;

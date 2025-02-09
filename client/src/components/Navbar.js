@@ -2,9 +2,10 @@ import styled from 'styled-components';
 import React, { useState } from 'react'
 import { useDispatch } from 'react-redux';
 import { toggleBoolean } from '../features/Sidebar';
-import axios from 'axios';
+import api from '../services/api.service';
 import { Link, useNavigate } from 'react-router-dom';
 import PostModal from './PostModal';
+
 
 const Navbar = (props) => {
   const navigate = useNavigate();
@@ -13,7 +14,6 @@ const Navbar = (props) => {
   const [Search, setSearch] = useState("");
   const [ShowSeetingsBox, setShowSeetingsBox] = useState(false)
   const [showUplaodbox, setshowUplaodbox] = useState(false);
-
   const User = JSON.parse(localStorage.getItem('USER'));
 
   const handleToggle = () => {
@@ -21,35 +21,16 @@ const Navbar = (props) => {
   };
 
   const LogOut = async () => {
-
-
     try {
-      const response = await axios.post('http://localhost:8000/api/v1/users/logout', {}, {
-        headers: {
-          'Content-Type': 'application/json',
-          // Add any additional headers required for authentication
-          'Authorization': `Bearer ${User?.accessToken}`
-        }
-      });
+      const response = await api.post('/users/logout', {});
       localStorage.removeItem('USER');
       setShowSeetingsBox(false);
       console.log('Logout successful:', response.data);
-      navigate("/v3/Signin")
+      navigate("/v3/Signin");
     } catch (error) {
       console.error('Error logging out:', error.response ? error.response.data : error.message);
     }
 
-    // try {
-    //       axios.post("http://localhost:8000/api/v1/users/logout", User).then((response) => {
-    //         console.log(response);
-    //         localStorage.removeItem('USER');
-    //         navigate("/v3/Signin")
-    //       }).catch((err)=>{
-    //         console.log(err.message);
-    //       })
-    // } catch (error) {
-    //   console.log(error);
-    // }
   }
 
   const handleClick = (e) => {

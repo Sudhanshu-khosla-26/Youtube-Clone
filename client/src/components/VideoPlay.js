@@ -8,6 +8,8 @@ import axios from 'axios';
 import '../App.css';
 import moment from 'moment';
 import PYPopupBox from './PYPopupBox';
+import api from "../services/api.service";
+
 
 const VideoPlay = (props) => {
   const Minimize = useSelector((state) => state.MinimizeState);
@@ -35,13 +37,8 @@ const VideoPlay = (props) => {
   };
 
   useEffect(() => {
-    const AccessToken = (JSON.parse(localStorage.getItem('USER'))).accessToken;
-    const headers = {
-      'Authorization': AccessToken,
-      'Accept': 'application/json'
-    };
 
-    axios.get("http://localhost:8000/api/v1/videos/", { headers })
+    api.get("/videos/")
       .then((videodata) => {
         const data = videodata?.data?.data.filter((video) => {
           return video._id !== VideoDetail?._id
@@ -58,7 +55,7 @@ const VideoPlay = (props) => {
 
 
 
-    axios.get(`http://localhost:8000/api/v1/videos/${VideoId}`, { headers })
+    api.get(`/videos/${VideoId}`)
       .then((Data) => {
         try {
           if (Data?.data?.data?._id === VideoId) {
@@ -77,7 +74,7 @@ const VideoPlay = (props) => {
         }
       })
 
-    axios.get(`http://localhost:8000/api/v1/comments/${VideoId}`, { headers })
+    api.get(`/comments/${VideoId}`)
       .then((response) => {
         if (response.data.success) {
           setComments(response.data.data);
@@ -165,12 +162,7 @@ const VideoPlay = (props) => {
 
   const handleLike = async () => {
     try {
-      const AccessToken = (JSON.parse(localStorage.getItem('USER'))).accessToken;
-      const headers = {
-        'Authorization': AccessToken,
-        'Accept': 'application/json'
-      };
-      const response = await axios.patch(`http://localhost:8000/api/v1/likes/toggle/v/${VideoId}`, {}, { headers });
+      const response = await api.patch(`/likes/toggle/v/${VideoId}`, {});
       if (response.data.success) {
         setVideoDetail((prevDetail) => ({
           ...prevDetail,
@@ -185,16 +177,9 @@ const VideoPlay = (props) => {
 
   const handleComment = async (commentText) => {
     try {
-      const AccessToken = (JSON.parse(localStorage.getItem('USER'))).accessToken;
-      const headers = {
-        'Authorization': AccessToken,
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      };
-      const response = await axios.post(
-        `http://localhost:8000/api/v1/comments/${VideoDetail?._id}`,
-        { "content": commentText },
-        { headers }
+      const response = await api.post(
+        `/comments/${VideoDetail?._id}`,
+        { "content": commentText }
       );
       if (response.data.success) {
         setComments((prevComments) => [response.data.data, ...prevComments]);
@@ -618,12 +603,14 @@ const VideoPlay = (props) => {
 
 const Sidebar = styled.div`
           .dSfYty{
+            position: fixed;
+            top: 0px !important;
             left: -300px !important;
-          transition: all 250ms cubic-bezier(0.25, 0.46, 0.45, 0.94) 0s;   
+            transition: all 250ms cubic-bezier(0.25, 0.46, 0.45, 0.94) 0s;   
     }
 
           ${props => props.Minimize && `
-        .jgzJSO{
+        .dSfYty{
             left: 0px !important;
         }
     `}

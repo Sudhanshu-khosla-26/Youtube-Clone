@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import ColorThief from 'colorthief';
 import moment from 'moment';
+import api from "../services/api.service";
 
 const Playlist = () => {
   const [playlistData, setPlaylistData] = useState([]);
@@ -78,19 +79,14 @@ const Playlist = () => {
     // then fetch it here 
     //playlist/watchlater
 
-    const accessToken = JSON.parse(localStorage.getItem('USER'))?.accessToken;
-    const headers = {
-      Authorization: accessToken,
-      Accept: 'application/json',
-    };
-    axios
-      .get('http://localhost:8000/api/v1/playlist/watchlater', { headers })
+    api
+      .get('/playlist/watchlater')
       .then((response) => {
         // console.log(response);
         // setPlaylistData(response.data.data);
         const videoslist = response.data.data.videos;
         const videoDataPromises = videoslist.map(videoId =>
-          axios.get(`http://localhost:8000/api/v1/videos/${videoId}`, { headers })
+          api.get(`/videos/${videoId}`)
         );
 
         Promise.all(videoDataPromises)
@@ -117,8 +113,7 @@ const Playlist = () => {
       Authorization: accessToken,
       Accept: 'application/json',
     };
-    axios
-      .get('http://localhost:8000/api/v1/likes/videos', { headers })
+    api.get('/likes/videos')
       .then((response) => {
         setPlaylistData(response.data.data);
         setImageUrl(response.data.data[0]?.thumbnail);
@@ -177,13 +172,7 @@ const Playlist = () => {
   };
 
   const videoViewUpdate = (videoId) => {
-    const accessToken = JSON.parse(localStorage.getItem('USER')).accessToken;
-    const headers = {
-      Authorization: accessToken,
-      Accept: 'application/json',
-    };
-    axios
-      .patch(`http://localhost:8000/api/v1/videos/view/${videoId}`, {}, { headers })
+     api.patch(`/videos/view/${videoId}`, {})
       .then((response) => {
         console.log(response);
       })

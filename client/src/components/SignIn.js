@@ -3,6 +3,7 @@ import axios from "axios"
 import { useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
 import ForgotPassword from "./ForgotPasswordModal"
+import api from "../services/api.service";
 
 const SignIn = () => {
   const [email, setEmail] = useState("")
@@ -14,7 +15,7 @@ const SignIn = () => {
     event.preventDefault()
 
     try {
-      const response = await axios.post("http://localhost:8000/api/v1/users/login", {
+      const response = await api.post("/users/login", {
         email,
         password,
       })

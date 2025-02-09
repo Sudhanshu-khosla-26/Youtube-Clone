@@ -4,6 +4,8 @@ import axios from 'axios';
 import { useSelector } from 'react-redux';
 import moment from 'moment';
 import LoadingGrid from './Loadinggrid';
+import api from "../services/api.service";
+import AuthService from '../services/auth.service';
 
 const RightSide = () => {
   const [allVideos, setAllVideos] = useState([]);
@@ -22,6 +24,32 @@ const RightSide = () => {
     fetchTagList();
   }, []);
 
+  
+  // useEffect(() => {
+  //   const validateToken = async () => {
+  //     if (!user) {
+  //       return;
+  //     }
+
+  //     if (AuthService.isTokenExpired(user.accessToken)) {
+  //       try {
+  //         // Try to refresh the token
+  //         const response = await api.post('/users/refresh-token', {
+  //           refreshToken: user.refreshToken
+  //         });
+          
+  //         const { accessToken, refreshToken } = response.data.data;
+  //         AuthService.updateTokens(accessToken, refreshToken);
+          
+  //       } catch (error) {
+  //         // If refresh fails, log out
+  //         AuthService.removeUser();
+  //       }
+  //     }
+  //   }
+  //   validateToken();
+  // }, [user]);
+
   useEffect(() => {
     if (categoryId === 0) {
 
@@ -39,12 +67,7 @@ const RightSide = () => {
 
   const fetchAllVideos = async () => {
     try {
-      const accessToken = user?.accessToken;
-      const headers = {
-        'Authorization': accessToken,
-        'Accept': 'application/json'
-      };
-      const response = await axios.get("http://localhost:8000/api/v1/videos/", { headers });
+      const response = await api.get("/videos/");
       setAllVideos(response.data.data);
     } catch (error) {
       console.error('Error fetching all videos:', error);
@@ -115,12 +138,7 @@ const RightSide = () => {
 
   const videoViewUpdate = async (videoId) => {
     try {
-      const accessToken = user?.accessToken;
-      const headers = {
-        'Authorization': accessToken,
-        'Accept': 'application/json'
-      };
-      await axios.patch(`http://localhost:8000/api/v1/videos/view/${videoId}`, {}, { headers });
+      await api.patch(`/videos/view/${videoId}`, {});
     } catch (error) {
       console.error('Error updating video view:', error);
     }
@@ -133,14 +151,8 @@ const RightSide = () => {
 
   const fetchMoodResult = async (mood) => {
     try {
-      const response = await fetch("http://localhost:8000/api/v1/ai/get-result", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ prompt: mood })
-      });
-      const result = await response.json();
+      const response = await api.post("/ai/get-result", { prompt: mood });
+      const result = response.data; // result is an array of video objects, each containing the video's id, title, description, thumbnail URL, and other metadata.
       localStorage.setItem('mood', mood);
       console.log(result);
       const resultArray = (result);
@@ -174,7 +186,6 @@ const RightSide = () => {
                 {tag.snippet.title}
               </button>
             ))}
-            <button>New to you</button>
           </div>
 
       

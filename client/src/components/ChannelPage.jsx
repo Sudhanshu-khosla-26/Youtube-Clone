@@ -2,8 +2,8 @@ import { useState, useEffect } from "react"
 import LeftSide from "./LeftSide"
 import { useSelector } from "react-redux"
 import { useParams } from "react-router-dom"
-import axios from "axios"
 import moment from "moment"
+import api from '../services/api.service';
 
 const Button = ({ children, className, ...props }) => (
     <button className={`px-4 py-2 rounded-full ${className}`} {...props}>
@@ -35,7 +35,7 @@ const YouTubeChannel = () => {
 
     const getChannelStats = async () => {
         try {
-            const response = await axios.get(`http://localhost:8000/api/v1/dashboard/stats/${username}`);
+            const response = await api.get(`/dashboard/stats/${username}`);
             setChannelStats(response.data.data);
         } catch (error) {
             console.error('Error fetching channel stats:', error);
@@ -44,7 +44,7 @@ const YouTubeChannel = () => {
 
     const getChannelDetails = async () => {
         try {
-            const response = await axios.get(`http://localhost:8000/api/v1/dashboard/${username}`);
+            const response = await api.get(`/dashboard/${username}`);
             setChannelDetails(response.data.data);
         } catch (error) {
             console.error('Error fetching channel details:', error);
@@ -53,7 +53,7 @@ const YouTubeChannel = () => {
 
     const getChannelVideos = async () => {
         try {
-            const response = await axios.get(`http://localhost:8000/api/v1/dashboard/videos/${username}`);
+            const response = await api.get(`/dashboard/videos/${username}`);
             setChannelVideos(response.data.data);
         } catch (error) {
             console.error('Error fetching channel videos:', error);
@@ -82,12 +82,7 @@ const YouTubeChannel = () => {
 
     const videoViewUpdate = async (videoId) => {
         try {
-            const accessToken = user?.accessToken;
-            const headers = {
-                'Authorization': accessToken,
-                'Accept': 'application/json'
-            };
-            await axios.patch(`http://localhost:8000/api/v1/videos/view/${videoId}`, {}, { headers });
+            await api.patch(`/videos/view/${videoId}`, {});
         } catch (error) {
             console.error('Error updating video view:', error);
         }

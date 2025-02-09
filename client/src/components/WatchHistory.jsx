@@ -1,20 +1,16 @@
-import axios from 'axios';
 import { useState, useEffect } from 'react';
-import moment from 'moment';
+// import moment from 'moment';
 import { useSelector } from 'react-redux';
 import LeftSide from './LeftSide';
+import api from "../services/api.service";
+
 
 const WatchHistory = () => {
     const [PlaylistData, setPlaylistData] = useState([])
     const Minimize = useSelector((state) => state.MinimizeState);
 
     const getWHPlaylist = async () => {
-        const AccessToken = (JSON.parse(localStorage.getItem('USER')))?.accessToken;
-        const headers = {
-            'Authorization': AccessToken,
-            'Accept': 'application/json'
-        };
-        axios.get('http://localhost:8000/api/v1/users/current-user', { headers })
+        api.get('/users/current-user')
             .then(response => {
                 //get watchhistory video id and then fetch all the video and add them to array 
                 // console.log(response);
@@ -29,7 +25,7 @@ const WatchHistory = () => {
                 }
 
                 const videoDataPromises = uniqueVideoIds.map(videoId =>
-                    axios.get(`http://localhost:8000/api/v1/videos/${videoId}`, { headers })
+                    api.get(`/videos/${videoId}`)
                 );
 
                 Promise.all(videoDataPromises)
@@ -54,39 +50,35 @@ const WatchHistory = () => {
         return (count / 1000000000).toFixed(1) + ' B';
     };
 
-    const timeAgo = (date) => {
-        const now = moment();
-        const inputDate = moment(date);
-        const diffInSeconds = now.diff(inputDate, 'seconds');
+    // const timeAgo = (date) => {
+    //     const now = moment();
+    //     const inputDate = moment(date);
+    //     const diffInSeconds = now.diff(inputDate, 'seconds');
 
-        if (diffInSeconds < 60) {
-            return 'now';
-        } else if (diffInSeconds < 3600) {
-            const minutes = Math.floor(diffInSeconds / 60);
-            return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
-        } else if (diffInSeconds < 86400) {
-            const hours = Math.floor(diffInSeconds / 3600);
-            return `${hours} hour${hours > 1 ? 's' : ''} ago`;
-        } else if (diffInSeconds < 2592000) {
-            const days = Math.floor(diffInSeconds / 86400);
-            return `${days} day${days > 1 ? 's' : ''} ago`;
-        } else if (diffInSeconds < 31536000) {
-            const months = Math.floor(diffInSeconds / 2592000);
-            return `${months} month${months > 1 ? 's' : ''} ago`;
-        } else {
-            const years = Math.floor(diffInSeconds / 31536000);
-            return `${years} year${years > 1 ? 's' : ''} ago`;
-        }
-    };
+    //     if (diffInSeconds < 60) {
+    //         return 'now';
+    //     } else if (diffInSeconds < 3600) {
+    //         const minutes = Math.floor(diffInSeconds / 60);
+    //         return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+    //     } else if (diffInSeconds < 86400) {
+    //         const hours = Math.floor(diffInSeconds / 3600);
+    //         return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+    //     } else if (diffInSeconds < 2592000) {
+    //         const days = Math.floor(diffInSeconds / 86400);
+    //         return `${days} day${days > 1 ? 's' : ''} ago`;
+    //     } else if (diffInSeconds < 31536000) {
+    //         const months = Math.floor(diffInSeconds / 2592000);
+    //         return `${months} month${months > 1 ? 's' : ''} ago`;
+    //     } else {
+    //         const years = Math.floor(diffInSeconds / 31536000);
+    //         return `${years} year${years > 1 ? 's' : ''} ago`;
+    //     }
+    // };
 
     const videoViewUpdate = (VideoId) => {
-        const AccessToken = (JSON.parse(localStorage.getItem('USER'))).accessToken;
-        const headers = {
-            'Authorization': AccessToken,
-            'Accept': 'application/json'
-        };
+
         console.log(VideoId);
-        axios.patch(`http://localhost:8000/api/v1/videos/view/${VideoId}`, {}, { headers })
+        api.patch(`/videos/view/${VideoId}`, {})
             .then((response) => {
                 console.log(response);
             })

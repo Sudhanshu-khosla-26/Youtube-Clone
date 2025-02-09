@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import axios from 'axios'
 import LeftSide from './LeftSide';
 import { useSelector } from 'react-redux';
+import api from '../services/api.service';
 
 const AllPlaylists = () => {
     const user = JSON.parse(localStorage.getItem('USER'));
@@ -11,111 +11,27 @@ const AllPlaylists = () => {
     const [playlists, setplaylists] = useState([]);
 
 
-    const getownerdetaiils = (videoid) => {
-        const accessToken = user?.accessToken
-        const headers = {
-            Authorization: accessToken,
-            Accept: "application/json",
-        }
-
-
-    }
+    // const getownerdetaiils = (videoid) => {
+    //     const accessToken = user?.accessToken
+    //     const headers = {
+    //         Authorization: accessToken,
+    //         Accept: "application/json",
+    //     }
+    // }
 
 
 
     const getuserplaylists = () => {
-        const accessToken = user?.accessToken
-        const headers = {
-            Authorization: accessToken,
-            Accept: "application/json",
-        }
-        axios
-            .get(`http://localhost:8000/api/v1/playlist/user/${user.user._id}`, { headers })
+        api.get(`/playlist/user/${user.user._id}`)
             .then((response) => {
                 console.log(response.data.data)
                 setplaylists(response.data.data)
-
-
             })
             .catch((error) => {
                 console.error("Error fetching user playlists:", error)
             })
     }
 
-    // const playlists = [
-    //     {
-    //         id: 1,
-    //         title: "AWS Tutorials - AWS tutorials For Beginners - AWS Certification - AWS Training",
-    //         creator: "Gaurav Sharma",
-    //         thumbnail: "/placeholder.svg?height=200&width=360",
-    //         videoCount: 196,
-    //         isVerified: true,
-    //         type: "Playlist",
-    //     },
-    //     {
-    //         id: 2,
-    //         title: "Bhagawad geeta",
-    //         creator: "Private",
-    //         thumbnail: "/placeholder.svg?height=200&width=360",
-    //         videoCount: 3,
-    //         isVerified: false,
-    //         type: "Playlist",
-    //     },
-    //     {
-    //         id: 3,
-    //         title: "Blender 4.0 Beginner Donut Tutorial (NEW)",
-    //         creator: "Blender Guru",
-    //         thumbnail: "/placeholder.svg?height=200&width=360",
-    //         videoCount: 14,
-    //         isVerified: true,
-    //         type: "Playlist",
-    //     },
-    //     {
-    //         id: 4,
-    //         title: "Build App Clones with ReactJS",
-    //         creator: "Clever Programmer",
-    //         thumbnail: "/placeholder.svg?height=200&width=360",
-    //         videoCount: 20,
-    //         isVerified: true,
-    //         type: "Playlist",
-    //     },
-    //     {
-    //         id: 5,
-    //         title: "Chai aur full stack NextJS",
-    //         creator: "Chai aur Code",
-    //         thumbnail: "/placeholder.svg?height=200&width=360",
-    //         videoCount: 17,
-    //         isVerified: false,
-    //         type: "Playlist",
-    //     },
-    //     {
-    //         id: 6,
-    //         title: "Chai aur Javascript Backend | Hindi",
-    //         creator: "Chai aur Code",
-    //         thumbnail: "/placeholder.svg?height=200&width=360",
-    //         videoCount: 25,
-    //         isVerified: false,
-    //         type: "Playlist",
-    //     },
-    //     {
-    //         id: 7,
-    //         title: "Complete SASS Tutorial",
-    //         creator: "Private",
-    //         thumbnail: "/placeholder.svg?height=200&width=360",
-    //         videoCount: 28,
-    //         isVerified: true,
-    //         type: "Playlist",
-    //     },
-    //     {
-    //         id: 8,
-    //         title: "Complete C++ Placement DSA Course",
-    //         creator: "CodeHelp - by Babbar",
-    //         thumbnail: "/placeholder.svg?height=200&width=360",
-    //         videoCount: 149,
-    //         isVerified: true,
-    //         type: "Course",
-    //     },
-    // ]
 
     const toggleDropdown = () => {
         setIsDropdownOpen(!isDropdownOpen);

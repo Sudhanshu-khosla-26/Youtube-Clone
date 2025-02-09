@@ -45,7 +45,7 @@ export const useAuth = () => {
         setUser(userData);
         return userData;
     };
-
+    
     const logout = async () => {
         try {
             await api.post('/users/logout');

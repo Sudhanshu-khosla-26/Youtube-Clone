@@ -1,13 +1,16 @@
 import axios from 'axios';
 import AuthService from './auth.service';
 
-const API_URL = 'http://localhost:8000/api/v1';
+// const API_URL = import.meta.env.VITE_SERVER_URL 
+const API_URL = "http://localhost:5000/api/v1";
 
 // Create axios instance
 const api = axios.create({
     baseURL: API_URL,
     headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${AuthService.getAccessToken()}`,
+        'Accept': 'application/json',
     }
 });
 
@@ -50,17 +53,17 @@ api.interceptors.response.use(
             });
 
             const { accessToken, newRefreshToken } = response.data.data;
-            
+
             // Update tokens in storage
             AuthService.updateTokens(accessToken, newRefreshToken);
-            
+
             // Retry the original request with new token
             originalRequest.headers['Authorization'] = `Bearer ${accessToken}`;
             return api(originalRequest);
         } catch (error) {
             // If refresh token fails, logout user
             AuthService.removeUser();
-            window.location.href = '/login';
+            window.location.href = '/v3/Signin';
             return Promise.reject(error);
         }
     }
