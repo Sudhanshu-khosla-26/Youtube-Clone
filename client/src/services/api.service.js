@@ -1,7 +1,7 @@
 import axios from 'axios';
 import AuthService from './auth.service';
 
-// const API_URL = import.meta.env.VITE_SERVER_URL 
+// const API_URL = "https://youtube-clone-gefz.onrender.com/api/v1";
 const API_URL = "http://localhost:5000/api/v1";
 
 // Create axios instance

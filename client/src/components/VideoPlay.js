@@ -11,10 +11,201 @@ import PYPopupBox from './PYPopupBox';
 import api from "../services/api.service";
 
 
+const CustomButton = ({ onClick, children }) => (
+  <button
+    onClick={onClick}
+    className="p-2 w-[40px] h-[40px] rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800"
+  >
+    {children}
+  </button>
+);
+
+const IconX = () => (
+  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="18" y1="6" x2="6" y2="18" />
+    <line x1="6" y1="6" x2="18" y2="18" />
+  </svg>
+);
+
+
+const IconShuffle = () => (
+  <img className='invert w-[24px] h-[24px]1' src='/images/Shuffle.svg' alt='' />
+ );
+
+const IconLoop = () => (
+  <img className='invert w-[24px] h-[24px]' src='/images/Loop.svg' alt='' />
+);
+
+const VideoPlaylist = ({videoId,playlistId,index}) => {
+  const [activeVideo, setActiveVideo] = useState(parseInt(index));
+  const [isOpen, setIsOpen] = useState(true);
+  const [playlistData, setPlaylistData] = useState([]);
+  const [playlistVideo, setplaylistVideo] = useState([]);
+  const user = JSON.parse(localStorage.getItem('USER'));
+  const [showRemovePopup, setshowRemovePopup] = useState(false);
+
+  const fetchplaylist = async () => {
+      try {
+        await api.get(`/playlist/${playlistId}`).then((response)=>{
+          setPlaylistData(response.data.data);
+          console.log(response.data.data);
+          const videoslist = response.data.data.videos
+
+          const videoDataPromises = videoslist.map(videoId =>
+            api.get(`/videos/${videoId}`)
+          );
+
+          Promise.all(videoDataPromises)
+            .then(responses => {
+              const videoData = responses.map(response => response.data.data);
+              setplaylistVideo(videoData);
+              console.log(videoData);
+            })
+            .catch(error => {
+              console.error('Error fetching video data:', error);
+            });
+          
+          
+        })
+
+        
+      } catch (error) {
+        console.log(error);
+      }
+  }
+
+  const formatDuration = (second) => {
+    const totalSeconds = Math.round(second);
+    const hours = Math.floor(totalSeconds / 3600);
+    const remainingMinutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    if (seconds >= 3600) {
+        return `${hours}:${remainingMinutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    } else {
+        return `${remainingMinutes}:${seconds.toString().padStart(2, '0')}`;
+    }
+}
+
+
+const removePlaylistFromLibrary = async () => {
+  try {
+    await api.delete(`/playlist/${playlistId}`).then((response) => {
+      console.log(response.data);
+    })
+    console.log();
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+  useEffect(() => {
+    fetchplaylist();
+  },[])
+  // fetchplaylist();
+
+
+  return (
+    !isOpen ?
+      <div className='w-[420px] mb-4 font-roboto bg-[#150A33] border-[0.1px] border-zinc-700 text-white rounded-lg overflow-hidden' onClick={() => setIsOpen(true)}>
+        <div className="flex items-center gap-2 px-4 py-3 ">
+          <div className='flex flex-col'>
+          <p className="text-[14px] line-clamp-1 leading-[20px] font-normal">
+            <span className='text-[14px] pr-1  leading-[20px] font-semibold'>
+              Next:
+            </span>
+              {playlistVideo.length > parseInt(index) ? playlistVideo[parseInt(index)]?.title : playlistVideo[0].title}
+            </p>
+          <span className='text-[12px] mt-1 line-clamp-1 text-zinc-400 hover:text-white leading-[18px] font-normal'>{user.user.fullName} - {parseInt(index)}/{playlistVideo.length}</span>
+          </div>
+          <div onClick={() => setIsOpen(false)} className="rounded-full min-w-[40px] flex items-center justify-center h-[40px] hover:bg-zinc-600">
+            <img className='invert ' src='/images/arrow-down.svg' alt='' />
+          </div>
+        </div>
+      </div>
+      :
+    <div className="w-[420px] mb-4 font-roboto  bg-zinc-900 border-[0.1px] border-zinc-700 text-white rounded-lg overflow-hidden">
+      <div className="flex items-start justify-between pt-4 pb-1 ">
+        <div>
+          <h2 className="text-[20px] px-4 line-clamp-1 leading-[28px] font-bold">{playlistData.name}</h2>
+          <p className="text-[12px] mt-1 px-4 leading-[15px]  font-normal text-zinc-400">
+            <span className='text-white pr-1 '>
+              {user.user.fullName}
+            </span>
+             - {parseInt(index)}/{playlistVideo.length}</p>
+          <div className='flex items-center gap-2 ml-2 mt-1'>
+          <CustomButton>
+            <IconLoop />
+          </CustomButton>
+          <CustomButton>
+            <IconShuffle />
+          </CustomButton>
+          </div>
+        </div>
+        <div className="flex flex-col relative justify-between items-center mr-2">
+    
+          <CustomButton onClick={() => setIsOpen(false)}>
+            <IconX />
+          </CustomButton> 
+
+          <CustomButton onClick={() => setshowRemovePopup(!showRemovePopup)}>
+            <img className='invert w-[24px] h-[24px]' src="/images/tripledot.svg" alt="" />
+          </CustomButton>
+          {showRemovePopup && (
+            <div className="absolute right-8 w-max top-16  bg-[#272727] p-2 rounded-lg">
+              <button
+                onClick={() => {removePlaylistFromLibrary(); setshowRemovePopup(!showRemovePopup) }}
+                className="text-white text-[14px] font-semibold leading-[20px]"
+              >
+                Remove playlist from library
+              </button>
+            </div>
+          )}
+          
+
+
+        </div>
+      </div>
+
+      <div className="h-fit max-h-[380px]  overflow-y-auto">
+        {playlistVideo.map((video , Index) => (
+          <a 
+            href={`/watch/${video._id}/${playlistData._id}/${parseInt(Index)+1}`}
+            key={video._id}
+            className={`flex items-center gap-2 pt-[8px] pr-[8px] pb-[4px] pl-[0px]  cursor-pointer ${
+              activeVideo === parseInt(Index)+1 ? "bg-[#130831]" : "bg-[#0f0f0f] hover:bg-zinc-800"
+            }`}
+            onClick={() => setActiveVideo(parseInt(Index)+1)}
+          >
+            <span className="text-[12px] leading-[15px]  font-normal text-zinc-400 mt-1 w-2 h-[60px] flex items-center justify-center mx-2">{Index+1}</span>
+            <div className="relative flex-shrink-0">
+              <img
+                src={video.thumbnail}
+                alt={video.title}
+                className="w-[100px] h-[50px] object-cover rounded"
+              />
+              <span className="absolute bottom-1 right-1 bg-black/80 text-white text-xs px-1 rounded">
+                {formatDuration(video.duration)}
+              </span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-[14px] w-10/12 leading-[20px]  font-medium line-clamp-2">{video.title}</h3>
+              <p className="text-[12px] leading-[18px]  font-normal text-zinc-400 mt-1">{video.owner.fullName}</p>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+    
+  );
+};
+
+
+
 const VideoPlay = (props) => {
   const Minimize = useSelector((state) => state.MinimizeState);
   const [isLoading, setIsLoading] = useState(true);
-  const { VideoId } = useParams();
+  const { VideoId, playlistId, index } = useParams();
   const [VideoDetail, setVideoDetail] = useState([]);
   const [ShowDescription, setShowDescription] = useState(false);
   const [YTAPIVIDEOS, setYTAPIVIDEOS] = useState([]);
@@ -26,6 +217,8 @@ const VideoPlay = (props) => {
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const User = JSON.parse(localStorage.getItem('USER'));
   const [isSaveBoxVisible, setIsSaveBoxVisible] = useState(false);
+
+  console.log(VideoId, playlistId, index);
 
   const togglePopup = () => {
     setIsPopupVisible(!isPopupVisible);
@@ -159,6 +352,8 @@ const VideoPlay = (props) => {
     if (count <= 1000000000) return (count / 1000000).toFixed(1) + 'M';
     return (count / 1000000000).toFixed(1) + ' B';
   };
+
+
 
   const handleLike = async () => {
     try {
@@ -469,6 +664,9 @@ const VideoPlay = (props) => {
         </VideoSection>
         <SuggestedVideosSection>
 
+          {playlistId &&
+            <VideoPlaylist videoId={VideoId} playlistId={playlistId} index={index} />
+          }
           <div className="tags">
             <button className='active'>
               All

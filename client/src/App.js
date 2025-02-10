@@ -66,6 +66,7 @@ function App() {
             { path: "/:username", element: <YouTubeChannel /> },
             { path: "feed/history", element: <WatchHistory /> },
             { path: "/watch/:VideoId", element: <VideoPlay /> },
+            { path: "/watch/:VideoId/:playlistId/:index", element: <VideoPlay /> },
             { path: "/v3/Signin", element: <SignIn /> },
             { path: "/v3/Signup", element: <SignUp /> },
           ].map(({ path, element }) => (

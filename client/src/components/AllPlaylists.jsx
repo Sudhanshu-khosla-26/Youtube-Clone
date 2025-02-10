@@ -94,7 +94,7 @@ const AllPlaylists = () => {
 
                 <div className="grid grid-cols-1 ml-3 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     {playlists.map((playlist) => (
-                        <a href='#' key={playlist._id} className={`group  ${minimize ? "w-[253px]" : "w-[295px]"}  max-w-[295px] `}>
+                        <a href={`/watch/${playlist.videos[0]}/${playlist._id}/1`} key={playlist._id} className={`group  ${minimize ? "w-[253px]" : "w-[295px]"}  max-w-[295px] `}>
                             {/* Thumbnail */}
                             <div className="relative aspect-video rounded-lg overflow-hidden bg-neutral-800 mb-3">
                                 <img
