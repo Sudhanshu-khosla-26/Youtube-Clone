@@ -3,8 +3,11 @@ import AuthService from './auth.service';
 
 
 const API_URL = "https://youtube-clone-gefz.onrender.com/api/v1";
+<<<<<<< HEAD
 // const API_URL = "http://localhost:5000/api/v1";
 
+=======
+>>>>>>> a9ea87126850f08e80964db6997a81fe7371257c
 
 // Create axios instance
 const api = axios.create({
