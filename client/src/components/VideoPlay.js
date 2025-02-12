@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo, useCallback, memo } from 'react'
 import LeftSide from './LeftSide';
 import { useSelector } from 'react-redux';
 import ReactPlayer from 'react-player/lazy'
@@ -11,81 +11,68 @@ import PYPopupBox from './PYPopupBox';
 import api from "../services/api.service";
 
 
-const CustomButton = ({ onClick, children }) => (
+const CustomButton = memo(({ onClick, children }) => (
   <button
     onClick={onClick}
     className="p-2 w-[40px] h-[40px] rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800"
   >
     {children}
   </button>
-);
+));
 
-const IconX = () => (
+const IconX = memo(() => (
   <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <line x1="18" y1="6" x2="6" y2="18" />
     <line x1="6" y1="6" x2="18" y2="18" />
   </svg>
-);
+));
+
+const IconShuffle = memo(() => (
+  <img className='invert w-[24px] h-[24px]1' src='/images/Shuffle.svg' alt='Shuffle' />
+));
+
+const IconLoop = memo(() => (
+  <img className='invert w-[24px] h-[24px]' src='/images/Loop.svg' alt='Loop' />
+));
 
 
-const IconShuffle = () => (
-  <img className='invert w-[24px] h-[24px]1' src='/images/Shuffle.svg' alt='' />
- );
-
-const IconLoop = () => (
-  <img className='invert w-[24px] h-[24px]' src='/images/Loop.svg' alt='' />
-);
-
-const VideoPlaylist = ({videoId,playlistId,index}) => {
+const VideoPlaylist = memo(({videoId, playlistId, index}) => {
   const [activeVideo, setActiveVideo] = useState(parseInt(index));
   const [isOpen, setIsOpen] = useState(true);
   const [playlistData, setPlaylistData] = useState([]);
   const [playlistVideo, setplaylistVideo] = useState([]);
-  const user = JSON.parse(localStorage.getItem('USER'));
+  const user = useMemo(() => JSON.parse(localStorage.getItem('USER')), []);
   const [showRemovePopup, setshowRemovePopup] = useState(false);
 
-  const fetchplaylist = async () => {
-      try {
-        await api.get(`/playlist/${playlistId}`).then((response)=>{
-          setPlaylistData(response.data.data);
-          console.log(response.data.data);
-          const videoslist = response.data.data.videos
 
-          const videoDataPromises = videoslist.map(videoId =>
-            api.get(`/videos/${videoId}`)
-          );
+  const fetchplaylist = useCallback(async () => {
+    try {
+      const response = await api.get(`/playlist/${playlistId}`);
+      const playlistDetails = response.data.data;
+      setPlaylistData(playlistDetails);
+      
+      const videoslist = playlistDetails.videos;
+      const videoDataPromises = videoslist.map(videoId => api.get(`/videos/${videoId}`));
 
-          Promise.all(videoDataPromises)
-            .then(responses => {
-              const videoData = responses.map(response => response.data.data);
-              setplaylistVideo(videoData);
-              console.log(videoData);
-            })
-            .catch(error => {
-              console.error('Error fetching video data:', error);
-            });
-          
-          
-        })
+      const responses = await Promise.all(videoDataPromises);
+      const videoData = responses.map(response => response.data.data);
+      
+      setplaylistVideo(videoData);
+    } catch (error) {
+      console.error('Error fetching playlist:', error);
+    }
+  }, [playlistId]);
 
-        
-      } catch (error) {
-        console.log(error);
-      }
-  }
-
-  const formatDuration = (second) => {
+  const formatDuration = useCallback((second) => {
     const totalSeconds = Math.round(second);
     const hours = Math.floor(totalSeconds / 3600);
     const remainingMinutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
 
-    if (seconds >= 3600) {
-        return `${hours}:${remainingMinutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    } else {
-        return `${remainingMinutes}:${seconds.toString().padStart(2, '0')}`;
-    }
-}
+    return seconds >= 3600
+      ? `${hours}:${remainingMinutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+      : `${remainingMinutes}:${seconds.toString().padStart(2, '0')}`;
+  }, []);
 
 
 const removePlaylistFromLibrary = async () => {
@@ -198,7 +185,7 @@ const removePlaylistFromLibrary = async () => {
     </div>
     
   );
-};
+});
 
 
 
@@ -270,6 +257,7 @@ const VideoPlay = (props) => {
     api.get(`/comments/${VideoId}`)
       .then((response) => {
         if (response.data.success) {
+          console.log(response.data.data);
           setComments(response.data.data);
         } else {
           console.error('Error: Response data indicates failure', response.data);
@@ -278,6 +266,20 @@ const VideoPlay = (props) => {
       .catch((error) => {
         console.error('Error fetching comments:', error);
       });
+
+    axios.get(`https://youtube.googleapis.com/youtube/v3/commentThreads?part=snippet%2Creplies&videoId=${VideoId}&key=AIzaSyDlhskfkjE7kLtNtHFCWJf2mpaTOV6Wbno`)
+      .then((response) => {
+        if (response.data.items) {
+          console.log(response.data.items);
+          setComments(response.data.items);
+        } else {
+          console.error('Error: Response data indicates failure', response.data);
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching comments:', error);
+      });
+
 
   }, [VideoId])
 
@@ -440,7 +442,7 @@ const VideoPlay = (props) => {
                 width="853px"
                 height="100%"
                 controls={true}
-                light={<img className='max-h-[480px] min-h-[365px]  h-full' style={{ borderRadius: "8px" }} width="853px" src={`${VideoDetail?.snippet?.thumbnails?.maxres?.url || VideoDetail?.snippet?.thumbnails?.standard?.url}`} alt='thumbnail' />}
+                light={<img className='max-h-[480px] min-h-[365px]  h-full' style={{ borderRadius: "8px" }} width="853px" src={`${VideoDetail?.snippet?.thumbnails?.maxres?.url || VideoDetail?.snippet?.thumbnails?.standard?.url}`}  />}
                 playing={true}
                 playbackRate={1}
                 pip={true}
@@ -536,7 +538,7 @@ const VideoPlay = (props) => {
                   Share
                 </button>
 
-                <button className="Downloadbutton">
+                <button className="Downloadbutton" style={{ opacity: User ? 1 : 0.7, cursor: User ? "default" : "not-allowed" }} disabled={!User}>
                   <img className='invert' src="/images/Download.svg" alt="" />
                   Download
                 </button>
@@ -603,7 +605,7 @@ const VideoPlay = (props) => {
               </div>
               <div className="commentinputsection relative h-fit flex items-center">
                 {/* <div className="userimage flex h-[100%]  justify-center  pr-4"> */}
-                <img className='rounded-full absolute top-1 w-[40px] h-[40px] mr-4' src={User?.user?.avatar} alt="" />
+                <img className='rounded-full absolute top-1 w-[40px] h-[40px] mr-4' src={User?.user?.avatar || "/images/user.png"} alt="" />
                 {/* </div> */}
                 <div className="textarea ml-[50px] w-full mb-4">
                   <textarea onChange={(e) => {
@@ -611,6 +613,7 @@ const VideoPlay = (props) => {
                     console.log(e.target.value);
                   }} onClick={() => setcommentsbuttons(true)} value={commentInput} className='w-[99%] bg-transparent outline-none ' placeholder="Add a comment..." />
                   {commentsbuttons ?
+                  <>
                     <div className="commentfuntionbuttons flex items-center justify-between">
                       <button className="emoji">
                         <img className='invert' src="/images/Emoji.svg" alt="" />
@@ -628,8 +631,10 @@ const VideoPlay = (props) => {
                         </button>
                       </div>
                     </div>
+                    </>
                     :
-                    <></>
+                    <div className="border-b-2 border-[#282828] w-full relative" ></div>
+                    // null
                   }
                 </div>
               </div>
@@ -637,19 +642,25 @@ const VideoPlay = (props) => {
                 {comments.map((comment) => (
                   <li className='comment flex mt-4 '>
                     <div className="profileimg ">
-                      <img className='rounded-full top-1 w-[40px] h-[40px] mr-4' src={comment?.owner?.avatar} alt="" />
+                      <img className='rounded-full top-1 w-[40px] h-[40px] mr-4' src={comment?.owner?.avatar || comment?.snippet?.topLevelComment?.snippet?.authorProfileImageUrl} alt="" />
                     </div>
                     <div className="commentdata">
                       <span>
                         <span className="">
-                          commenter name
-                          <span className="">
-                            posted this ago
+                          {comment?.owner ? 
+                          <a href={`/@${comment?.owner?.username}`}>
+                            @{comment?.owner?.username}
+                          </a>
+                          :
+                           comment?.snippet?.topLevelComment?.snippet?.authorDisplayName
+                          }
+                          <span className="ml-2">
+                            {timeAgo(comment?.createdAt || comment?.snippet?.topLevelComment?.snippet?.publishedAt)}
                           </span>
                         </span>
                       </span>
                       <pre className='text-[14px] font-[400] text-[#f1f1f1] leading-[20px]'>
-                        {comment?.content}
+                        {comment?.content || comment?.snippet?.topLevelComment?.snippet?.textDisplay}
                       </pre>
                     </div>
                     <div className="reportoption">
@@ -800,7 +811,7 @@ const VideoPlay = (props) => {
 }
 
 const Sidebar = styled.div`
-          .dSfYty{
+          .fSufhi{
             position: fixed;
             top: 0px !important;
             left: -300px !important;
@@ -808,7 +819,8 @@ const Sidebar = styled.div`
     }
 
           ${props => props.Minimize && `
-        .dSfYty{
+        .fSufhi{
+            top: 0px;
             left: 0px !important;
         }
     `}
@@ -818,8 +830,11 @@ const Container = styled.div`
           position: absolute;
           top: 58px;
           left: 0px;
-          display: flex;
+          display: flex;  
 
+              @media (max-width: 1024px) {
+    flex-direction: column;
+  }
           `;
 
 const VideoSection = styled.div`
@@ -891,7 +906,7 @@ const VideoSection = styled.div`
             }
 
           .subscribebutton{
-            background-color: #272727;
+          background-color: #272727;
           line-height: 36px;
           width: 150px;
           padding: 0 18px;
@@ -903,6 +918,7 @@ const VideoSection = styled.div`
           align-items: center;
           gap: 4px;
           justify-content: center;
+          // margin-left: 60px;
           img{
             width: 24px;
           height: 24px;
@@ -1118,7 +1134,17 @@ const SuggestedVideosSection = styled.div`
   }
 
           ul{
-            display: flex;
+              display: grid;
+          grid-template-columns: 1fr;
+
+          @media (min-width: 0px) and ( max-width: 768px) {
+            grid-template-columns: 1fr;
+        }
+
+        @media (min-width: 768px) and (max-width: 1024px) {
+            grid-template-columns: 2fr ;
+        } 
+
           /* position: absolute; */
           flex-wrap: wrap;
           /* top: 90px; */

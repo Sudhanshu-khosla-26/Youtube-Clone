@@ -473,11 +473,12 @@ const updateView = asyncHandler(async (req, res) => {
 
   let WatchHistory;
   if (req.user) {
+    const existingWatchHistory = req.user.watchHistory.filter(v => v.toString() !== videoId.toString());
     WatchHistory = await User.findByIdAndUpdate(
       req.user?._id,
       {
-        $push: {
-          watchHistory: new mongoose.Types.ObjectId(videoId),
+        $set: {
+          watchHistory: [...existingWatchHistory.slice(0, 99) , videoId],
         },
       },
       {
