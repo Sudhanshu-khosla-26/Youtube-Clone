@@ -3,7 +3,7 @@ import React, { useEffect, useState, useMemo, useCallback, memo } from 'react'
 import LeftSide from './LeftSide';
 import { useSelector } from 'react-redux';
 import ReactPlayer from 'react-player/lazy'
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../App.css';
 import moment from 'moment';
@@ -191,6 +191,7 @@ const removePlaylistFromLibrary = async () => {
 
 const VideoPlay = (props) => {
   const Minimize = useSelector((state) => state.MinimizeState);
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const { VideoId, playlistId, index } = useParams();
   const [VideoDetail, setVideoDetail] = useState([]);
@@ -204,6 +205,7 @@ const VideoPlay = (props) => {
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const User = JSON.parse(localStorage.getItem('USER'));
   const [isSaveBoxVisible, setIsSaveBoxVisible] = useState(false);
+  const [showloginalertbox, setshowloginalertbox] = useState("");
 
   console.log(VideoId, playlistId, index);
 
@@ -358,7 +360,7 @@ const VideoPlay = (props) => {
 
 
   const handleLike = async () => {
-    try {
+      try {
       const response = await api.patch(`/likes/toggle/v/${VideoId}`, {});
       if (response.data.success) {
         setVideoDetail((prevDetail) => ({
@@ -429,20 +431,21 @@ const VideoPlay = (props) => {
             <source src={`${VideoDetail?.videoFile}`} type="video/mp4" />
             </video> */}
           {VideoDetail?.id ?
-            <div className="relative w-[853px] max-h-[480px] min-h-[365px] h-full">
+         
+            <div className="relative h-full w-screen md:w-[853px] md:max-h-[480px] md:min-h-[365px]">
               {isLoading && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
                   <div className="loader"></div>
                 </div>
               )}
               <ReactPlayer
-                className="max-h-[480px] min-h-[365px] object-cover"
-                style={{ backgroundColor: "black", borderRadius: "8px" }}
+                className="h-full w-screen rounded-lg md:w-[853px] md:max-h-[480px] md:min-h-[365px]"
+                style={{ backgroundColor: "black" }}
                 loop={true}
-                width="853px"
+                width="100%"
                 height="100%"
                 controls={true}
-                light={<img className='max-h-[480px] min-h-[365px]  h-full' style={{ borderRadius: "8px" }} width="853px" src={`${VideoDetail?.snippet?.thumbnails?.maxres?.url || VideoDetail?.snippet?.thumbnails?.standard?.url}`}  />}
+                light={<img className='h-[202px] w-screen md:max-h-[480px] md:min-h-[365px]  md:h-full object-cover rounded-lg' src={`${VideoDetail?.snippet?.thumbnails?.maxres?.url || VideoDetail?.snippet?.thumbnails?.standard?.url}`}  />}
                 playing={true}
                 playbackRate={1}
                 pip={true}
@@ -452,20 +455,21 @@ const VideoPlay = (props) => {
               />
             </div>
             :
-            <div className="relative w-[853px] max-h-[480px] min-h-[365px] h-full">
+    
+            <div className="relative h-full w-screen md:w-[853px] md:max-h-[480px] md:min-h-[365px]">
               {isLoading && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
                   <div className="loader"></div>
                 </div>
               )}
               <ReactPlayer
-                className="max-h-[480px] min-h-[365px] object-cover"
-                style={{ backgroundColor: "black", borderRadius: "8px" }}
+                className="h-full w-screen rounded-lg md:w-[853px] md:max-h-[480px] md:min-h-[365px]"
+                style={{ backgroundColor: "black" }}
                 loop={true}
-                width="853px"
+                width="100%"
                 height="100%"
                 controls={true}
-                light={<img style={{ borderRadius: "8px" }} width="853px" height="480px" src={`${VideoDetail?.thumbnail}`} alt='thumbnail' />}
+                light={<img className='h-[202px] object-cover md:max-h-[480px] md:min-h-[365px]  md:h-full w-screen rounded-lg' src={`${VideoDetail?.thumbnail}`} alt='thumbnail' />}
                 playing={true}
                 playbackRate={1}
                 pip={true}
@@ -510,15 +514,21 @@ const VideoPlay = (props) => {
                 </div>
               </div>
               <div className="funtionbuttons">
-                <div className="likeanddislike">
+                <div className="likeanddislike  relative ">
                   <button className="likebutton pr-2 flex flex-grow"
-                    onClick={handleLike}>
+                    onClick={() => {
+                      User ? 
+                      handleLike()
+                      :
+                      showloginalertbox === "" ?  setshowloginalertbox("Like") : setshowloginalertbox("")
+                    }}>
 
-                    {VideoDetail?.isLiked ?
+                    {VideoDetail?.isLiked ? 
                       <img src="/images/Liked.svg" alt="" />
                       :
                       <img src="/images/unlike.svg" alt="" />
                     }
+
                     <span>
                       {VideoDetail?.id ?
                         (VideoDetail?.statistics.likeCount && formatCount((VideoDetail?.statistics.likeCount)) || 0)
@@ -527,10 +537,25 @@ const VideoPlay = (props) => {
                       }
                     </span>
                   </button>
+      
                   <div className="h-5 bg-white w-[1px]"></div>
                   <div className="dislikebutton flex flex-grow">
                     <img className='invert ' src="/images/DisLike.svg" alt="" />
                   </div>
+
+                  {showloginalertbox === "Like" &&
+                              <div className="w-[300px] p-4 z-10 absolute bg-zinc-900 text-white border-zinc-800  bottom-14">
+                              <div>
+                                <span className="text-lg font-medium">Like this video?</span>
+                              </div>
+                              <div className="space-y-4">
+                                <p className="text-sm text-zinc-400">Sign in to make your opinion count.</p>
+                                <button variant="link" onClick={() => navigate("/v3/Signin")} className="text-blue-400 hover:text-blue-300 p-0 h-auto font-medium">
+                                  Sign in
+                                </button>
+                              </div>
+                            </div>
+                      }
                 </div>
 
                 <button className="sharebutton">
@@ -538,7 +563,7 @@ const VideoPlay = (props) => {
                   Share
                 </button>
 
-                <button className="Downloadbutton" style={{ opacity: User ? 1 : 0.7, cursor: User ? "default" : "not-allowed" }} disabled={!User}>
+                <button className="Downloadbutton hidden md:block" style={{ opacity: User ? 1 : 0.7 }} disabled={!User}>
                   <img className='invert' src="/images/Download.svg" alt="" />
                   Download
                 </button>
@@ -548,15 +573,15 @@ const VideoPlay = (props) => {
                   </button>
                   {isPopupVisible && (
                     <div className="popup-box w-[120px] py-2 absolute bottom-12 bg-[#282828]  shadow-lg rounded-lg">
-                      <button className="flex items-center justify-evenly  w-full text-start text-[14px] leading-[20px] font-normal  py-1 hover:bg-[#535353]">
+                      <button className="flex items-center justify-evenly  w-full text-start text-[14px] leading-[20px] font-normal  py-1 hover:bg-[#535353]" style={{ opacity: User ? 1 : 0.7 }} disabled={!User}>
                         <img className="invert" src="/images/Clip.svg" alt="" />
                         Clip
                       </button>
-                      <button className="flex items-center justify-evenly  w-full text-start text-[14px] leading-[20px] font-normal  py-1 hover:bg-[#535353]" onClick={toggleSaveBox}>
+                      <button className="flex items-center justify-evenly  w-full text-start text-[14px] leading-[20px] font-normal  py-1 hover:bg-[#535353]" style={{ opacity: User ? 1 : 0.7 }} disabled={!User} onClick={toggleSaveBox}>
                         <img className="invert" src="/images/Save.svg" alt="" />
                         Save
                       </button>
-                      <button className="flex items-center justify-evenly  w-full  text-start text-[14px] leading-[20px] font-normal py-1 hover:bg-[#535353]">
+                      <button className="flex items-center justify-evenly  w-full  text-start text-[14px] leading-[20px] font-normal py-1 hover:bg-[#535353]" style={{ opacity: User ? 1 : 0.7 }} disabled={!User}>
                         <img className="ml-1 invert" src="/images/Report-history.svg" alt="" />
                         Report
                       </button>
@@ -593,83 +618,7 @@ const VideoPlay = (props) => {
               }
             </div>
 
-            <div className="CommentSection">
-              <div className="commentheader flex items-center py-4">
-                <h3 className='leading-[28px] font-bold text-[20px] text-[#f1f1f1]'>
-                  {VideoDetail.id ? (VideoDetail.statistics.commentCount) : comments.length} Comments
-                </h3>
-                <div className="sortby cursor-pointer ml-6 flex items-center font-[500] text-[14px] leading-[22px] text-[#f1f1f1]">
-                  <img className='invert mr-2' src="/images/Sortby.svg" alt="" />
-                  Sort by
-                </div>
-              </div>
-              <div className="commentinputsection relative h-fit flex items-center">
-                {/* <div className="userimage flex h-[100%]  justify-center  pr-4"> */}
-                <img className='rounded-full absolute top-1 w-[40px] h-[40px] mr-4' src={User?.user?.avatar || "/images/user.png"} alt="" />
-                {/* </div> */}
-                <div className="textarea ml-[50px] w-full mb-4">
-                  <textarea onChange={(e) => {
-                    setCommentInput(e.target.value);
-                    console.log(e.target.value);
-                  }} onClick={() => setcommentsbuttons(true)} value={commentInput} className='w-[99%] bg-transparent outline-none ' placeholder="Add a comment..." />
-                  {commentsbuttons ?
-                  <>
-                    <div className="commentfuntionbuttons flex items-center justify-between">
-                      <button className="emoji">
-                        <img className='invert' src="/images/Emoji.svg" alt="" />
-                      </button>
-                      <div className="">
-                        <button onClick={() => {
-                          setCommentInput("");
-                          setcommentsbuttons(false);
-                        }} className="cancle hover:bg-[#282828] px-[10px] rounded-[18px] mr-6 leading-[36px] font-[600] text-[14px] text-[#f1f1f1]">
-                          Cancle
-                        </button>
-                        <button onClick={() => { handleComment(commentInput); }} className="commentpost mr-[10px] leading-[36px] text-[14px] font-[600] text-[#0f0f0f] 
-                            hover:bg-[#65B8FF] bg-[#3ea6ff]  w-[93px] h-[36px] rounded-[18px]">
-                          Comment
-                        </button>
-                      </div>
-                    </div>
-                    </>
-                    :
-                    <div className="border-b-2 border-[#282828] w-full relative" ></div>
-                    // null
-                  }
-                </div>
-              </div>
-              <ul className="comments">
-                {comments.map((comment) => (
-                  <li className='comment flex mt-4 '>
-                    <div className="profileimg ">
-                      <img className='rounded-full top-1 w-[40px] h-[40px] mr-4' src={comment?.owner?.avatar || comment?.snippet?.topLevelComment?.snippet?.authorProfileImageUrl} alt="" />
-                    </div>
-                    <div className="commentdata">
-                      <span>
-                        <span className="">
-                          {comment?.owner ? 
-                          <a href={`/@${comment?.owner?.username}`}>
-                            @{comment?.owner?.username}
-                          </a>
-                          :
-                           comment?.snippet?.topLevelComment?.snippet?.authorDisplayName
-                          }
-                          <span className="ml-2">
-                            {timeAgo(comment?.createdAt || comment?.snippet?.topLevelComment?.snippet?.publishedAt)}
-                          </span>
-                        </span>
-                      </span>
-                      <pre className='text-[14px] font-[400] text-[#f1f1f1] leading-[20px]'>
-                        {comment?.content || comment?.snippet?.topLevelComment?.snippet?.textDisplay}
-                      </pre>
-                    </div>
-                    <div className="reportoption">
-                      <img src="" alt="" />
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
+          
 
           </div>
         </VideoSection>
@@ -777,7 +726,7 @@ const VideoPlay = (props) => {
                 <a href={`/watch/${Data.id}`}>
                   <li >
                     <img className='object-cover' src={Data?.snippet?.thumbnails?.high?.url} alt="" />
-                    <div className="videoInfo max-w-[254px]">
+                    <div className="videoInfo ">
                       {/* <img src={Data.details.avatar} alt="" /> */}
                       <div className="Info">
                         <div className="title">
@@ -811,18 +760,15 @@ const VideoPlay = (props) => {
 }
 
 const Sidebar = styled.div`
-          .fSufhi{
+            z-index: 9999;
             position: fixed;
             top: 0px !important;
             left: -300px !important;
             transition: all 250ms cubic-bezier(0.25, 0.46, 0.45, 0.94) 0s;   
-    }
 
           ${props => props.Minimize && `
-        .fSufhi{
             top: 0px;
             left: 0px !important;
-        }
     `}
           `;
 
@@ -840,6 +786,8 @@ const Container = styled.div`
 const VideoSection = styled.div`
           margin-left: 36px;
           padding: 24px 24px 0 0;
+
+
 
           video{
             border-radius: 8px;
@@ -1097,11 +1045,48 @@ const VideoSection = styled.div`
     }
 
 
+    @media (min-width: 0px) and ( max-width: 768px) {
+            margin-left: 0;
+            padding: 0 24px 0 0;
+
+                 video{
+                    width:100vw;
+                 }
+
+              .VideoInfo{
+                width: 90vw !important;
+                margin: 0 6% 0 6% !important;
+
+                .videotitle{
+                  h1{
+                     line-height: 26px !important;
+                      font-size: 18px !important;
+                      font-weight: 500 !important;
+                  }
+                }
+
+                .videoCredentials{
+                  flex-direction: column !important;
+
+                  .funtionbuttons{
+                    .Downloadbutton{
+                      display: none;
+                    }
+                  }
+                }
+
+                .DescriptionBox{
+                  width: 90vw !important;
+                  }
+              }
+            }
+
           `;
 
 const SuggestedVideosSection = styled.div`
           padding: 24px 24px 0 0;
 
+    
           .tags{
             width: 408px;
           height: 48px;
@@ -1134,15 +1119,14 @@ const SuggestedVideosSection = styled.div`
   }
 
           ul{
-              display: grid;
-          grid-template-columns: 1fr;
+              display: flex;
+              flex:1;
+              width: 100%;
 
-          @media (min-width: 0px) and ( max-width: 768px) {
-            grid-template-columns: 1fr;
-        }
+    
 
         @media (min-width: 768px) and (max-width: 1024px) {
-            grid-template-columns: 2fr ;
+            
         } 
 
           /* position: absolute; */
@@ -1153,7 +1137,7 @@ const SuggestedVideosSection = styled.div`
           margin-top:14px ;
           a{
             text-decoration: none;
-          margin: 0 7.3px 8px 0px !important;
+          margin: 0 7.3px 8px 0px ;
           li{
             list-style : none ;
           display: flex;
@@ -1175,7 +1159,7 @@ const SuggestedVideosSection = styled.div`
           height: 36px;
           }
           .Info{
-            width: 100%;
+          width: 100%;
           margin-left: 14px;
           max-width: 298px;
           /* display: flex;
@@ -1241,6 +1225,43 @@ const SuggestedVideosSection = styled.div`
       }
     }
   }
+
+  @media (min-width: 0px) and ( max-width: 768px) {
+              width: 100vw;
+              padding: 12px 0 0 0;
+
+
+              .tags{
+                  display: none !important;
+              }
+
+              ul{
+                a{
+                    margin: 0 0 8px 0px !important;
+
+                  li{
+                    flex-direction: column;
+
+                    img{
+                          width: 100%;
+    height: 215px;
+                    }
+
+                    .videoInfo{
+                      width: 100%;
+                      
+                    .Info{
+                      max-width: 100vw;
+                      }
+                        
+                    }
+                  }
+                  }
+
+                }
+        }
+
+
 `;
 
 

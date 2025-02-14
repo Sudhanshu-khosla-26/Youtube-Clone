@@ -16,6 +16,7 @@ const Playlist = () => {
   const [loading, setLoading] = useState(false);
   const User = JSON.parse(localStorage.getItem('USER'));
 
+  console.log("render playlist")
 
   const handleAnalyzeImage = () => {
     if (!imageUrl) {
@@ -131,6 +132,8 @@ const Playlist = () => {
     } else {
       console.log('else');
     }
+
+    console.log("render  2 playlist");
   }, [listquery]);
 
   useEffect(() => {

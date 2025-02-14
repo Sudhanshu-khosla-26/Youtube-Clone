@@ -1,13 +1,32 @@
 import styled, { createGlobalStyle } from "styled-components";
-import React from "react";
+import React , { useEffect, useState} from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import api from "../services/api.service";
 
 const LeftSide = (props) => {
   const navigate = useNavigate();
   const User = JSON.parse(localStorage.getItem("USER"));
+  const [subscribedchannel, setsubscribedchannel] = useState([]);
   const Minimize = useSelector((state) => state.MinimizeState);
   console.log(Minimize);
+
+  const fetchSubscribedChannels = async () => {
+    await api.get(`/subscriptions/u/${User?.user._id}`)
+      .then((response) => {
+        console.log(response.data.data);
+        setsubscribedchannel(response.data.data);
+      })
+  };
+
+  useEffect(() => {
+    if (User) {
+
+      fetchSubscribedChannels();
+    }
+
+  }, [])
+  
 
   return (
     <>
@@ -145,48 +164,16 @@ const LeftSide = (props) => {
               <div className="subscriptionsbox">
                 <span>Subscriptions</span>
                 <ul>
+
+                  {subscribedchannel.map((channel) => (
                   <li>
-                    <img src="https://yt3.ggpht.com/SieSOlanXFaZVE-5vJlrY9qq-zdGyWXrWCtF5JbjidPZvM2b_6ddCshm5i5n-yGSNHE2f2XASQ=s88-c-k-c0x00ffffff-no-rj" alt="" />
-                    <span>
-                      BeastBoyShub
+                    <img src={channel.avatar} alt="" />
+                    <span className="">
+                      {channel.fullName}
                       <img src="/images/livestream.svg" alt="" />
                     </span>
                   </li>
-                  <li>
-                    <img src="https://yt3.ggpht.com/SieSOlanXFaZVE-5vJlrY9qq-zdGyWXrWCtF5JbjidPZvM2b_6ddCshm5i5n-yGSNHE2f2XASQ=s88-c-k-c0x00ffffff-no-rj" alt="" />
-                    <span>
-                      BeastBoyShub
-                      <img src="/images/livestream.svg" alt="" />
-                    </span>
-                  </li>
-                  <li>
-                    <img src="https://yt3.ggpht.com/SieSOlanXFaZVE-5vJlrY9qq-zdGyWXrWCtF5JbjidPZvM2b_6ddCshm5i5n-yGSNHE2f2XASQ=s88-c-k-c0x00ffffff-no-rj" alt="" />
-                    <span>
-                      BeastBoyShub
-                      <img src="/images/livestream.svg" alt="" />
-                    </span>
-                  </li>
-                  <li>
-                    <img src="https://yt3.ggpht.com/SieSOlanXFaZVE-5vJlrY9qq-zdGyWXrWCtF5JbjidPZvM2b_6ddCshm5i5n-yGSNHE2f2XASQ=s88-c-k-c0x00ffffff-no-rj" alt="" />
-                    <span>
-                      BeastBoyShub
-                      <img src="/images/livestream.svg" alt="" />
-                    </span>
-                  </li>
-                  <li>
-                    <img src="https://yt3.ggpht.com/SieSOlanXFaZVE-5vJlrY9qq-zdGyWXrWCtF5JbjidPZvM2b_6ddCshm5i5n-yGSNHE2f2XASQ=s88-c-k-c0x00ffffff-no-rj" alt="" />
-                    <span>
-                      BeastBoyShub
-                      <img src="/images/livestream.svg" alt="" />
-                    </span>
-                  </li>
-                  <li>
-                    <img src="https://yt3.ggpht.com/SieSOlanXFaZVE-5vJlrY9qq-zdGyWXrWCtF5JbjidPZvM2b_6ddCshm5i5n-yGSNHE2f2XASQ=s88-c-k-c0x00ffffff-no-rj" alt="" />
-                    <span>
-                      BeastBoyShub
-                      <img src="/images/livestream.svg" alt="" />
-                    </span>
-                  </li>
+                  ))} 
                   <li className="showmore">
                     <img src="/images/arrow-down.svg" alt="" />
                     Show more

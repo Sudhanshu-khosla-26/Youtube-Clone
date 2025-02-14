@@ -4,7 +4,29 @@ import { useSelector } from "react-redux"
 import moment from "moment"
 import LoadingGrid from "./Loadinggrid"
 import api from "../services/api.service"
+import Aurora from './Aurora';
 import { Link } from "react-router-dom"
+
+const ShinyText = ({ text, disabled = false, speed = 5, className = '' }) => {
+  const animationDuration = `${speed}s`;
+
+  return (
+    <div
+      className={`text-[#b5b5b5a4] bg-clip-text inline-block ${disabled ? '' : 'animate-shine'} ${className}`}
+      style={{
+        backgroundImage: 'linear-gradient(120deg, rgba(255, 255, 255, 0) 40%, rgba(255, 255, 255, 0.8) 50%, rgba(255, 255, 255, 0) 60%)',
+        backgroundSize: '200% 100%',
+        WebkitBackgroundClip: 'text',
+        animationDuration: animationDuration,
+      }}
+    >
+      {text}
+    </div>
+  );
+};
+
+
+
 
 const RightSide = () => {
   const [allVideos, setAllVideos] = useState([])
@@ -17,8 +39,9 @@ const RightSide = () => {
   const [isOpen, setIsOpen] = useState(true)
   const minimize = useSelector((state) => state.MinimizeState)
   const user = JSON.parse(localStorage.getItem("USER"))
-
   const [showMessage, setShowMessage] = useState(false);
+
+  console.log("rightside render")
 
   const handleVideoClick = () => {
     setShowMessage(false);
@@ -32,6 +55,8 @@ const RightSide = () => {
     if (!messageShown) {
       setShowMessage(true);
     }
+    console.log("api call allvideos");
+
   }, [])
 
   useEffect(() => {
@@ -164,25 +189,36 @@ const RightSide = () => {
     fetchMoodResult(mood)
   }
 
+  
+  // return null;
+  
+
   return (
     <div
-      className={`mt-14 flex flex-col ${minimize ? "w-[81vw] left-[230px]" : "w-[92vw] left-[72px]"} h-[91vh] top-0 overflow-y-scroll absolute transition-all duration-300 ease-in-out`}
+      className={`flex flex-col w-screen  ${minimize ? "lg:w-[81vw] lg:left-[230px]" : "lg:w-[92vw] lg:left-[72px]"} h-screen top-0 overflow-y-scroll absolute transition-all duration-300 ease-in-out`}
     >
         
-          <div className="tags min-h-[32px] max-h-[32px] flex-row mt-4 flex overflow-x-scroll ml-6 whitespace-nowrap gap-2.5">
+       
+          <div className=" mt-16  tags min-h-[32px] max-h-[32px] flex-row  flex overflow-x-scroll ml-4  md:ml-  6 lg:ml-6 whitespace-nowrap gap-2.5">
             <button
               className={`${
                 "AI" === activetag
                   ? "bg-white text-black hover:bg-[#FFFFFF]"
                   : "text-white bg-[#272727] hover:bg-[#3F3F3F]"
-              } cursor-pointer text-center px-3 py-1.5 text-sm font-medium rounded-lg transition-colors duration-300`}
+              } cursor-pointer border-[0.4px] border-zinc-600 text-center px-3 py-1.5 text-sm font-medium rounded-lg transition-colors duration-300`}
               onClick={() => {
                 setactivetag("AI")
                 setCategoryId(-1)
                 setIsOpen(true)
               }}
             >
-              AI✦
+          <ShinyText className={`${
+                "AI" === activetag
+                  ? "bg-white text-black hover:bg-[#FFFFFF]"
+                  : ""
+              } custom-class`} text="AI✦" disabled={false} speed={2}  />
+
+              {/* AI✦ */}
             </button>
             <button
               className={`${
@@ -192,7 +228,7 @@ const RightSide = () => {
               } cursor-pointer text-center px-3 py-1.5 text-sm font-medium rounded-lg transition-colors duration-300`}
               onClick={() => {
                 setactivetag("All")
-                setCategoryId(0)
+                setCategoryId(0);
               }}
             >
               All
@@ -226,34 +262,34 @@ const RightSide = () => {
         </div>
       )}
 
-          {!(ytApiVideos && allVideos) ? (
+          {!(ytApiVideos && allVideos)  ? (
             <div
-              className={`flex ${minimize ? "w-[81vw]" : "w-[91.6vw]"} justify-center items-center absolute top-[90px] left-[17px] flex-wrap`}
+              className={`flex w-screen ${minimize ? "md:w-[81vw]" : "md:w-[91.6vw]"} justify-center items-center absolute top-[90px] left-[17px] flex-wrap`}
             >
               <LoadingGrid />
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-x-4 gap-y-8 p-4 mt-4">
-              {allVideos.map((data) => (
+            <div className="flex  md:ml-0 lg:ml-3  flex-col w-full md:flex-row md:flex-wrap gap-x-4 gap-y-8 md:p-4 mt-4">
+              {allVideos.map((data) => (  
                 <Link
                   to={`/watch/${data._id}`}
                   key={data._id}
                   onClick={() => {videoViewUpdate(data._id);
                     handleVideoClick();
                   }}
-                  className="no-underline"
+                  className="no-underline md:w-[48%] lg:w-[32%] w-full"
                 >
                   <div className="transition-transform duration-300 hover:scale-105">
-                    <img
+                    <img loading="lazy" 
                       className="object-cover max-h-[224px] w-full h-full rounded-lg"
                       src={data.thumbnail}
                       alt=""
                       width={343}
                       height={193}
                     />
-                    <div className="flex mt-2">
-                      <img
-                        className="rounded-full w-9 h-9"
+                    <div className="flex mt-2 px-3">
+                      <img loading="lazy" 
+                        className="rounded-full min-w-[40px] w-[40px] max-h-[40px] "
                         src={data.details.avatar}
                         alt=""
                         width={36}
@@ -261,10 +297,10 @@ const RightSide = () => {
                       />
                       <div className="ml-3 w-full">
                         <div className="flex justify-between items-center">
-                          <span className="cursor-pointer flex-[0.9] line-clamp-2 leading-[22px] font-medium text-base">
+                          <span className="cursor-pointer flex-1 line-clamp-2 leading-[22px] font-medium text-base">
                             {data.title.length > 74 ? `${data.title.slice(0, 72)}...` : data.title}
                           </span>
-                          <img
+                          <img loading="lazy" 
                             className="w-6 h-6 ml-0.5 cursor-pointer invert"
                             src="/images/tripledot.svg"
                             alt=""
@@ -272,10 +308,12 @@ const RightSide = () => {
                             height={24}
                           />
                         </div>
+                        <div className="flex items-center md:items-start flex-row md:flex-col">
+
                         <div className="flex items-center mt-1">
                           <span className="flex items-center font-normal text-[#949494] cursor-pointer text-sm leading-[20px]">
                             {data.details.username}
-                            <img
+                            <img loading="lazy" 
                               className="w-3.5 h-3.5 ml-1 invert-[0.6]"
                               src="/images/tick.svg"
                               alt=""
@@ -284,9 +322,10 @@ const RightSide = () => {
                             />
                           </span>
                         </div>
-                        <span className="text-[#949494] font-normal cursor-pointer text-sm leading-[20px]">
+                        <span className="text-[#949494] font-normal cursor-pointer text-sm leading-[20px] mt-1 ml-1 md:ml-0 md:mt-0">
                           {formatViewCount(data.views)} views • {timeAgo(data.createdAt)}
                         </span>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -297,23 +336,23 @@ const RightSide = () => {
                 ? 
                 ytApiVideos.length > 0 &&
                   ytApiVideos.map((data) => (
-                    <Link to={`/watch/${data.id}`} onClick={handleVideoClick} key={data.id} className="no-underline">
+                    <Link to={`/watch/${data.id}`} onClick={handleVideoClick} key={data.id} className="no-underline md:w-[48%] lg:w-[32%]  w-full">
                       <div className="transition-transform duration-300 hover:scale-105">
-                        <img
+                        <img loading="lazy" 
                           className="object-cover  max-h-[224px] w-full h-full  rounded-lg"
                           src={
-                            data?.snippet?.thumbnails?.maxres?.url ||
                             data?.snippet?.thumbnails?.standard?.url ||
+                            data?.snippet?.thumbnails?.maxres?.url ||
                             data?.snippet?.thumbnails?.high?.url
                           }
                           alt=""
                           width={343}
                           height={193}
                         />
-                        <div className="flex mt-2">
-                          <img
-                            className="rounded-full w-9 h-9"
-                            src={channelImages[data?.snippet?.channelId] || "/placeholder.svg"}
+                        <div className="flex mt-2 px-3">
+                          <img loading="lazy" 
+                            className="rounded-full min-w-[40px] w-[40px] max-h-[40px]"
+                            src={channelImages[data?.snippet?.channelId] }
                             alt="Channel"
                             width={36}
                             height={36}
@@ -325,7 +364,7 @@ const RightSide = () => {
                                   ? `${data?.snippet?.title.slice(0, 72)}...`
                                   : data?.snippet?.title}
                               </span>
-                              <img
+                              <img loading="lazy" 
                                 className="w-6 h-6 ml-0.5 cursor-pointer invert"
                                 src="/images/tripledot.svg"
                                 alt=""
@@ -336,7 +375,7 @@ const RightSide = () => {
                             <div className="flex items-center mt-1">
                               <span className="flex items-center font-normal text-[#949494] cursor-pointer text-sm leading-[20px]">
                                 {data?.snippet?.channelTitle}
-                                <img
+                                <img loading="lazy" 
                                   className="w-3.5 h-3.5 ml-1 invert-[0.6]"
                                   src="/images/tick.svg"
                                   alt=""
@@ -359,9 +398,9 @@ const RightSide = () => {
                   <div className='flex flex-col ' key={category}>
                   <h1 className="text-white ml-2">{category}</h1>
                   {videos.length>0 && videos.map((data)=>(
-                     <Link to={`/watch/${data.id}`} onClick={handleVideoClick}  key={data.id} className="no-underline ">
+                     <Link to={`/watch/${data.id}`} onClick={handleVideoClick}  key={data.id} className="no-underline md:w-[32%] w-full">
                      <div className="transition-transform duration-300 hover:scale-105">
-                       <img
+                       <img loading="lazy" 
                          className="object-cover  max-h-[224px] w-full h-full  rounded-lg"
                          src={
                            data?.snippet?.thumbnails?.maxres?.url ||
@@ -372,10 +411,10 @@ const RightSide = () => {
                          width={343}
                          height={193}
                        />
-                       <div className="flex mt-2">
-                         <img
-                           className="rounded-full w-9 h-9"
-                           src={channelImages[data?.snippet?.channelId] || "/placeholder.svg"}
+                       <div className="flex mt-2 px-3">
+                         <img loading="lazy" 
+                           className="rounded-full min-w-[40px] w-[40px] max-h-[40px]"
+                           src={channelImages[data?.snippet?.channelId] }
                            alt="Channel"
                            width={36}
                            height={36}
@@ -387,7 +426,7 @@ const RightSide = () => {
                                  ? `${data?.snippet?.title.slice(0, 72)}...`
                                  : data?.snippet?.title}
                              </span>
-                             <img
+                             <img loading="lazy" 
                                className="w-6 h-6 ml-0.5 cursor-pointer invert"
                                src="/images/tripledot.svg"
                                alt=""
@@ -398,7 +437,7 @@ const RightSide = () => {
                            <div className="flex items-center mt-1">
                              <span className="flex items-center font-normal text-[#949494] cursor-pointer text-sm leading-[20px]">
                                {data?.snippet?.channelTitle}
-                               <img
+                               <img loading="lazy" 
                                  className="w-3.5 h-3.5 ml-1 invert-[0.6]"
                                  src="/images/tick.svg"
                                  alt=""
@@ -423,22 +462,30 @@ const RightSide = () => {
           )}
 
           {isOpen && (
+
             <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-              <div className="bg-gradient-to-r from-[#FF0099] to-[#493240]  p-10 rounded-lg text-center relative transform transition-transform scale-100">
-                <button
-                  onClick={closeModal}
-                  className="absolute top-2 right-4 bg-none border-none text-2xl cursor-pointer"
-                >
-                  X
-                </button>
-                <h1 className="text-2xl mb-6">What's your mood?</h1>
-                <div className="flex gap-2 mt-2">
+              
+              <Aurora className='w-full h-full'
+  colorStops={["#3A29FF", "#FF94B4", "#FF3232"]}
+  speed={1}
+  /> 
+  <button
+
+    onClick={closeModal}
+    className="absolute top-20 right-8 bg-none border-none text-3xl cursor-pointer"
+  >
+      <img loading="lazy"  src="/images/escbtn.png" className="w-12 h-12" alt="" />  
+  </button>
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 p-20 rounded-lg text-center  max-w-[600px]">
+               
+                <h1 className="text-5xl leading-[40px] mb-12">What's Your Mood ?</h1>
+                <div className="grid grid-cols-5 gap-6">
                   <span
                     role="img"
                     aria-label="happy"
                     title="Happy"
                     onClick={() => logMood("Happy")}
-                    className="text-3xl cursor-pointer transition-transform transform hover:scale-125"
+                    className="text-6xl cursor-pointer transition-transform transform hover:scale-125"
                   >
                     😊
                   </span>
@@ -447,7 +494,7 @@ const RightSide = () => {
                     aria-label="sad"
                     title="Sad"
                     onClick={() => logMood("Sad")}
-                    className="text-3xl cursor-pointer transition-transform transform hover:scale-125"
+                    className="text-6xl cursor-pointer transition-transform transform hover:scale-125"
                   >
                     😢
                   </span>
@@ -456,7 +503,7 @@ const RightSide = () => {
                     aria-label="angry"
                     title="Angry"
                     onClick={() => logMood("Angry")}
-                    className="text-3xl cursor-pointer transition-transform transform hover:scale-125"
+                    className="text-6xl cursor-pointer transition-transform transform hover:scale-125"
                   >
                     😠
                   </span>
@@ -465,7 +512,7 @@ const RightSide = () => {
                     aria-label="surprised"
                     title="Surprised"
                     onClick={() => logMood("Surprised")}
-                    className="text-3xl cursor-pointer transition-transform transform hover:scale-125"
+                    className="text-6xl cursor-pointer transition-transform transform hover:scale-125"
                   >
                     😲
                   </span>
@@ -474,12 +521,13 @@ const RightSide = () => {
                     aria-label="neutral"
                     title="Neutral"
                     onClick={() => logMood("Neutral")}
-                    className="text-3xl cursor-pointer transition-transform transform hover:scale-125"
+                    className="text-6xl cursor-pointer transition-transform transform hover:scale-125"
                   >
                     😐
                   </span>
                 </div>
               </div>
+            
             </div>
           )}
     </div>

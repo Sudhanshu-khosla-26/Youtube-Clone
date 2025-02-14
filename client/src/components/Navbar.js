@@ -80,7 +80,7 @@ const Navbar = (props) => {
           <div className="searchbox">
             <form>
               <div className='Yt-icon'>
-                <img src="" alt="" />
+                {/* <img src="" alt="" /> */}
               </div>
               <div className="search-input">
                 <input onChange={(e) => setSearch(e.target.value)}
