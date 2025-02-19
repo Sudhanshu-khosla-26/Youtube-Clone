@@ -28,63 +28,52 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_KEY);
 const model = genAI.getGenerativeModel({
-    model: "gemini-1.5-flash",
+    model: "gemini-1.5-pro",
     generationConfig: {
         responseMimeType: "application/json",
         temperature: 1,
     },
-    systemInstruction: `
-    You are an AI system that generates multiple unique YouTube search queries based on the emotion provided by the user. Your task is to:
-    - Understand the given emotion (e.g., "happy", "sad") and generate **4 fresh and contextually relevant YouTube search queries** per call.
-    - Ensure that all queries align with the emotion but offer diverse perspectives or genres to maximize variety.
-    - Avoid repeating queries across calls for the same emotion.
-
-    Example Queries for Emotions:
-    - happy: 
-        - "latest stand-up comedy specials"
-        - "funniest moments in movies 2025"
-        - "feel-good motivational videos"
-        - "top trending comedy sketches"
-    - sad:
-        - "heartwarming short films about hope"
-        - "nostalgic songs for reflection"
-        - "classic emotional dramas"
-        - "poignant true stories documentaries"
-    - excited:
-        - "extreme sports highlights compilation"
-        - "best action movie trailers 2025"
-        - "travel adventure vlogs in exotic locations"
-        - "concert performances of top artists"
-    - relaxed:
-        - "soothing piano instrumentals"
-        - "chill lo-fi music mixes for relaxation"
-        - "guided yoga and meditation routines"
-        - "beautiful nature scenery with calming sounds"
-    - angry:
-        - "intense crime thrillers"
-        - "powerful protest documentaries"
-        - "motivational workout videos"
-        - "revenge-themed action movies"
-
-    Output Format:
-    Provide the result in JSON format with the emotion as the key and an array of 4 queries as the value.
-
-    Example interaction:
-    <example>
-        User: happy
-        Response:
-        {
-            "text": ["latest stand-up comedy specials", "funniest moments in movies 2025", "feel-good motivational videos", "top trending comedy sketches"]
-        }
-    </example>
-    `
 });
 
+// Object to store previously generated prompts for each emotion
+const promptHistory = {};
+
+const generateUniquePrompts = async (emotion, count = 4) => {
+    const systemInstruction = `
+    Generate ${count} unique and interesting YouTube search queries based on the emotion "${emotion}". 
+    These queries should be diverse, unexpected, and relevant to the emotion. 
+    Avoid common or generic phrases. Be creative and think outside the box.
+    
+    Format the response as a JSON array of strings.
+    `;
+
+    try {
+        const result = await model.generateContent([
+            { text: systemInstruction },
+            { text: JSON.stringify(promptHistory[emotion] || []) + "\nAvoid these previously generated prompts." }
+        ]);
+        const response = JSON.parse(result.response.text());
+        
+        // Ensure we have an array of strings
+        const newPrompts = Array.isArray(response) ? response : [];
+        
+        // Update prompt history
+        if (!promptHistory[emotion]) {
+            promptHistory[emotion] = [];
+        }
+        promptHistory[emotion] = [...promptHistory[emotion], ...newPrompts].slice(-50); // Keep last 50 prompts
+
+        return newPrompts;
+    } catch (error) {
+        console.error("Error generating prompts:", error);
+        return [];
+    }
+};
 
 const fetchYouTubeResults = async (query) => {
     try {
         await new Promise(resolve => setTimeout(resolve, 1000)); // Add a delay of 1 second
-        const response = await fetch(`https://youtube.googleapis.com/youtube/v3/search?part=snippet&maxResults=25&q=${query}&key=AIzaSyDlhskfkjE7kLtNtHFCWJf2mpaTOV6Wbno`);
+        const response = await fetch(`https://youtube.googleapis.com/youtube/v3/search?part=snippet&maxResults=25&q=${encodeURIComponent(query)}&key=AIzaSyDlhskfkjE7kLtNtHFCWJf2mpaTOV6Wbno`);
         const data = await response.json();
         return data.items;
     } catch (error) {
@@ -93,14 +82,10 @@ const fetchYouTubeResults = async (query) => {
     }
 };
 
-
-
-
 export const generateResult = async (emotion) => {
     try {
-        const prompt = emotion.toLowerCase().trim(); // Ensure consistent input
-        const result = await model.generateContent(prompt); // Generate the dynamic queries
-        const queries = JSON.parse(result.response.text()).text; // Extract queries as an array
+        const prompt = emotion.toLowerCase().trim();
+        const queries = await generateUniquePrompts(prompt);
         console.log(`Generated Queries for "${emotion}":`, queries);
 
         const youtubeResults = {};
@@ -121,6 +106,5 @@ export const generateResult = async (emotion) => {
         return {};
     }
 };
-
 
 // generateResult("sad");

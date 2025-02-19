@@ -67,7 +67,7 @@ const RightSide = () => {
   }, [categoryId])
 
   useEffect(() => {
-    setLoading(true)
+    // setLoading(true)
     if (ytApiVideos.length > 0) {
       fetchChannelImages()
     }
@@ -175,12 +175,14 @@ const RightSide = () => {
       console.log(result)
       const resultArray = result
       setYtApiVideos(resultArray)
+      setLoading(false);
     } catch (error) {
       console.error("Error fetching mood result:", error)
     }
   }
 
   const logMood = (mood) => {
+    setLoading(true)
     setYtApiVideos([])
     setAllVideos([])
     setactivetag("AI")
@@ -262,9 +264,9 @@ const RightSide = () => {
         </div>
       )}
 
-          {!(ytApiVideos && allVideos)  ? (
+          {!(ytApiVideos && allVideos) || loading  ? (
             <div
-              className={`flex w-screen ${minimize ? "md:w-[81vw]" : "md:w-[91.6vw]"} justify-center items-center absolute top-[90px] left-[17px] flex-wrap`}
+              className={`flex w-screen ${minimize ? "md:w-[81vw]" : "md:w-[91.6vw]"} justify-center items-center absolute top-[110px] left-[17px] flex-wrap`}
             >
               <LoadingGrid />
             </div>
@@ -395,67 +397,71 @@ const RightSide = () => {
                   ))
                 : 
                 Object.entries(ytApiVideos).map(([category,videos]) => (
-                  <div className='flex flex-col ' key={category}>
-                  <h1 className="text-white ml-2">{category}</h1>
+                  <section className="w-full bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-700">
+      <h2 className="text-xl font-semibold text-gray-100 mb-4">{category}</h2>
+      <div className="overflow-x-auto">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-8 justify-between  pb-4 ">
+        {/* <h1 className="text-white ml-2">{category}</h1> */}
                   {videos.length>0 && videos.map((data)=>(
-                     <Link to={`/watch/${data.id}`} onClick={handleVideoClick}  key={data.id} className="no-underline md:w-[32%] w-full">
-                     <div className="transition-transform duration-300 hover:scale-105">
-                       <img loading="lazy" 
-                         className="object-cover  max-h-[224px] w-full h-full  rounded-lg"
-                         src={
-                           data?.snippet?.thumbnails?.maxres?.url ||
-                           data?.snippet?.thumbnails?.standard?.url ||
-                           data?.snippet?.thumbnails?.high?.url
-                         }
-                         alt=""
-                         width={343}
-                         height={193}
-                       />
-                       <div className="flex mt-2 px-3">
-                         <img loading="lazy" 
-                           className="rounded-full min-w-[40px] w-[40px] max-h-[40px]"
-                           src={channelImages[data?.snippet?.channelId] }
-                           alt="Channel"
-                           width={36}
-                           height={36}
-                         />
-                         <div className="ml-3  w-full">
-                           <div className="flex justify-between items-center">
-                             <span className="cursor-pointer leading-[22px] font-medium text-base">
-                               {data?.snippet?.title.length > 74
-                                 ? `${data?.snippet?.title.slice(0, 72)}...`
-                                 : data?.snippet?.title}
-                             </span>
-                             <img loading="lazy" 
-                               className="w-6 h-6 ml-0.5 cursor-pointer invert"
-                               src="/images/tripledot.svg"
-                               alt=""
-                               width={24}
-                               height={24}
-                             />
-                           </div>
-                           <div className="flex items-center mt-1">
-                             <span className="flex items-center font-normal text-[#949494] cursor-pointer text-sm leading-[20px]">
-                               {data?.snippet?.channelTitle}
-                               <img loading="lazy" 
-                                 className="w-3.5 h-3.5 ml-1 invert-[0.6]"
-                                 src="/images/tick.svg"
-                                 alt=""
-                                 width={14}
-                                 height={14}
-                               />
-                             </span>
-                           <span className=" ml-2 text-[#949494] font-normal cursor-pointer text-sm leading-[20px]">
-                             {/* {formatViewCount(data?.statistics?.viewCount)} views •{" "} */}
-                             {timeAgo(data?.snippet?.publishedAt)}
-                           </span>
-                           </div>
-                         </div>
-                       </div>
-                     </div>
-                   </Link>
+                    <Link to={`/watch/${data.id.videoId}`} onClick={handleVideoClick} key={data.id} className="no-underline md:w-[48%] lg:w-[32%]  w-full transition-transform duration-300 hover:scale-105">
+                    <div className="">
+                      <img loading="lazy" 
+                        className={`object-cover max-w-full ${minimize ? "max-h-[184px] h-[184px]" : "max-h-[200px]  h-[200px]"} w-full rounded-lg`}
+                        src={
+                          data?.snippet?.thumbnails?.standard?.url ||
+                          data?.snippet?.thumbnails?.maxres?.url ||
+                          data?.snippet?.thumbnails?.high?.url
+                        }
+                        alt=""
+                     
+                      />
+                      <div className="flex mt-2 px-1">
+                        {/* <img loading="lazy" 
+                          className="rounded-full min-w-[40px] w-[40px] max-h-[40px]"
+                          src={channelImages[data?.snippet?.channelId] }
+                          alt="Channel"
+                          width={36}
+                          height={36}
+                        /> */}
+                        <div className="ml-3  w-full">
+                          <div className="flex justify-between items-center">
+                            <span className="cursor-pointer line-clamp-2  leading-[22px] font-medium text-base">
+                              {data?.snippet?.title.length > 58
+                                ? `${data?.snippet?.title.slice(0, 58)}...`
+                                : data?.snippet?.title}
+                            </span>
+                            <img loading="lazy" 
+                              className="w-6 h-6 ml-0.5 cursor-pointer invert"
+                              src="/images/tripledot.svg"
+                              alt=""
+                              width={24}
+                              height={24}
+                            />
+                          </div>
+                          <div className="flex items-center mt-1">
+                            <span className="flex items-center font-normal text-[#949494] cursor-pointer text-sm leading-[20px]">
+                              {data?.snippet?.channelTitle}
+                              <img loading="lazy" 
+                                className="w-3.5 h-3.5 ml-1 invert-[0.6]"
+                                src="/images/tick.svg"
+                                alt=""
+                                width={14}
+                                height={14}
+                              />
+                            </span>
+                          <span className="ml-2 text-[#949494] font-normal cursor-pointer text-sm leading-[20px]">
+                            {timeAgo(data?.snippet?.publishedAt)}
+                          </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
                   ))}
-                </div>
+        </div>
+      </div>
+    </section>
+               
                 ))
                 }
             </div>
@@ -476,10 +482,10 @@ const RightSide = () => {
   >
       <img loading="lazy"  src="/images/escbtn.png" className="w-12 h-12" alt="" />  
   </button>
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 p-20 rounded-lg text-center  max-w-[600px]">
+              <div className="absolute w-screen p-[1rem] top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 md:p-20 rounded-lg text-center md:w-full  max-w-[600px]">
                
-                <h1 className="text-5xl leading-[40px] mb-12">What's Your Mood ?</h1>
-                <div className="grid grid-cols-5 gap-6">
+                <h1 className="text-[4rem] md:text-5xl leading-[82px] md:leading-[40px] mb-12">What's Your Mood ?</h1>
+                <div className="grid mr-[10px] md:mr-0 grid-cols-5 gap-6">
                   <span
                     role="img"
                     aria-label="happy"

@@ -108,35 +108,35 @@ const SignUp = () => {
   }, [])
 
   return (
-    <div className="fixed inset-0 bg-[#0f0f0f] flex items-center justify-center z-[100000] overflow-y-auto">
+    <div className="fixed h-screen items-start inset-0 bg-[#0f0f0f] flex md:items-center justify-center z-[100000] overflow-y-auto">
       <motion.div
         initial={{ opacity: 0, x: -50 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5 }}
-        className="bg-[#272727] w-5/6 h-5/6  rounded-lg shadow-xl p-8 my-8 flex flex-row items-center"
+        className="bg-[#272727] w-5/6 h-fit md:h-5/6 flex-col  rounded-lg shadow-xl p-8 my-8 flex md:flex-row items-center"
       >
-        <div className="w-1/2 flex flex-col items-center">
+        <div className="w-full md:w-1/2 flex flex-col items-center">
           <motion.img
             whileHover={{ scale: 1.1 }}
             src="/favicon.svg"
             alt="Your Company"
             className="h-14 w-auto  mb-4"
           />
-          <h2 className="text-3xl font-bold text-red-500">Create your account</h2>
+          <h2 className="text-[26px] text-center w-full md:text-3xl font-bold text-red-500">Create your account</h2>
           
           <div className="relative mt-8 mb-4">
             <div className="h-48 w-full rounded-xl overflow-hidden">
               {coverImage ? (
                 <img
-                  className="w-full h-full object-cover"
+                  className="w-full max-h-[96px] md:max-w-[384px] h-[96px] md:w-[384px]  object-cover"
                   src={URL.createObjectURL(coverImage) || "/images/card-bg.svg"}
                   alt="Cover"
                 />
               ) : (
-                <img className='h-[96px] w-[384px] rounded-xl' src="/images/card-bg.svg" alt="" />
+                <img className='max-h-[96px] w-full md:max-w-[384px] h-[96px] md:w-[384px] rounded-xl' src="/images/card-bg.svg" alt="" />
               )}
             </div>
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+            <div className="absolute top-[85px] md:top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
               {avatar ? (
                 <img
                   className="w-28 h-28 rounded-full object-cover"
@@ -149,7 +149,7 @@ const SignUp = () => {
             </div>
           </div>
 
-          <div className="flex justify-between relative w-4/6 bottom-8 gap-4 ">
+          <div className="flex justify-between relative w-full top-[-65px] md:w-4/6 md:top-0 bottom-8 gap-4 ">
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -171,7 +171,7 @@ const SignUp = () => {
           </div>
         </div>
 
-        <form onSubmit={CreateUser} className="w-1/2 flex flex-col">
+        <form onSubmit={CreateUser} className=" w-full relative bottom-[40px] md:bottom-0  md:w-1/2 flex flex-col">
           <div className="flex flex-col gap-4">
       
             <input

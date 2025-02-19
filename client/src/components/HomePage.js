@@ -7,13 +7,12 @@ import Playlist from "./PlaylistSTRC";
 import { useParams } from "react-router-dom";
 import Search from "./Search";
 // import SplashCursor from './SplashCursor'
-// import Particles from './Particles';
+import Particles from './Particles';
 import { useSelector } from "react-redux";
 
 
 
 const HomePage = (props) => {
-
   const { query } = useParams();
   const { listquery } = useParams();
   console.log(listquery); 
@@ -28,7 +27,7 @@ const HomePage = (props) => {
         </div>
           
         <div className="rightside">
-
+          {/* <ParticlesBackground /> */}
           {query ?
             <Search />
             :
@@ -39,10 +38,22 @@ const HomePage = (props) => {
           }
         </div>
       </Container>
+
+      {/* <ParticlesBackground /> */}
+
       {/* <MoodBox /> */}
     </>
   )
 }
+
+const ParticlesBackground = styled(Particles)`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+`
 
 const Container = styled.div`
   display: flex;

@@ -331,6 +331,36 @@ const getVideoById = asyncHandler(async (req, res) => {
       {
         $unwind: "$owner",
       },
+      // New lookup for subscriber count
+      {
+        $lookup: {
+          from: "subscriptions",
+          localField: "owner._id",
+          foreignField: "channel",
+          as: "subscriberDetails",
+          pipeline: [
+            {
+              $lookup: {
+                from: "subscriptions",
+                localField: "channel",
+                foreignField: "subscriber",
+                as: "subscribedChannels",
+              },
+            },
+            {
+              $project: {
+                subscribersCount: { $size: "$subscribedChannels" },
+              },
+            },
+          ],
+        },
+      },
+      {
+        $unwind: {
+          path: "$subscriberDetails",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
       // added like fields
       {
         $project: {
@@ -355,6 +385,7 @@ const getVideoById = asyncHandler(async (req, res) => {
               else: false,
             },
           },
+          subscribersCount: "$subscriberDetails.subscribersCount", // Add subscriber count
         },
       },
     ]);

@@ -28,11 +28,11 @@ const IconX = memo(() => (
 ));
 
 const IconShuffle = memo(() => (
-  <img className='invert w-[24px] h-[24px]1' src='/images/Shuffle.svg' alt='Shuffle' />
+  <img loading="lazy"  className='invert w-[24px] h-[24px]1' src='/images/Shuffle.svg' alt='Shuffle' />
 ));
 
 const IconLoop = memo(() => (
-  <img className='invert w-[24px] h-[24px]' src='/images/Loop.svg' alt='Loop' />
+  <img loading="lazy"  className='invert w-[24px] h-[24px]' src='/images/Loop.svg' alt='Loop' />
 ));
 
 
@@ -106,7 +106,7 @@ const removePlaylistFromLibrary = async () => {
           <span className='text-[12px] mt-1 line-clamp-1 text-zinc-400 hover:text-white leading-[18px] font-normal'>{user.user.fullName} - {parseInt(index)}/{playlistVideo.length}</span>
           </div>
           <div onClick={() => setIsOpen(false)} className="rounded-full min-w-[40px] flex items-center justify-center h-[40px] hover:bg-zinc-600">
-            <img className='invert ' src='/images/arrow-down.svg' alt='' />
+            <img loading="lazy"  className='invert ' src='/images/arrow-down.svg' alt='' />
           </div>
         </div>
       </div>
@@ -136,7 +136,7 @@ const removePlaylistFromLibrary = async () => {
           </CustomButton> 
 
           <CustomButton onClick={() => setshowRemovePopup(!showRemovePopup)}>
-            <img className='invert w-[24px] h-[24px]' src="/images/tripledot.svg" alt="" />
+            <img loading="lazy"  className='invert w-[24px] h-[24px]' src="/images/tripledot.svg" alt="" />
           </CustomButton>
           {showRemovePopup && (
             <div className="absolute right-8 w-max top-16  bg-[#272727] p-2 rounded-lg">
@@ -166,7 +166,7 @@ const removePlaylistFromLibrary = async () => {
           >
             <span className="text-[12px] leading-[15px]  font-normal text-zinc-400 mt-1 w-2 h-[60px] flex items-center justify-center mx-2">{Index+1}</span>
             <div className="relative flex-shrink-0">
-              <img
+              <img loading="lazy" 
                 src={video.thumbnail}
                 alt={video.title}
                 className="w-[100px] h-[50px] object-cover rounded"
@@ -432,44 +432,48 @@ const VideoPlay = (props) => {
             </video> */}
           {VideoDetail?.id ?
          
-            <div className="relative h-full w-screen md:w-[853px] md:max-h-[480px] md:min-h-[365px]">
-              {isLoading && (
+            <div className="relative h-full w-screen md:w-[854px] md:h-[480px] md:max-h-[480px] md:min-h-[480px]">
+              {/* {isLoading && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
                   <div className="loader"></div>
                 </div>
-              )}
+              )} */}
               <ReactPlayer
-                className="h-full w-screen rounded-lg md:w-[853px] md:max-h-[480px] md:min-h-[365px]"
+                className="h-full w-screen md:w-[854px] rounded-lg md:h-[480px] md:max-h-[480px] md:min-h-[480px]"
                 style={{ backgroundColor: "black" }}
-                loop={true}
+                loop={false}
                 width="100%"
-                height="100%"
+                height="232px"
+                autoPlay={true}
                 controls={true}
-                light={<img className='h-[202px] w-screen md:max-h-[480px] md:min-h-[365px]  md:h-full object-cover rounded-lg' src={`${VideoDetail?.snippet?.thumbnails?.maxres?.url || VideoDetail?.snippet?.thumbnails?.standard?.url}`}  />}
+                light={false}
+                // light={<img loading="lazy"  className='h-[232px] w-screen md:w-[854px] md:max-h-[480px] md:min-h-[365px]  md:h-full object-cover rounded-lg' src={`${VideoDetail?.snippet?.thumbnails?.maxres?.url || VideoDetail?.snippet?.thumbnails?.standard?.url}`} alt='thumbnail' />}
                 playing={true}
                 playbackRate={1}
                 pip={true}
                 stopOnUnmount={true}
-                url={`https://www.youtube.com/embed/${VideoDetail?.id}?autoplay=0&mute=0&showinfo=0`}
+                url={`https://www.youtube.com/embed/${VideoDetail?.id}?autoplay=true&mute=0&showinfo=0`}
                 onReady={() => setIsLoading(false)}
               />
             </div>
             :
     
-            <div className="relative h-full w-screen md:w-[853px] md:max-h-[480px] md:min-h-[365px]">
-              {isLoading && (
+            <div className="relative h-full w-screen  md:w-[854px] md:h-[480px] md:max-h-[480px] md:min-h-[480px]">
+              {/* {isLoading && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
                   <div className="loader"></div>
                 </div>
-              )}
+              )} */}
               <ReactPlayer
-                className="h-full w-screen rounded-lg md:w-[853px] md:max-h-[480px] md:min-h-[365px]"
+                className="h-full w-screen md:w-[854px] rounded-lg md:h-[480px] md:max-h-[480px] md:min-h-[480px]"
                 style={{ backgroundColor: "black" }}
-                loop={true}
+                loop={false}
                 width="100%"
-                height="100%"
+                autoPlay={true}
+                height="232px"
                 controls={true}
-                light={<img className='h-[202px] object-cover md:max-h-[480px] md:min-h-[365px]  md:h-full w-screen rounded-lg' src={`${VideoDetail?.thumbnail}`} alt='thumbnail' />}
+                light={false}
+                // light={<img loading="lazy"  className='h-[232px] w-screen md:w-[854px] md:max-h-[480px] md:min-h-[365px]  md:h-full object-cover rounded-lg' src={`${VideoDetail?.thumbnail}`} alt='thumbnail' />}
                 playing={true}
                 playbackRate={1}
                 pip={true}
@@ -489,9 +493,10 @@ const VideoPlay = (props) => {
             </div>
 
             <div className="videoCredentials">
-              <div className="channel_info">
+              <div className="channel_info  gap-2 w-full">
+                <div className='flex justify-start items-center'>
                 <a>
-                  <img
+                  <img loading="lazy" 
                     src={VideoDetail?.id ? channeldata.url : VideoDetail?.owner?.avatar}
                     alt=""
                   />
@@ -499,18 +504,23 @@ const VideoPlay = (props) => {
                 <a>
                   <div className="channel_name_and_subscribers">
                     <span>
-                      {VideoDetail?.owner?.username ? VideoDetail?.owner?.username : VideoDetail?.snippet?.channelTitle}
-                      <img src="/images/tick.svg" alt="" />
+                      {VideoDetail?.owner?.username ? VideoDetail?.owner?.username.length > 20 ? VideoDetail?.owner?.username.slice(0, 17) + "..." : VideoDetail?.owner?.username : VideoDetail?.snippet?.channelTitle.length > 20 ? VideoDetail?.snippet?.channelTitle.slice(0, 17) + "..." : VideoDetail?.snippet?.channelTitle}
+                      <img loading="lazy"  src="/images/tick.svg" alt="" />
                     </span>
                     <span>
-                      {formatSubscriberCount(channeldata.subscribers)} subscribers
+                      {formatSubscriberCount(channeldata.subscribers || VideoDetail.subscribersCount)}
+                      <span className=''>
+                        subscribers
+                      </span>
                     </span>
                   </div>
                 </a>
+                </div>
+
                 <div className="subscribebutton">
-                  <img src="/images/notifications.svg" alt="" />
+                  <img loading="lazy"  src="/images/notifications.svg" alt="" />
                   Subscribed
-                  <img src="/images/arrow-down.svg" alt="" />
+                  <img loading="lazy"  src="/images/arrow-down.svg" alt="" />
                 </div>
               </div>
               <div className="funtionbuttons">
@@ -524,9 +534,9 @@ const VideoPlay = (props) => {
                     }}>
 
                     {VideoDetail?.isLiked ? 
-                      <img src="/images/Liked.svg" alt="" />
+                      <img loading="lazy"  src="/images/Liked.svg" alt="" />
                       :
-                      <img src="/images/unlike.svg" alt="" />
+                      <img loading="lazy"  src="/images/unlike.svg" alt="" />
                     }
 
                     <span>
@@ -540,7 +550,7 @@ const VideoPlay = (props) => {
       
                   <div className="h-5 bg-white w-[1px]"></div>
                   <div className="dislikebutton flex flex-grow">
-                    <img className='invert ' src="/images/DisLike.svg" alt="" />
+                    <img loading="lazy"  className='invert ' src="/images/DisLike.svg" alt="" />
                   </div>
 
                   {showloginalertbox === "Like" &&
@@ -559,30 +569,42 @@ const VideoPlay = (props) => {
                 </div>
 
                 <button className="sharebutton">
-                  <img className='invert' src="/images/Share.svg" alt="" />
+                  <img loading="lazy"  className='invert' src="/images/Share.svg" alt="" />
                   Share
                 </button>
 
+                <button className="resbtn" onClick={togglePopup}>
+                <img loading="lazy"  className="invert" src="/images/Save.svg" alt="" />
+                Save 
+                </button>
+
+                {/* <button className="resbtn">
+                <img loading="lazy"  className="ml-1 invert" src="/images/Report-history.svg" alt="" />
+                Report
+                </button> */}
+
                 <button className="Downloadbutton hidden md:block" style={{ opacity: User ? 1 : 0.7 }} disabled={!User}>
-                  <img className='invert' src="/images/Download.svg" alt="" />
+                  <img loading="lazy"  className='invert' src="/images/Download.svg" alt="" />
                   Download
                 </button>
-                <div className="relative">
+
+
+                <div className="relative hidden md:block" >
                   <button className="more" onClick={togglePopup}>
-                    <img className='invert rotate-90' src="/images/tripledot.svg" alt="" />
+                    <img loading="lazy"  className='invert rotate-90' src="/images/tripledot.svg" alt="" />
                   </button>
                   {isPopupVisible && (
                     <div className="popup-box w-[120px] py-2 absolute bottom-12 bg-[#282828]  shadow-lg rounded-lg">
                       <button className="flex items-center justify-evenly  w-full text-start text-[14px] leading-[20px] font-normal  py-1 hover:bg-[#535353]" style={{ opacity: User ? 1 : 0.7 }} disabled={!User}>
-                        <img className="invert" src="/images/Clip.svg" alt="" />
+                        <img loading="lazy"  className="invert" src="/images/Clip.svg" alt="" />
                         Clip
                       </button>
                       <button className="flex items-center justify-evenly  w-full text-start text-[14px] leading-[20px] font-normal  py-1 hover:bg-[#535353]" style={{ opacity: User ? 1 : 0.7 }} disabled={!User} onClick={toggleSaveBox}>
-                        <img className="invert" src="/images/Save.svg" alt="" />
+                        <img loading="lazy"  className="invert" src="/images/Save.svg" alt="" />
                         Save
                       </button>
                       <button className="flex items-center justify-evenly  w-full  text-start text-[14px] leading-[20px] font-normal py-1 hover:bg-[#535353]" style={{ opacity: User ? 1 : 0.7 }} disabled={!User}>
-                        <img className="ml-1 invert" src="/images/Report-history.svg" alt="" />
+                        <img loading="lazy"  className="ml-1 invert" src="/images/Report-history.svg" alt="" />
                         Report
                       </button>
                     </div>
@@ -618,7 +640,85 @@ const VideoPlay = (props) => {
               }
             </div>
 
-          
+            <div className="CommentSection">
+              <div className="commentheader flex items-center py-4">
+                <h3 className='leading-[28px] font-bold text-[20px] text-[#f1f1f1]'>
+                  {VideoDetail.id ? (VideoDetail.statistics.commentCount) : comments.length} Comments
+                </h3>
+                <div className="sortby cursor-pointer ml-6 flex items-center font-[500] text-[14px] leading-[22px] text-[#f1f1f1]">
+                  <img className='invert mr-2' src="/images/Sortby.svg" alt="" />
+                  Sort by
+                </div>
+              </div>
+              <div className="commentinputsection relative h-fit flex items-center">
+                {/* <div className="userimage flex h-[100%]  justify-center  pr-4"> */}
+                <img className='rounded-full absolute top-1 w-[40px] h-[40px] mr-4' src={User?.user?.avatar || "/images/user.png"} alt="" />
+                {/* </div> */}
+                <div className="textarea ml-[50px] w-full mb-4">
+                  <textarea onChange={(e) => {
+                    setCommentInput(e.target.value);
+                    console.log(e.target.value);
+                  }} onClick={() => setcommentsbuttons(true)} value={commentInput} className='w-[99%] bg-transparent outline-none ' placeholder="Add a comment..." />
+                  {commentsbuttons ?
+                  <>
+                    <div className="commentfuntionbuttons flex items-center justify-between">
+                      <button className="emoji">
+                        <img className='invert' src="/images/Emoji.svg" alt="" />
+                      </button>
+                      <div className="">
+                        <button onClick={() => {
+                          setCommentInput("");
+                          setcommentsbuttons(false);
+                        }} className="cancle hover:bg-[#282828] px-[10px] rounded-[18px] mr-6 leading-[36px] font-[600] text-[14px] text-[#f1f1f1]">
+                          Cancle
+                        </button>
+                        <button onClick={() => { handleComment(commentInput); }} className="commentpost mr-[10px] leading-[36px] text-[14px] font-[600] text-[#0f0f0f] 
+                            hover:bg-[#65B8FF] bg-[#3ea6ff]  w-[93px] h-[36px] rounded-[18px]">
+                          Comment
+                        </button>
+                      </div>
+                    </div>
+                    </>
+                    :
+                    <div className="border-b-2 border-[#282828] w-full relative" ></div>
+                    // null
+                  }
+                </div>
+              </div>
+              <ul className="comments">
+                {comments.map((comment) => (
+                  <li className='comment flex mt-4 '>
+                    <div className="profileimg ">
+                      <img className='rounded-full top-1 w-[40px] h-[40px] mr-4' src={comment?.owner?.avatar || comment?.snippet?.topLevelComment?.snippet?.authorProfileImageUrl} alt="" />
+                    </div>
+                    <div className="commentdata">
+                      <span>
+                        <span className="">
+                          {comment?.owner ? 
+                          <a href={`/@${comment?.owner?.username}`}>
+                            @{comment?.owner?.username}
+                          </a>
+                          :
+                           comment?.snippet?.topLevelComment?.snippet?.authorDisplayName
+                          }
+                          <span className="ml-2">
+                            {timeAgo(comment?.createdAt || comment?.snippet?.topLevelComment?.snippet?.publishedAt)}
+                          </span>
+                        </span>
+                      </span>
+                      <div className='text-[14px] font-[400] text-[#f1f1f1] leading-[20px]'
+                        dangerouslySetInnerHTML={{
+                          __html: comment?.content || comment?.snippet?.topLevelComment?.snippet?.textDisplay
+                        }}
+                      />
+                    </div>
+                    <div className="reportoption">
+                      <img src="" alt="" />
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
           </div>
         </VideoSection>
@@ -697,21 +797,21 @@ const VideoPlay = (props) => {
               {AllVideos?.length > 0 && AllVideos.map((Data) => (
                 <a href={`/watch/${Data._id}`}>
                   <li>
-                    <img className='object-cover' src={Data.thumbnail} alt="" />
+                    <img loading="lazy"  className='object-cover' src={Data.thumbnail} alt="" />
                     <div className="videoInfo">
-                      {/* <img src={Data.details.avatar} alt="" /> */}
+                      {/* <img loading="lazy"  src={Data.details.avatar} alt="" /> */}
                       <div className="Info">
                         <div className="title">
                           <span>
                             {/* {Data?.title} */}
                             {Data?.title?.length > 54 ? Data.title.slice(0, 54) + "..." : Data.title}
                           </span>
-                          <img src="/images/tripledot.svg" alt="" />
+                          <img loading="lazy"  src="/images/tripledot.svg" alt="" />
                         </div>
                         <div className="channelname">
                           <span>
                             {Data.details.username}
-                            <img src="/images/tick.svg" alt="" />
+                            <img loading="lazy"  src="/images/tick.svg" alt="" />
                           </span>
                         </div>
                         <span className='viewAndTime'>
@@ -725,21 +825,21 @@ const VideoPlay = (props) => {
               {YTAPIVIDEOS?.length > 0 && YTAPIVIDEOS.map((Data) => (
                 <a href={`/watch/${Data.id}`}>
                   <li >
-                    <img className='object-cover' src={Data?.snippet?.thumbnails?.high?.url} alt="" />
+                    <img loading="lazy"  className='object-cover' src={Data?.snippet?.thumbnails?.high?.url} alt="" />
                     <div className="videoInfo ">
-                      {/* <img src={Data.details.avatar} alt="" /> */}
+                      {/* <img loading="lazy"  src={Data.details.avatar} alt="" /> */}
                       <div className="Info">
                         <div className="title">
                           <span>
                             {/* {Data?.title} */}
                             {Data?.snippet?.title?.length > 54 ? Data.snippet.title.slice(0, 54) + "..." : Data.snippet.title}
                           </span>
-                          <img src="/images/tripledot.svg" alt="" />
+                          <img loading="lazy"  src="/images/tripledot.svg" alt="" />
                         </div>
                         <div className="channelname">
                           <span>
                             {Data?.snippet?.channelTitle}
-                            <img src="/images/tick.svg" alt="" />
+                            <img loading="lazy"  src="/images/tick.svg" alt="" />
                           </span>
                         </div>
                         <span className='viewAndTime'>
@@ -796,6 +896,7 @@ const VideoSection = styled.div`
           .VideoInfo{
             width: 850px;
           .videotitle{
+
             margin: 8px 0;
           h1{
             line-height: 28px;
@@ -825,7 +926,9 @@ const VideoSection = styled.div`
 
                     .channel_name_and_subscribers{
             margin-left: 18px;
-          width: 103.1px;
+          width: fit-content;
+          max-width: 170px;
+          overflow-x: hidden;
           height: 43px;
           margin-right: 24px;
           display: flex;
@@ -845,6 +948,8 @@ const VideoSection = styled.div`
                     }
                     }
           :last-child{
+          display: flex; 
+          gap: 4px;
             line-height: 18px;
           font-size: 12px;
           font-weight: 400;
@@ -985,6 +1090,25 @@ const VideoSection = styled.div`
                         }
                 }
 
+                      .resbtn{
+                        display: none !important;
+          justify-content: center;
+          align-items: center;
+          background-color: #272727;
+          border-radius: 18px;
+          width: 92px;
+          height: 36px;
+          line-height: 36px;
+          font-size: 14px;
+          font-weight: 500;
+          img{
+            margin:0 4px 0 0;
+                    }
+          &:hover{
+            background-color: #3F3F3F;
+                        }
+                }
+
           .more{
             width: 36px;
           height: 36px;
@@ -1047,15 +1171,15 @@ const VideoSection = styled.div`
 
     @media (min-width: 0px) and ( max-width: 768px) {
             margin-left: 0;
-            padding: 0 24px 0 0;
+            padding: 0 0 0 0;
 
                  video{
                     width:100vw;
                  }
 
               .VideoInfo{
-                width: 90vw !important;
-                margin: 0 6% 0 6% !important;
+                width: 92vw !important;
+                margin: 0 auto!important;
 
                 .videotitle{
                   h1{
@@ -1066,9 +1190,70 @@ const VideoSection = styled.div`
                 }
 
                 .videoCredentials{
-                  flex-direction: column !important;
+                    width: 90vw !important;  
+                    flex-direction: column !important;
+     \
+                 .channel_info{
+                     width: 100%;
+                    justify-content: start !important;
+
+                    
+    
+                    a{
+                      img{
+                        width: 34px !important;
+                        height: 34px !important;
+                      }
+
+                    .channel_name_and_subscribers{
+                               flex-direction: row;
+                               margin-left: 14px;
+                                align-items: center;
+
+                        :first-child{
+                                font-size: 14px;
+                                line-height:18px;
+                                font-weight: 400;
+                                img{
+                                  display: none;
+                                }
+                        }
+
+                        :last-child{
+                        margin-left: 4px;
+                        font-size: 12px;
+                                line-height:15px;
+                                font-weight: 400;
+
+                                span{
+                                    display: none;
+                                }
+                            }
+                    }
+                  }
+
+                    .subscribebutton{
+                      padding: 0 12px !important;
+                      line-height: 28px !important;
+                      font-size: 12px !important;
+                      font-weight: 500 !important;
+                      margin-left: auto;
+                      width: fit-content !important;
+                      & > img{
+                        display: none;
+                      }
+                    }
+                  }
 
                   .funtionbuttons{
+                  // overflow-x: scroll;x x
+                      width: 90vw;
+    margin-top: 12px;
+
+                    .resbtn{
+                      display: flex !important;
+                    }
+
                     .Downloadbutton{
                       display: none;
                     }
@@ -1077,6 +1262,13 @@ const VideoSection = styled.div`
 
                 .DescriptionBox{
                   width: 90vw !important;
+                  padding-right: 0;
+                  margin: 12px auto  0 !important; 
+                  }
+
+                  .CommentSection{
+                    width: 90vw !important;
+                    overflow:hidden;
                   }
               }
             }
@@ -1243,7 +1435,7 @@ const SuggestedVideosSection = styled.div`
                     flex-direction: column;
 
                     img{
-                          width: 100%;
+                          width: 100vw;
     height: 215px;
                     }
 
