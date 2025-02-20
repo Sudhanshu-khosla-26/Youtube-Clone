@@ -7,7 +7,6 @@ import Playlist from "./PlaylistSTRC";
 import { useParams } from "react-router-dom";
 import Search from "./Search";
 // import SplashCursor from './SplashCursor'
-import Particles from './Particles';
 import { useSelector } from "react-redux";
 
 
