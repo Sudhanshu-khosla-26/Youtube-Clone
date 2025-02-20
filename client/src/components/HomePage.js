@@ -45,14 +45,14 @@ const HomePage = (props) => {
   )
 }
 
-const ParticlesBackground = styled(Particles)`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: -1;
-`
+// const ParticlesBackground = styled(Particles)`
+//   position: fixed;
+//   top: 0;
+//   left: 0;
+//   right: 0;
+//   bottom: 0;
+//   z-index: -1;
+// `
 
 const Container = styled.div`
   display: flex;
