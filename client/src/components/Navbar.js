@@ -99,6 +99,16 @@ const Navbar = (props) => {
         </div>
         {User ?
           <div className="LastSections">
+            <div className="flex  md:hidden mr-2 items-center justify-between  ">
+              <button className='w-[40px] h-[40px] flex items-center justify-center'>
+                <img className='invert' src="/images/search.svg" alt="" />
+              </button>
+
+              <button className=' md:hidden w-[40px] h-[40px] flex items-center justify-center'>
+                <img className='invert' src="/images/tripledot.svg" alt="" />
+              </button>
+            </div>
+            
             <div className="upload">
               <button onClick={() => showUplaodbox ? setshowUplaodbox(false) : setshowUplaodbox(true)}>
                 <img src="/images/upload.svg" alt="" />
@@ -263,6 +273,7 @@ const Navbar = (props) => {
             Sign Out
           </div> */}
             </div>
+            
           </div>
           :
           <>
@@ -366,6 +377,7 @@ const Container = styled.div`
   align-items: center;
   justify-content: space-between;
   z-index: 99999;
+
 
   .LeftSideSections{
     display: flex;
@@ -761,6 +773,33 @@ const Container = styled.div`
   }
 }
 }
+
+
+@media only screen and (max-width: 768px){
+    height: 48px;
+    padding: 0;
+  .LeftSideSections{
+   .menubutton{
+      display: none;
+    }
+   }
+
+   .MiddleSections{
+    display: none;
+   }
+  .LastSections{
+      .upload{
+        display: none;
+      }
+      .notifications{
+          display: none;
+      }
+      .userbox{
+        display: none;
+      }    
+  }
+}
 `;
 
 export default Navbar;
+

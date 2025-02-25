@@ -439,7 +439,7 @@ const VideoPlay = (props) => {
                 </div>
               )} */}
               <ReactPlayer
-                className="h-full w-screen md:w-[854px] rounded-lg md:h-[480px] md:max-h-[480px] md:min-h-[480px]"
+                className="h-full w-screen md:w-[854px] md:rounded-lg md:h-[480px] md:max-h-[480px] md:min-h-[480px]"
                 style={{ backgroundColor: "black" }}
                 loop={false}
                 width="100%"
@@ -465,7 +465,7 @@ const VideoPlay = (props) => {
                 </div>
               )} */}
               <ReactPlayer
-                className="h-full w-screen md:w-[854px] rounded-lg md:h-[480px] md:max-h-[480px] md:min-h-[480px]"
+                className="h-full w-screen md:w-[854px] md:rounded-lg md:h-[480px] md:max-h-[480px] md:min-h-[480px]"
                 style={{ backgroundColor: "black" }}
                 loop={false}
                 width="100%"
@@ -879,7 +879,8 @@ const Container = styled.div`
           display: flex;  
 
               @media (max-width: 1024px) {
-    flex-direction: column;
+              top: 48px;
+              flex-direction: column;
   }
           `;
 
@@ -1422,6 +1423,9 @@ const SuggestedVideosSection = styled.div`
               width: 100vw;
               padding: 12px 0 0 0;
 
+                 video{
+            border-radius: 0px !important;
+    }
 
               .tags{
                   display: none !important;

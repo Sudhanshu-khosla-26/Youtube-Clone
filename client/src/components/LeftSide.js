@@ -52,7 +52,7 @@ const LeftSide = (props) => {
             </li>
           </a>
 
-          {!Minimize &&
+          {Minimize &&
 
             <a href="#">
               <li>
@@ -751,6 +751,20 @@ const Container = styled.div`
   .active{
     background-color: transparent;
   }
+
+    //   @media only screen and (max-width: 768px){
+
+    //         z-index: 9999;
+    //         position: fixed;
+    //         top: 0px !important;
+    //         left: -300px !important;
+    //         transition: all 250ms cubic-bezier(0.25, 0.46, 0.45, 0.94) 0s;   
+
+    //       ${props => props.Minimize && `
+    //         top: 0px;
+    //         left: 0px !important;
+    //       `}
+    // }
 
   `}
 

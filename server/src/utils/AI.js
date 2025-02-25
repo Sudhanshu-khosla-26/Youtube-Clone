@@ -1,31 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_KEY);
-// const model = genAI.getGenerativeModel({
-//     model: "gemini-1.5-pro",
-//     generationConfig: {
-//         responseMimeType: "application/json",
-//         temperature: 1,
-//     },
-//     systemInstruction: `
-//     You are an AI that helps categorize emotions into subcategories for YouTube content recommendations. When given an emotion like "happy", "sad", etc., break it down into relevant subcategories such as:
-//         - happy: ["latest comedy video", "latest comedy with action", "thriller", "feel-good movies"]
-//         - sad: ["drama", "documentary", "romance", "melancholic music"]
-//         - excited: ["adventure", "action", "sports", "travel vlogs"]
-//         - relaxed: ["nature", "meditation", "lo-fi music", "yoga"]
-//         - angry: ["action", "crime", "horror", "thriller"]
-//         Provide the result in JSON format with the emotion as the key and an array of subcategories as the value.
-
-//         <example>
-//             user:happy
-//             response:{
-//                 "text": "["latest comedy video", "latest comedy with action", "thriller", "feel-good movies"]"
-//             }
-//         </example>
-//     `
-// });
-
-
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_KEY);
 const model = genAI.getGenerativeModel({
     model: "gemini-1.5-pro",
@@ -35,76 +9,104 @@ const model = genAI.getGenerativeModel({
     },
 });
 
-// Object to store previously generated prompts for each emotion
-const promptHistory = {};
+const emotionGenresMap = {
+    happy: ["Travel Vlogs", "Comedy Skits", "Dance Performances", "Food Shows", 
+           "Animal Videos", "Sports Moments", "Science Experiments", "Puzzle Videos",
+           "Prank Videos", "Feel-Good Movies"],
+    sad: ["Motivational Speeches", "Heartwarming Stories", "Relaxing Nature", 
+         "Meditation Guides", "Poetry Readings", "Art Therapy", "ASMR Comfort",
+         "Inspirational Biographies", "Emotional Documentaries", "Kindness Acts"],
+    angry: ["Comedy Relief", "Action Thrillers", "Workout Motivation", 
+           "Parkour Videos", "Rap Battles", "Debate Compilations", 
+           "Satisfying Restorations", "Protest Footage", "Gaming Moments",
+           "Destruction Catharsis"],
+    neutral: ["Tech Reviews", "DIY Tutorials", "History Docs", 
+            "Productivity Tips", "Space Exploration", "Language Lessons",
+            "Philosophy Talks", "Cultural Exchange", "Minimalist Lifestyle",
+            "Educational Content"],
+    surprised: ["Magic Reveals", "Plot Twists", "Mystery Challenges", 
+               "Talent Shows", "Paranormal Videos", "Future Tech", 
+               "Illusion Explanations", "Extreme Challenges", 
+               "Cultural Shocks", "Unexpected Reactions"]
+};
 
-const generateUniquePrompts = async (emotion, count = 4) => {
+const getRandomItems = (array, count) => {
+    const shuffled = [...array].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count);
+};
+
+const generateGenrePrompts = async (emotion, genres) => {
     const systemInstruction = `
-    Generate ${count} unique and interesting YouTube search queries based on the emotion "${emotion}". 
-    These queries should be diverse, unexpected, and relevant to the emotion. 
-    Avoid common or generic phrases. Be creative and think outside the box.
+    For "${emotion}" emotion, generate 10 YouTube search prompts for these genres: 
+    ${genres.join(", ")}. 
     
-    Format the response as a JSON array of strings.
-    `;
+    Requirements:
+    1. Exactly 10 prompts per genre
+    2. Include "-shorts" in every prompt
+    3. Use keywords: "latest", "trending", "best of 2025"
+    4. Format as JSON: { "genres": { "[Genre]": [prompts] } }`;
 
     try {
-        const result = await model.generateContent([
-            { text: systemInstruction },
-            { text: JSON.stringify(promptHistory[emotion] || []) + "\nAvoid these previously generated prompts." }
-        ]);
-        const response = JSON.parse(result.response.text());
-        
-        // Ensure we have an array of strings
-        const newPrompts = Array.isArray(response) ? response : [];
-        
-        // Update prompt history
-        if (!promptHistory[emotion]) {
-            promptHistory[emotion] = [];
-        }
-        promptHistory[emotion] = [...promptHistory[emotion], ...newPrompts].slice(-50); // Keep last 50 prompts
-
-        return newPrompts;
+        const result = await model.generateContent(systemInstruction);
+        return JSON.parse(result.response.text());
     } catch (error) {
-        console.error("Error generating prompts:", error);
-        return [];
+        console.error("Prompt generation error:", error);
+        return { genres: {} };
     }
 };
 
 const fetchYouTubeResults = async (query) => {
     try {
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Add a delay of 1 second
-        const response = await fetch(`https://youtube.googleapis.com/youtube/v3/search?part=snippet&maxResults=25&q=${encodeURIComponent(query)}&key=AIzaSyDlhskfkjE7kLtNtHFCWJf2mpaTOV6Wbno`);
-        const data = await response.json();
-        return data.items;
+        const response = await fetch(
+            `https://youtube.googleapis.com/youtube/v3/search?part=snippet&maxResults=20&q=${encodeURIComponent(query)}&key=AIzaSyCKmg2SDXFvi-aks71ATTCYnnCgk2eQsCU`
+        );
+        return response.json();
     } catch (error) {
-        console.error(`Error fetching YouTube results for query "${query}":`, error);
-        return [];
+        console.error("YouTube API error:", error);
+        return { items: [] };
     }
 };
 
 export const generateResult = async (emotion) => {
+    const normalizedEmotion = emotion.toLowerCase().trim();
+    
+    if (!emotionGenresMap[normalizedEmotion]) {
+        throw new Error("Invalid emotion specified");
+    }
+
     try {
-        const prompt = emotion.toLowerCase().trim();
-        const queries = await generateUniquePrompts(prompt);
-        console.log(`Generated Queries for "${emotion}":`, queries);
+        // Select 4 random genres
+        const selectedGenres = getRandomItems(emotionGenresMap[normalizedEmotion], 4);
+        
+        // Generate prompts for selected genres
+        const { genres } = await generateGenrePrompts(normalizedEmotion, selectedGenres);
+        
+        // Select 1 random prompt per genre
+        const selectedPrompts = {};
+        for (const [genre, prompts] of Object.entries(genres)) {
+            if (prompts.length >= 10) {
+                selectedPrompts[genre] = prompts[Math.floor(Math.random() * 10)];
+            }
+        }
 
-        const youtubeResults = {};
+        // Fetch YouTube results
+        const results = {};
+        for (const [genre, prompt] of Object.entries(selectedPrompts)) {
+            const data = await fetchYouTubeResults(prompt);
+            results[genre] = {
+                prompt: prompt,
+                videos: data.items.slice(0,6) // Get top 5 results
+            };
+            await new Promise(resolve => setTimeout(resolve, 500)); // Rate limiting
+        }
 
-        // Fetch YouTube results for each query
-        const videoPromises = queries.map(query => fetchYouTubeResults(query));
-        const videosArray = await Promise.all(videoPromises);
-
-        // Map results to the queries
-        queries.forEach((query, index) => {
-            youtubeResults[query] = videosArray[index];
-        });
-
-        console.log(`YouTube Results for "${emotion}":`, youtubeResults);
-        return youtubeResults;
+        return {
+            emotion: normalizedEmotion,
+            recommendations: results
+        };
+        
     } catch (error) {
-        console.error("Error generating YouTube results:", error);
-        return {};
+        console.error("Error in generateResult:", error);
+        return { error: "Failed to generate recommendations" };
     }
 };
-
-// generateResult("sad");

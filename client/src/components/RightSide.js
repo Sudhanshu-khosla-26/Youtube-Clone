@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react"
 import axios from "axios"
-import { useSelector } from "react-redux"
+import { useDispatch,  useSelector } from "react-redux"
 import moment from "moment"
 import LoadingGrid from "./Loadinggrid"
 import api from "../services/api.service"
 import Aurora from './Aurora';
 import { Link } from "react-router-dom"
+import { toggleBoolean } from '../features/Sidebar';
 
 const ShinyText = ({ text, disabled = false, speed = 5, className = '' }) => {
   const animationDuration = `${speed}s`;
@@ -36,10 +37,13 @@ const RightSide = () => {
   const [activetag, setactivetag] = useState("All")
   const [loading, setLoading] = useState(false)
   const [channelImages, setChannelImages] = useState({})
-  const [isOpen, setIsOpen] = useState(true)
+  const [isOpen, setIsOpen] = useState(false)
   const minimize = useSelector((state) => state.MinimizeState)
   const user = JSON.parse(localStorage.getItem("USER"))
   const [showMessage, setShowMessage] = useState(false);
+  const dispatch = useDispatch();
+  const mood = localStorage.getItem("mood");
+  const moodTimestamp = localStorage.getItem("moodTimestamp")
 
   console.log("rightside render")
 
@@ -48,22 +52,57 @@ const RightSide = () => {
     localStorage.setItem('messageShown', 'true');
   };
 
+  const handleToggle = () => {
+    dispatch(toggleBoolean());
+  };
+
+
   useEffect(() => {
-    fetchAllVideos()
+
     fetchTagList()
     const messageShown = localStorage.getItem('messageShown');
     if (!messageShown) {
       setShowMessage(true);
     }
     console.log("api call allvideos");
+    
+ 
 
+    if (mood && moodTimestamp) {
+      const now = new Date().getTime()
+      const then = Number.parseInt(moodTimestamp)
+      const hoursPassed = (now - then) / (1000 * 60 * 60)
+
+      if (hoursPassed < 1) {
+        setIsOpen(false);
+        logMood(mood);
+        
+      } else {
+        // Mood expired, clear storage
+        localStorage.removeItem("mood")
+        localStorage.removeItem("moodTimestamp")
+    
+      }
+    } else {
+      fetchAllVideos();
+      setIsOpen(true);
+
+    }
+
+    // if(mood){
+    //   setIsOpen(false);
+    //   logMood(mood);
+    // }
+    // else{
+    //   setIsOpen(true);
+    //   fetchAllVideos();
+    // }
   }, [])
 
-  useEffect(() => {
-    if (categoryId === 0) {
-      fetchAllVideos()
+  useEffect(() => {    
+    if(categoryId > 0){
+      fetchCategoryVideos(categoryId);
     }
-    fetchCategoryVideos(categoryId)
   }, [categoryId])
 
   useEffect(() => {
@@ -85,7 +124,7 @@ const RightSide = () => {
   const fetchCategoryVideos = async (categoryId) => {
     try {
       const response = await axios.get(
-        `https://youtube.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&chart=mostPopular&maxResults=20000&regionCode=IN&videoCategoryId=${categoryId}&key=AIzaSyDlhskfkjE7kLtNtHFCWJf2mpaTOV6Wbno`,
+        `https://youtube.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&chart=mostPopular&maxResults=20000&regionCode=IN&videoCategoryId=${categoryId}&key=AIzaSyCKmg2SDXFvi-aks71ATTCYnnCgk2eQsCU`,
       )
       setYtApiVideos(response.data.items)
     } catch (error) {
@@ -96,7 +135,7 @@ const RightSide = () => {
   const fetchTagList = async () => {
     try {
       const response = await axios.get(
-        `https://youtube.googleapis.com/youtube/v3/videoCategories?part=snippet&regionCode=IN&key=AIzaSyDlhskfkjE7kLtNtHFCWJf2mpaTOV6Wbno`,
+        `https://youtube.googleapis.com/youtube/v3/videoCategories?part=snippet&regionCode=IN&key=AIzaSyCKmg2SDXFvi-aks71ATTCYnnCgk2eQsCU`,
       )
       setTagList(response.data.items)
     } catch (error) {
@@ -107,7 +146,7 @@ const RightSide = () => {
   const getYTchannelInfo = async (channelId) => {
     try {
       const response = await axios.get(
-        `https://youtube.googleapis.com/youtube/v3/channels?part=snippet%2CcontentDetails%2Cstatistics&id=${channelId}&key=AIzaSyDlhskfkjE7kLtNtHFCWJf2mpaTOV6Wbno`,
+        `https://youtube.googleapis.com/youtube/v3/channels?part=snippet%2CcontentDetails%2Cstatistics&id=${channelId}&key=AIzaSyCKmg2SDXFvi-aks71ATTCYnnCgk2eQsCU`,
       )
       return response?.data?.items[0]?.snippet?.thumbnails?.high?.url
     } catch (error) {
@@ -172,7 +211,9 @@ const RightSide = () => {
       const response = await api.post("/ai/get-result", { prompt: mood })
       const result = response.data
       localStorage.setItem("mood", mood)
-      console.log(result)
+      localStorage.setItem("moodTimestamp", new Date().getTime().toString())
+      console.log(result);
+      setAllVideos([]);
       const resultArray = result
       setYtApiVideos(resultArray)
       setLoading(false);
@@ -184,7 +225,7 @@ const RightSide = () => {
   const logMood = (mood) => {
     setLoading(true)
     setYtApiVideos([])
-    setAllVideos([])
+    setAllVideos([]);
     setactivetag("AI")
     setIsOpen(false)
     console.log(mood)
@@ -201,7 +242,18 @@ const RightSide = () => {
     >
         
        
-          <div className=" mt-16  tags min-h-[32px] max-h-[32px] flex-row  flex overflow-x-scroll ml-4  md:ml-  6 lg:ml-6 whitespace-nowrap gap-2.5">
+          <div className=" mt-12 md:mt-16  tags min-h-[32px] max-h-[32px] flex-row  flex overflow-x-scroll ml-4  md:ml-  6 lg:ml-6 whitespace-nowrap gap-2.5">
+          <button
+              className={`${
+              "text-white bg-[#272727] hover:bg-[#3F3F3F]"
+              } cursor-pointer text-center  block md:hidden px-3 py-1.5 text-sm font-medium rounded-lg transition-colors duration-300`}
+              onClick={() => {
+                handleToggle();
+      
+              }}
+            >
+              <img className="block invert min-w-[24px] h-[20px]" src="/images/sidebarmobile.svg" alt="" />
+            </button>
             <button
               className={`${
                 "AI" === activetag
@@ -231,6 +283,10 @@ const RightSide = () => {
               onClick={() => {
                 setactivetag("All")
                 setCategoryId(0);
+                fetchAllVideos();
+                fetchCategoryVideos(0);
+                localStorage.removeItem("mood");
+                localStorage.removeItem("moodTimestamp");
               }}
             >
               All
@@ -246,6 +302,8 @@ const RightSide = () => {
                   setCategoryId(tag.id)
                   setAllVideos([])
                   handleVideoClick();
+                  localStorage.removeItem("mood");
+                  localStorage.removeItem("moodTimestamp");
                 }}
               >
                 {tag.snippet.title}
@@ -271,7 +329,7 @@ const RightSide = () => {
               <LoadingGrid />
             </div>
           ) : (
-            <div className="flex  md:ml-0 lg:ml-3  flex-col w-full md:flex-row md:flex-wrap gap-x-4 gap-y-8 md:p-4 mt-4">
+            <div className="flex  md:ml-0 lg:ml-3  flex-col w-full gap-y-4 md:flex-row md:flex-wrap gap-x-4 md:gap-y-8 md:p-4 mt-4">
               {allVideos.map((data) => (  
                 <Link
                   to={`/watch/${data._id}`}
@@ -396,13 +454,13 @@ const RightSide = () => {
                     </Link>
                   ))
                 : 
-                Object.entries(ytApiVideos).map(([category,videos]) => (
+                Object.entries(ytApiVideos.recommendations).map(([genre, details]) => (
                   <section className="w-full bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-700">
-      <h2 className="text-xl font-semibold text-gray-100 mb-4">{category}</h2>
+      <h2 className="text-xl font-semibold text-gray-100 mb-4">{genre}</h2>
       <div className="overflow-x-auto">
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-8 justify-between  pb-4 ">
+        <div className="flex items-stretch flex-wrap  gap-x-2 gap-y-8 justify-between  pb-4 ">
         {/* <h1 className="text-white ml-2">{category}</h1> */}
-                  {videos.length>0 && videos.map((data)=>(
+                  {details.videos.length>0 && details.videos.map((data)=>(
                     <Link to={`/watch/${data.id.videoId}`} onClick={handleVideoClick} key={data.id} className="no-underline md:w-[48%] lg:w-[32%]  w-full transition-transform duration-300 hover:scale-105">
                     <div className="">
                       <img loading="lazy" 
