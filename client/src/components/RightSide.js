@@ -204,6 +204,7 @@ const RightSide = () => {
   const closeModal = () => {
     setIsOpen(false)
     setactivetag("All")
+    fetchCategoryVideos(0);
   }
 
   const fetchMoodResult = async (mood) => {

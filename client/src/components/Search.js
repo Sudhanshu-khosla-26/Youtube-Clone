@@ -17,7 +17,7 @@ const Search = () => {
   console.log(query);
 
   useEffect(() => {
-    axios.get(`https://youtube.googleapis.com/youtube/v3/search?part=snippet&maxResults=25&q=${query}&key=AIzaSyDlhskfkjE7kLtNtHFCWJf2mpaTOV6Wbno`)
+    axios.get(`https://youtube.googleapis.com/youtube/v3/search?part=snippet&maxResults=25&q=${query}&key=AIzaSyCKmg2SDXFvi-aks71ATTCYnnCgk2eQsCU`)
       .then((response) => {
         setSEARCHVIDEOs(response.data.items);
         console.log(response.data.items);

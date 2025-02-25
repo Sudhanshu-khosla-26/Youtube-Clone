@@ -121,7 +121,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
 
 //   if (!isValidObjectId(videoId)) {
 //     // throw new ApiError(400, "Invalid Video ID");
-//     const ytvideo = await fetch(`https://youtube.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&id=${videoId}&key=AIzaSyAV74Shpyw_Aov7ux6po4GJ1Ti_Z8oLhS8`)
+//     const ytvideo = await fetch(`https://youtube.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&id=${videoId}&key=AIzaSyCKmg2SDXFvi-aks71ATTCYnnCgk2eQsCU`)
 //     console.log(ytvideo, "ytvideo");
 //     if (!ytvideo) {
 //       throw new ApiError(404, "Video not found");
@@ -254,7 +254,7 @@ const getVideoById = asyncHandler(async (req, res) => {
 
   if ((videoId.length) < 12) {
     // Fetch video from YouTube
-    const ytvideo = await fetch(`https://youtube.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&id=${videoId}&key=AIzaSyDpicnbroQi7p8Sp0zbeQv91n-elyXVeD8`);
+    const ytvideo = await fetch(`https://youtube.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&id=${videoId}&key=AIzaSyCKmg2SDXFvi-aks71ATTCYnnCgk2eQsCU`);
     const ytvideoData = await ytvideo.json();
     console.log(ytvideoData, "ytvideo");
     if (!ytvideoData.items || ytvideoData.items.length === 0) {

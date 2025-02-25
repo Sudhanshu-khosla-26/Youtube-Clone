@@ -269,7 +269,7 @@ const VideoPlay = (props) => {
         console.error('Error fetching comments:', error);
       });
 
-    axios.get(`https://youtube.googleapis.com/youtube/v3/commentThreads?part=snippet%2Creplies&videoId=${VideoId}&key=AIzaSyDlhskfkjE7kLtNtHFCWJf2mpaTOV6Wbno`)
+    axios.get(`https://youtube.googleapis.com/youtube/v3/commentThreads?part=snippet%2Creplies&videoId=${VideoId}&key=AIzaSyCKmg2SDXFvi-aks71ATTCYnnCgk2eQsCU`)
       .then((response) => {
         if (response.data.items) {
           console.log(response.data.items);
@@ -301,7 +301,7 @@ const VideoPlay = (props) => {
 
     if (VideoDetail.id) {
       let catergoryid = VideoDetail?.snippet?.categoryId;
-      axios.get(`https://youtube.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&chart=mostPopular&maxResults=20000&regionCode=IN&videoCategoryId=${catergoryid}&key=AIzaSyDlhskfkjE7kLtNtHFCWJf2mpaTOV6Wbno`)
+      axios.get(`https://youtube.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&chart=mostPopular&maxResults=20000&regionCode=IN&videoCategoryId=${catergoryid}&key=AIzaSyCKmg2SDXFvi-aks71ATTCYnnCgk2eQsCU`)
         .then((videos) => {
           const filteredVideos = videos.data.items.filter(video => video.id !== VideoDetail.id);
           setYTAPIVIDEOS(filteredVideos);
@@ -313,7 +313,7 @@ const VideoPlay = (props) => {
     }
     else {
       let catergoryid = 0;
-      axios.get(`https://youtube.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&chart=mostPopular&maxResults=20000&regionCode=IN&videoCategoryId=${catergoryid}&key=AIzaSyDlhskfkjE7kLtNtHFCWJf2mpaTOV6Wbno`)
+      axios.get(`https://youtube.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&chart=mostPopular&maxResults=20000&regionCode=IN&videoCategoryId=${catergoryid}&key=AIzaSyCKmg2SDXFvi-aks71ATTCYnnCgk2eQsCU`)
         .then((videos) => {
           setYTAPIVIDEOS(videos.data.items)
           // console.log(videos.data.items);
@@ -329,7 +329,7 @@ const VideoPlay = (props) => {
 
   const getYTchannelInfo = async (channelId) => {
     try {
-      const response = await axios.get(`https://youtube.googleapis.com/youtube/v3/channels?part=snippet%2CcontentDetails%2Cstatistics&id=${channelId}&key=AIzaSyDlhskfkjE7kLtNtHFCWJf2mpaTOV6Wbno`);
+      const response = await axios.get(`https://youtube.googleapis.com/youtube/v3/channels?part=snippet%2CcontentDetails%2Cstatistics&id=${channelId}&key=AIzaSyCKmg2SDXFvi-aks71ATTCYnnCgk2eQsCU`);
       const url = response?.data?.items[0]?.snippet?.thumbnails?.high?.url;
       const subscribers = response?.data?.items[0]?.statistics?.subscriberCount;
       console.log(url);
