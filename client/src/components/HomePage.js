@@ -1,91 +1,64 @@
-import styled from "styled-components";
 import React from 'react'
 import RightSide from './RightSide'
-import LeftSide from "./LeftSide";
-// import MoodBox from "./MoodBox";
-import Playlist from "./PlaylistSTRC";
-import { useParams } from "react-router-dom";
-import Search from "./Search";
-// import SplashCursor from './SplashCursor'
-
-import { useSelector } from "react-redux";
-
-
+import LeftSide from "./LeftSide"
+import Playlist from "./PlaylistSTRC"
+import { useParams } from "react-router-dom"
+import Search from "./Search"
+import { setBoolean } from '../features/Sidebar'
+import { useDispatch, useSelector } from "react-redux"
 
 const HomePage = (props) => {
   const { query } = useParams();
   const { listquery } = useParams();
   console.log(listquery); 
+  const dispatch = useDispatch();
   console.log("render hompage");
   const Minimize = useSelector((state) => state.MinimizeState);
 
+  const handleToggle = () => {
+    dispatch(setBoolean(false));
+  };
+
   return (
     <>
-      <Container>
-        <div className="sidebar" Minimize={Minimize}>
-          <LeftSide className="" />
+      {/* Converting the Container styled component to a div with Tailwind classes */}
+      <div className="flex gap-3.5 h-auto">
+        {/* Converting the .sidebar styled class to Tailwind */}
+        <div 
+          className={`
+            sidebar
+            ${Minimize ? 'left-0' : '-left-[100vw]'}
+            md:block
+            md:relative
+            md:left-0
+            max-md:min-w-[100vw]
+            max-md:h-screen
+            max-md:bg-black/60
+            max-md:z-[99999]
+            max-md:fixed
+            max-md:top-0
+            max-md:transition-all
+            max-md:duration-250
+            max-md:ease-[cubic-bezier(0.25,0.46,0.45,0.94)]
+          `}
+          onClick={handleToggle}
+        >
+          <LeftSide />
         </div>
           
-        <div className="rightside">
-          {/* <ParticlesBackground /> */}
-          {query ?
+        {/* Converting the .rightside styled class to Tailwind */}
+        <div className="rightside max-md:w-[100vw] max-md:h-screen">
+          {query ? (
             <Search />
-            :
-            listquery ?
-              <Playlist />
-              :
-              <RightSide />
-          }
+          ) : listquery ? (
+            <Playlist />
+          ) : (
+            <RightSide />
+          )}
         </div>
-      </Container>
-
-      {/* <ParticlesBackground /> */}
-
-      {/* <MoodBox /> */}
+      </div>
     </>
   )
 }
-
-// const ParticlesBackground = styled(Particles)`
-//   position: fixed;
-//   top: 0;
-//   left: 0;
-//   right: 0;
-//   bottom: 0;
-//   z-index: -1;
-// `
-
-const Container = styled.div`
-  display: flex;
-  gap: 14px;
-  height: unset;
-
-  @media only screen and (max-width: 768px){
-    .sidebar{
-            z-index: 9999;
-            position: fixed;
-            top: 0px !important;
-            left: -300px !important;
-            transition: all 250ms cubic-bezier(0.25, 0.46, 0.45, 0.94) 0s;   
-
-          ${props => props.Minimize && `
-            top: 0px;
-            left: 0px !important;
-    `}
-    }
-
-    .rightside{
-      width: 100vw;
-      height: 100vh;
-    }
-    }
-
-   @media (min-width: 768px) and (max-width: 1024px){
-    .sidebar{
-      // display: none; 
-    } 
-    }
-`;
-
 
 export default HomePage
