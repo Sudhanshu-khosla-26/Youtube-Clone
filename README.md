@@ -7,7 +7,7 @@ The backend includes authentication, video workflows, playlists, comments, likes
 
 > Add your deployed homepage screenshot here.
 
-![Website Homepage Preview](./assets/Youtube_page-0001.jpg)
+![Website Homepage Preview](./Youtube_page-0001.jpg)
 
 ## Backend Status
 
